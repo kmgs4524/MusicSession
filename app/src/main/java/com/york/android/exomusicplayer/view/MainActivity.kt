@@ -5,12 +5,11 @@ import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.os.*
 import android.support.v7.app.AppCompatActivity
-import android.os.Bundle
-import android.os.Environment
-import android.os.IBinder
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 
 import com.york.android.exomusicplayer.service.PlayService
@@ -27,10 +26,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initRecycleView()
     }
 
-    fun initRecycleView() {
+    fun initRecycleView(handler: Handler) {
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
         val songs = ArrayList<Song>()
 
@@ -48,9 +46,30 @@ class MainActivity : AppCompatActivity() {
         songs.add(Song("總有一天", "吳汶芳", R.drawable.album_cover, "/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳-總有一天.mp3"))
 
         recyclerView_album.layoutManager = LinearLayoutManager(this)
-        recyclerView_album.adapter = SongAdapter(songs, this, null)
+        recyclerView_album.adapter = SongAdapter(songs, this, null, handler)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val handler = object: Handler() {
+            override fun handleMessage(msg: Message?) {
+                val data = msg?.data
+//                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
+                Log.d("handler", "data: ${data}")
+                if(data != null) {
+                    Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
+                    progressbar_album.progress = data?.getInt("CURRENT_POSITION")
+                    progressbar_album.max = data?.getInt("DURATION")
+                }
+            }
+        }
+
+        initRecycleView(handler)
+    }
+
+    fun setMediaDuration(duration: Int) {
+        progressbar_album.max = duration
+    }
 
 //    fun setService() {
 //        val intent = Intent()
@@ -78,19 +97,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-    }
-
-//    inner class MusicServiceConnection: ServiceConnection {
-//        override fun onServiceDisconnected(p0: ComponentName?) {
+//    class UiHandler : Handler() {
 //
+//        override fun sendMessageAtTime(msg: Message?, uptimeMillis: Long): Boolean {
+////            return super.sendMessageAtTime(msg, uptimeMillis)
+//            val bundle = Bundle()
+//            val message = Message()
+//            message.data =
+//            bundle.putInt("CURRENT_POSITION", )
 //        }
 //
-//        override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-//            val service = (binder as PlayService.LocalBinder).getService()
-//            playerView_main.player = service.player
+//        override fun handleMessage(msg: Message?) {
+//            val data = msg?.data
+//            data?.get("CURRENT_POSITION")
+//            data?.get("DURATION")
+//
+//            msg?.data =
 //        }
 //    }
 

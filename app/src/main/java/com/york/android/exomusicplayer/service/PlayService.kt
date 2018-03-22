@@ -3,11 +3,9 @@ package com.york.android.exomusicplayer.service
 import android.app.Notification
 import android.app.Service
 import android.content.Intent
-import android.os.IBinder
 import android.app.PendingIntent
 import android.net.Uri
-import android.os.Binder
-import android.os.Build
+import android.os.*
 import android.support.annotation.RequiresApi
 import android.util.Log
 import com.google.android.exoplayer2.*
@@ -25,11 +23,6 @@ import com.york.android.exomusicplayer.view.MainActivity
 
 
 class PlayService : Service() {
-
-//    constructor(player: ExoPlayer): this() {
-//        this.player = player
-//    }
-
     val ONGOING_NOTIFICATION_ID = 1
 
     val filePath = Uri.parse("/storage/emulated/0/Music/像天堂的懸崖.mp3")
@@ -39,6 +32,12 @@ class PlayService : Service() {
     val trackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
     var player: ExoPlayer? = null
 
+    var uiHandler: Handler = Handler()
+    var durationSeconds: Int = 0
+    var currentPositionSeconds: Int = 0
+
+    var handlerThread = HandlerThread("HandlerThread")
+
     override fun onBind(intent: Intent): IBinder? {
         Log.d("PlayService", "onBind: ")
         return LocalBinder()
@@ -46,8 +45,6 @@ class PlayService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
-//        initExoPlayer()
-
         val notificationIntent = Intent(applicationContext, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
         val notification = Notification.Builder(applicationContext)
@@ -76,29 +73,44 @@ class PlayService : Service() {
     }
 
     fun initExoPlayer(song: Song) {
-        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
         // Produces DataSource instances through which media data is loaded.
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
-        // This is the MediaSource representing the media to be played.
-//        val uri = Uri.parse(song.filePath)
         val uri = Uri.parse("${song.filePath}")
-        val videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
+
+        var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(uri)
-        Log.d("init", "song path: ${song.filePath}")
-        Log.d("init", "videoSource: ${videoSource}")
-        // Prepare the player with the source.
-        player?.prepare(videoSource)
+        if (player == null) {
+            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
+            setPlayerListener()
+            // This is the MediaSource representing the media to be played.
 
-        player?.playWhenReady = true
+//            var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
+//                    .createMediaSource(uri)
+            Log.d("PlayService", "videoSource: ${videoSource}")
+            // Prepare the player with the source.
+//            player?.stop()
 
-        play()
+
+            player?.prepare(videoSource)
+            player?.playWhenReady = true
+            Log.d("PlayService", "player: ${player}")
+        } else {
+            videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(uri)
+            Log.d("PlayService", "videoSource: ${videoSource}")
+            // Prepare the player with the source.
+            player?.stop()
+            player?.prepare(videoSource)
+
+            player?.playWhenReady = true
+        }
     }
 
-    fun play() {
+    fun setPlayerListener() {
         player?.addListener(object : Player.EventListener {
             override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters?) {
-
+//                Log.d("PlayService", "onPlaybackParametersChanged playbackParameters: ${playbackParameters}")
             }
 
             override fun onSeekProcessed() {
@@ -106,7 +118,7 @@ class PlayService : Service() {
             }
 
             override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-
+//                Log.d("PlayService", "onTracksChanged trackGroups: ${trackGroups?.get(0)?.length}, trackSelections: ${trackSelections?.get(0)}")
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
@@ -130,22 +142,78 @@ class PlayService : Service() {
             }
 
             override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-
+                Log.d("onTimelineChanged", "timeline: ${timeline}")
             }
 
+            @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                Log.d("onPlayerStateChanged", "playbackState: ${playbackState}")
-                Thread(Runnable {
-                    while(player?.playbackState == Player.STATE_READY) {
-                        var positionSeconds = player!!.currentPosition / 1000
-                        Log.d("onPlayerStateChanged", "positionSeconds: ${positionSeconds}")
-//                        runOnUiThread {
-//                            exo_position.setText("${positionSeconds}")
-//                        }
-                    }
-                })
-            }
+                val bundle = Bundle()
 
+                // put duration
+                bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
+//                Log.d("onPlayerStateChanged", "playbackState: ${playbackState}")
+
+                if(handlerThread.state == Thread.State.NEW) {
+                    handlerThread.start()
+                } else if (handlerThread.state == Thread.State.RUNNABLE) {
+                    Log.d("onPlayerStateChanged", "thread state: ${handlerThread.state}")
+                    handlerThread.interrupt()
+                    currentPositionSeconds = 0
+                }
+                
+                val runnable = Runnable {
+                    Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
+
+                    while (playbackState == Player.STATE_READY) {
+                        try {
+
+                            if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
+                                currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
+                                Log.d("onPlayerStateChanged", "currentPositionSeconds: ${currentPositionSeconds}")
+
+                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
+
+                                val message = uiHandler.obtainMessage()
+                                message.data = bundle
+
+                                val placedSuccess = uiHandler.sendMessageAtTime(message, 100)
+                            }
+                        } catch (e: IndexOutOfBoundsException) {
+                            e.printStackTrace()
+                        }
+                    }
+                }
+
+                val handler = Handler(handlerThread.looper)
+
+
+                handler.post(runnable)
+
+
+//                    Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
+//                    currentPositionSeconds = 0
+//
+//                    while (playbackState == Player.STATE_READY) {
+//                        try {
+//                            if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
+//                                currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
+//                                Log.d("onPlayerStateChanged", "currentPositionSeconds: ${currentPositionSeconds}")
+//
+//                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
+//
+//                                val message = uiHandler.obtainMessage()
+//                                message.data = bundle
+//
+//                                val placedSuccess = uiHandler.sendMessageAtTime(message, 500)
+//                            }
+//                        } catch (e: IndexOutOfBoundsException) {
+//                            e.printStackTrace()
+//                        }
+////                        bundle.putInt("CURRENT_POSITION", player?.currentPosition.toI)
+//
+//                    }
+
+            }
         })
     }
 
@@ -154,7 +222,7 @@ class PlayService : Service() {
         (player as SimpleExoPlayer).release()
     }
 
-    inner class LocalBinder: Binder() {
+    inner class LocalBinder : Binder() {
         fun getService(): PlayService {
             return this@PlayService
         }

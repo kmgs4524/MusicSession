@@ -5,6 +5,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Handler
 import android.os.IBinder
 import android.support.v7.widget.RecyclerView
 import android.util.Log
@@ -20,12 +21,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 /**
  * Created by York on 2018/3/20.
  */
-class SongAdapter(val songs: List<Song>, val context: Context, var service: Service?): RecyclerView.Adapter<SongAdapter.SongItemHolder>() {
+class SongAdapter(val songs: List<Song>, val context: Context, var service: Service?, val handler: Handler): RecyclerView.Adapter<SongAdapter.SongItemHolder>() {
 
     override fun onBindViewHolder(holder: SongItemHolder?, position: Int) {
         holder?.bind(songs[position])
         holder?.itemView?.setOnClickListener {
             Log.d("bind", "position: ${position}")
+            (context as MainActivity).verifyStoragePermission()
             setService(songs[position])
 //            (service as PlayService).initExoPlayer(songs[position])
         }
@@ -51,6 +53,8 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         context.bindService(intent, MusicServiceConnection(song), 0)
     }
 
+
+
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(song: Song) {
             val textViewName = itemView.findViewById<TextView>(R.id.textView_songItem_name)
@@ -73,6 +77,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
             (context as MainActivity).playerView_main.player = (service as PlayService).player
             Log.d("onServiceConnected", "player: ${context.playerView_main.player}")
 
+            (service as PlayService).uiHandler = handler
         }
     }
 }
