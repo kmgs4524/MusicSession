@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import com.york.android.exomusicplayer.service.PlayService
 import com.york.android.exomusicplayer.R
 import com.york.android.exomusicplayer.model.Song
+import kotlinx.android.synthetic.main.controlview.*
 
 class MainActivity : AppCompatActivity() {
     val filePath = "/storage/emulated/0/Music/吳汶芳 - 我來自"
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // UI Handler
         val handler = object: Handler() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
@@ -60,28 +62,15 @@ class MainActivity : AppCompatActivity() {
                     Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
                     progressbar_album.progress = data?.getInt("CURRENT_POSITION")
                     progressbar_album.max = data?.getInt("DURATION")
+
+                    textView_controlview_artist.setText(data?.getString("ARTIST"))
+                    textView_controlview_songname.setText(data?.getString("SONG_NAME"))
                 }
             }
         }
 
         initRecycleView(handler)
     }
-
-    fun setMediaDuration(duration: Int) {
-        progressbar_album.max = duration
-    }
-
-//    fun setService() {
-//        val intent = Intent()
-//
-//        // get permission for reading file
-//        verifyStoragePermission()
-//
-//        // start and bind service
-//        intent.setClass(this, PlayService::class.java)
-//        startService(intent)
-//        bindService(intent, MusicServiceConnection(), 0)
-//    }
 
     fun verifyStoragePermission() {
         // Check if we have write permission
@@ -96,24 +85,5 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
-
-//    class UiHandler : Handler() {
-//
-//        override fun sendMessageAtTime(msg: Message?, uptimeMillis: Long): Boolean {
-////            return super.sendMessageAtTime(msg, uptimeMillis)
-//            val bundle = Bundle()
-//            val message = Message()
-//            message.data =
-//            bundle.putInt("CURRENT_POSITION", )
-//        }
-//
-//        override fun handleMessage(msg: Message?) {
-//            val data = msg?.data
-//            data?.get("CURRENT_POSITION")
-//            data?.get("DURATION")
-//
-//            msg?.data =
-//        }
-//    }
 
 }

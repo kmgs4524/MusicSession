@@ -9,8 +9,7 @@ import android.os.*
 import android.support.annotation.RequiresApi
 import android.util.Log
 import com.google.android.exoplayer2.*
-import com.google.android.exoplayer2.source.ExtractorMediaSource
-import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.source.*
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
@@ -32,7 +31,10 @@ class PlayService : Service() {
     val trackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
     var player: ExoPlayer? = null
 
+    val dynamicConcatenatingMediaSource = DynamicConcatenatingMediaSource()
+
     var uiHandler: Handler = Handler()
+    val bundle = Bundle()
     var durationSeconds: Int = 0
     var currentPositionSeconds: Int = 0
 
@@ -72,32 +74,40 @@ class PlayService : Service() {
         return true
     }
 
-    fun initExoPlayer(song: Song) {
-        // Produces DataSource instances through which media data is loaded.
+    fun createConcatenatingMediaSource(songs: List<Song>) {
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
-        val uri = Uri.parse("${song.filePath}")
 
-        var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(uri)
+        songs.forEach {
+            var videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(it.filePath))
+            dynamicConcatenatingMediaSource.addMediaSource(videoSource)
+            Log.d("concatenating", "song name: ${it.name}")
+        }
+        for (i in 0 until dynamicConcatenatingMediaSource.size) {
+            Log.d("concatenating", "concatenating source index: ${dynamicConcatenatingMediaSource.getMediaSource(i)}")
+        }
+
+    }
+
+    fun playMediaSource(song: Song) {
+        // Produces DataSource instances through which media data is loaded.
+//        val dataSourceFactory = DefaultDataSourceFactory(this,
+//                Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
+//        val uri = Uri.parse("${song.filePath}")
+
+
+        bundle.putString("ARTIST", song.artist)
+        bundle.putString("SONG_NAME", song.name)
+
         if (player == null) {
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
             setPlayerListener()
-            // This is the MediaSource representing the media to be played.
 
-//            var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
-//                    .createMediaSource(uri)
-            Log.d("PlayService", "videoSource: ${videoSource}")
             // Prepare the player with the source.
-//            player?.stop()
-
-
-            player?.prepare(videoSource)
+            player?.prepare(dynamicConcatenatingMediaSource)
             player?.playWhenReady = true
             Log.d("PlayService", "player: ${player}")
         } else {
-            videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
-                    .createMediaSource(uri)
             Log.d("PlayService", "videoSource: ${videoSource}")
             // Prepare the player with the source.
             player?.stop()
@@ -147,7 +157,7 @@ class PlayService : Service() {
 
             @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                val bundle = Bundle()
+
 
                 // put duration
                 bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
@@ -157,10 +167,10 @@ class PlayService : Service() {
                     handlerThread.start()
                 } else if (handlerThread.state == Thread.State.RUNNABLE) {
                     Log.d("onPlayerStateChanged", "thread state: ${handlerThread.state}")
-                    handlerThread.interrupt()
                     currentPositionSeconds = 0
                 }
-                
+
+                // currentPositionSeconds that put in Runnable would not work, I still don't know why.
                 val runnable = Runnable {
                     Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
 
@@ -186,9 +196,7 @@ class PlayService : Service() {
 
                 val handler = Handler(handlerThread.looper)
 
-
                 handler.post(runnable)
-
 
 //                    Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
 //                    currentPositionSeconds = 0

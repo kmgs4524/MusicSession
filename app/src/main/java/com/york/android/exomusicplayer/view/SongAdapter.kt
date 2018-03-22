@@ -29,7 +29,6 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
             Log.d("bind", "position: ${position}")
             (context as MainActivity).verifyStoragePermission()
             setService(songs[position])
-//            (service as PlayService).initExoPlayer(songs[position])
         }
     }
 
@@ -54,7 +53,6 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
     }
 
 
-
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(song: Song) {
             val textViewName = itemView.findViewById<TextView>(R.id.textView_songItem_name)
@@ -73,7 +71,8 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
-            (service as PlayService).initExoPlayer(song)
+            (service as PlayService).createConcatenatingMediaSource(songs)
+            (service as PlayService).playMediaSource(song)
             (context as MainActivity).playerView_main.player = (service as PlayService).player
             Log.d("onServiceConnected", "player: ${context.playerView_main.player}")
 
