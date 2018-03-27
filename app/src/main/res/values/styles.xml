@@ -9,4 +9,8 @@
 
     </style>
 
+    <style name="ToolbarWhiteStyle">
+        <item name="android:background">@color/md_white_1000</item>
+        <item name="titleTextColor">@color/md_grey_600</item>
+    </style>
 </resources>

@@ -76,29 +76,12 @@ class DiscoverFragment : Fragment() {
 
     fun setupViewPager() {
         val fragments = ArrayList<Fragment>()
-        val listener = object : ViewPager.OnPageChangeListener {
-            override fun onPageScrollStateChanged(state: Int) {
-
-            }
-
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
-            }
-
-            override fun onPageSelected(position: Int) {
-
-
-            }
-
-        }
 
         fragments.add(SpecialFragment.newInstance("", ""))
         fragments.add(ChartsFragment.newInstance("", ""))
-        fragments.add(NewPublicFragment.newInstance("", ""))
         fragments.add(StyleFragment.newInstance("", ""))
 
         viewPager_discover.adapter = FragmentAdapter(fragments, childFragmentManager)
-        viewPager_discover.addOnPageChangeListener(listener)
     }
 
     // TODO: Rename method, update argument and hook method into UI event

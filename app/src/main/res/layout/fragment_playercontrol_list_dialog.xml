@@ -7,7 +7,7 @@
     android:clipToPadding="false"
     android:paddingBottom="@dimen/list_item_spacing_half"
     android:paddingTop="@dimen/list_item_spacing_half"
-    tools:context="com.york.android.exomusicplayer.view.PlayerControlDialogFragment"
+    tools:context="com.york.android.exomusicplayer.view.playercontrol.PlayerControlDialogFragment"
     android:background="@color/md_grey_800" >
 
     <ImageView

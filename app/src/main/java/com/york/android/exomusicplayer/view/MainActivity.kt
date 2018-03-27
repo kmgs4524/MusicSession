@@ -1,27 +1,21 @@
 package com.york.android.exomusicplayer.view
 
-import android.app.Activity
-import android.app.ActivityOptions
-import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.annotation.RequiresApi
-import android.support.design.widget.BottomSheetBehavior
-import android.support.design.widget.CoordinatorLayout
-import android.support.transition.Explode
-import android.support.transition.Transition
-import android.support.transition.TransitionInflater
 import android.support.v4.app.FragmentTransaction
-import android.util.Log
+import android.support.v4.view.GravityCompat
 import android.view.*
 import com.york.android.exomusicplayer.R
+import com.york.android.exomusicplayer.view.mymusic.MyMusicFragment
+import com.york.android.exomusicplayer.view.playercontrol.PlayerControlDialogFragment
+import com.york.android.exomusicplayer.view.playercontrol.PlayerControlFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_player_control.*
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, DiscoverFragment.OnFragmentInteractionListener,
-        SpecialFragment.OnFragmentInteractionListener, ChartsFragment.OnFragmentInteractionListener, NewPublicFragment.OnFragmentInteractionListener,
+        SpecialFragment.OnFragmentInteractionListener, ChartsFragment.OnFragmentInteractionListener,
         StyleFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener {
 
@@ -46,6 +40,16 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         transition.commit()
 
         setDrawerListener()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.home -> {
+                drawerLayout_main.openDrawer(GravityCompat.START)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun setDrawerListener() {

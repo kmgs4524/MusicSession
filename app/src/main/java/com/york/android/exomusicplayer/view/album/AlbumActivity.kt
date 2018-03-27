@@ -1,7 +1,6 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.exomusicplayer.view.album
 
 import android.Manifest
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.*
 import android.support.annotation.RequiresApi
@@ -9,7 +8,6 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v4.app.ActivityCompat
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
-import android.view.Window
 import kotlinx.android.synthetic.main.activity_album.*
 
 import com.york.android.exomusicplayer.R
@@ -22,7 +20,7 @@ class AlbumActivity : AppCompatActivity() {
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    var songAdapter:SongAdapter? = null
+    var songAdapter: SongAdapter? = null
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {

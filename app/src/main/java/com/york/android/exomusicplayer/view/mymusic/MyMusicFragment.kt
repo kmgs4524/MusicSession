@@ -1,14 +1,22 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.exomusicplayer.view.mymusic
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.view.GravityCompat
+import android.support.v4.widget.DrawerLayout
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.exomusicplayer.R
+import com.york.android.exomusicplayer.model.LibraryItem
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_my_music.*
 
 /**
  * A simple [Fragment] subclass.
@@ -45,6 +53,46 @@ class MyMusicFragment : Fragment() {
         if (mListener != null) {
             mListener!!.onFragmentInteraction(uri)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initToolbarTitle()
+        initRecyclerView()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.home -> {
+                drawerLayout_main.openDrawer(GravityCompat.START)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun initToolbarTitle() {
+        val appCompatActivity = activity as AppCompatActivity
+        appCompatActivity.setSupportActionBar(toolbar_mymusic)
+        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
+    }
+
+    fun initRecyclerView() {
+        val items = ArrayList<LibraryItem>()
+
+        items.add(LibraryItem("全部歌曲", 0, 0, true))
+        items.add(LibraryItem("可離線播放歌曲", 0, 0, true))
+        items.add(LibraryItem("播放紀錄", 0, 0, true))
+        items.add(LibraryItem("我的收藏", 0, 0, false))
+        items.add(LibraryItem("收藏歌曲", 0, 0, true))
+        items.add(LibraryItem("收藏專輯", 0, 0, true))
+        items.add(LibraryItem("收藏歌單", 0, 0, true))
+        items.add(LibraryItem("我的歌單", 0, 0, false))
+        items.add(LibraryItem("已分享歌單", 0, 0, true))
+
+        recyclerView_myMusic.layoutManager = LinearLayoutManager(context)
+        recyclerView_myMusic.adapter = LibraryItemAdapter(items, activity)
     }
 
     override fun onAttach(context: Context?) {
