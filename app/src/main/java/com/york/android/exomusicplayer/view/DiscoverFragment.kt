@@ -3,18 +3,16 @@ package com.york.android.exomusicplayer.view
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.exomusicplayer.R
+import com.york.android.exomusicplayer.view.rank.RankFragment
 import kotlinx.android.synthetic.main.fragment_discover.*
 
 /**
@@ -78,7 +76,7 @@ class DiscoverFragment : Fragment() {
         val fragments = ArrayList<Fragment>()
 
         fragments.add(SpecialFragment.newInstance("", ""))
-        fragments.add(ChartsFragment.newInstance("", ""))
+        fragments.add(RankFragment.newInstance("", ""))
         fragments.add(StyleFragment.newInstance("", ""))
 
         viewPager_discover.adapter = FragmentAdapter(fragments, childFragmentManager)

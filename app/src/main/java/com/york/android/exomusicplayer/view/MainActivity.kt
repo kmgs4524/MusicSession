@@ -12,10 +12,11 @@ import com.york.android.exomusicplayer.R
 import com.york.android.exomusicplayer.view.mymusic.MyMusicFragment
 import com.york.android.exomusicplayer.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.exomusicplayer.view.playercontrol.PlayerControlFragment
+import com.york.android.exomusicplayer.view.rank.RankFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, DiscoverFragment.OnFragmentInteractionListener,
-        SpecialFragment.OnFragmentInteractionListener, ChartsFragment.OnFragmentInteractionListener,
+        SpecialFragment.OnFragmentInteractionListener, RankFragment.OnFragmentInteractionListener,
         StyleFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener {
 

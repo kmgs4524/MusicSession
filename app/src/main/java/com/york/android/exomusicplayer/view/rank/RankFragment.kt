@@ -1,24 +1,27 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.exomusicplayer.view.rank
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.exomusicplayer.R
+import com.york.android.exomusicplayer.model.Rank
+import kotlinx.android.synthetic.main.fragment_rank.*
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [ChartsFragment.OnFragmentInteractionListener] interface
+ * [RankFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [ChartsFragment.newInstance] factory method to
+ * Use the [RankFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class ChartsFragment : Fragment() {
+class RankFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -37,7 +40,30 @@ class ChartsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_charts, container, false)
+        return inflater!!.inflate(R.layout.fragment_rank, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initRecyclerView()
+    }
+
+    fun initRecyclerView() {
+        val items = ArrayList<Rank>()
+        val songRanking = ArrayList<String>()
+
+        songRanking.add("慢慢喜歡你")
+        songRanking.add("我的事不關你的事")
+        songRanking.add("Dancer - Flo Rida(佛羅里達)")
+
+        items.add(Rank("綜合新歌排行榜", "每小時更新", songRanking))
+        items.add(Rank("華語新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("西洋新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("韓語新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("日語新歌排行榜", "2018-03-27", songRanking))
+
+        recyclerView_rank.layoutManager = LinearLayoutManager(activity)
+        recyclerView_rank.adapter = RankAdapter(items, activity)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -87,11 +113,11 @@ class ChartsFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment ChartsFragment.
+         * @return A new instance of fragment RankFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): ChartsFragment {
-            val fragment = ChartsFragment()
+        fun newInstance(param1: String, param2: String): RankFragment {
+            val fragment = RankFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)
