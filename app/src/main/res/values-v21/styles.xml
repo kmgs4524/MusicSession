@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- enable window content transitions -->
+        <item name="android:windowContentTransitions">true</item>
+
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- specify enter and exit transitions -->
+        <!--<item name="android:windowEnterTransition">@transition/change_image_transform</item>-->
+        <!--<item name="android:windowExitTransition">@transition/change_image_transform</item>-->
+
+        <!--specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">@transition/change_image_transform</item>
+        <item name="android:windowSharedElementExitTransition">@transition/change_image_transform</item>
+
+        <!-- BottomSheetDialogFragment Theme-->
+        <!--<item name="bottomSheetDialogTheme">@style/BottomSheetDialogTheme</item>-->
+    </style>
+
+    <!--<style name="BottomSheetDialogTheme" parent="Theme.Design.Light.BottomSheetDialog">-->
+        <!--<item name="bottomSheetStyle">@style/AppModalStyle</item>-->
+    <!--</style>-->
+    
+    <!--<style name="AppModalStyle" parent="Widget.Design.BottomSheet.Modal">-->
+        <!--<item name="behavior_peekHeight">@dimen/playerControl_peekHeight</item>-->
+        <!--<item name="behavior_hideable">false</item>-->
+    <!--</style>-->
+
+</resources>

@@ -13,22 +13,27 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import com.google.android.exoplayer2.ui.PlayerControlView
 import com.york.android.exomusicplayer.service.PlayService
 import com.york.android.exomusicplayer.R
 import com.york.android.exomusicplayer.model.Song
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_album.*
 
 /**
  * Created by York on 2018/3/20.
  */
-class SongAdapter(val songs: List<Song>, val context: Context, var service: Service?, val handler: Handler): RecyclerView.Adapter<SongAdapter.SongItemHolder>() {
+class SongAdapter(val songs: List<Song>, val context: Context, var service: Service?, var connection: MusicServiceConnection?, val handler: Handler): RecyclerView.Adapter<SongAdapter.SongItemHolder>() {
+    init {
+        setService(songs)
+        Log.d("onBindViewHolder", "init: setService")
+    }
 
     override fun onBindViewHolder(holder: SongItemHolder?, position: Int) {
         holder?.bind(songs[position])
         holder?.itemView?.setOnClickListener {
             Log.d("bind", "position: ${position}")
-            (context as MainActivity).verifyStoragePermission()
-            setService(songs[position])
+            (context as AlbumActivity).verifyStoragePermission()
+            (service as PlayService).playMediaSource(position)
         }
     }
 
@@ -43,15 +48,20 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         return songs.size
     }
 
-    fun setService(song: Song) {
+    fun setService(song: List<Song>) {
         val intent = Intent()
+        val connection = MusicServiceConnection(songs)
 
         // start and bind service
         intent.setClass(context, PlayService::class.java)
-        (context as MainActivity).startService(intent)
-        context.bindService(intent, MusicServiceConnection(song), 0)
+        (context as AlbumActivity).startService(intent)
+        context.bindService(intent, connection, 0)
+
     }
 
+    fun unbindService() {
+        service?.unbindService(connection)
+    }
 
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(song: Song) {
@@ -63,7 +73,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         }
     }
 
-    inner class MusicServiceConnection(var song: Song): ServiceConnection {
+    inner class MusicServiceConnection(var songs: List<Song>): ServiceConnection {
         override fun onServiceDisconnected(p0: ComponentName?) {
 
         }
@@ -72,8 +82,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             (service as PlayService).createConcatenatingMediaSource(songs)
-            (service as PlayService).playMediaSource(song)
-            (context as MainActivity).playerView_main.player = (service as PlayService).player
+            ((context as AlbumActivity).playerView_main as PlayerControlView).player = (service as PlayService).player
             Log.d("onServiceConnected", "player: ${context.playerView_main.player}")
 
             (service as PlayService).uiHandler = handler

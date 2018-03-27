@@ -18,7 +18,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.exomusicplayer.R
 import com.york.android.exomusicplayer.model.Song
-import com.york.android.exomusicplayer.view.MainActivity
+import com.york.android.exomusicplayer.view.AlbumActivity
 
 
 class PlayService : Service() {
@@ -38,6 +38,8 @@ class PlayService : Service() {
     var durationSeconds: Int = 0
     var currentPositionSeconds: Int = 0
 
+    var songs: List<Song> = ArrayList<Song>()
+
     var handlerThread = HandlerThread("HandlerThread")
 
     override fun onBind(intent: Intent): IBinder? {
@@ -47,7 +49,7 @@ class PlayService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
-        val notificationIntent = Intent(applicationContext, MainActivity::class.java)
+        val notificationIntent = Intent(applicationContext, AlbumActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
         val notification = Notification.Builder(applicationContext)
                 .setContentTitle("音樂播放")
@@ -75,6 +77,7 @@ class PlayService : Service() {
     }
 
     fun createConcatenatingMediaSource(songs: List<Song>) {
+        this.songs = songs
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
 
@@ -83,39 +86,32 @@ class PlayService : Service() {
             dynamicConcatenatingMediaSource.addMediaSource(videoSource)
             Log.d("concatenating", "song name: ${it.name}")
         }
-        for (i in 0 until dynamicConcatenatingMediaSource.size) {
-            Log.d("concatenating", "concatenating source index: ${dynamicConcatenatingMediaSource.getMediaSource(i)}")
-        }
+//        for (i in 0 until dynamicConcatenatingMediaSource.size) {
+//            Log.d("concatenating", "concatenating source index: ${dynamicConcatenatingMediaSource.(i)}")
+//        }
 
-    }
-
-    fun playMediaSource(song: Song) {
-        // Produces DataSource instances through which media data is loaded.
-//        val dataSourceFactory = DefaultDataSourceFactory(this,
-//                Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
-//        val uri = Uri.parse("${song.filePath}")
-
-
-        bundle.putString("ARTIST", song.artist)
-        bundle.putString("SONG_NAME", song.name)
-
+        // Prepare the player with the source.
         if (player == null) {
+            Log.d("concatenating", "player is null")
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
             setPlayerListener()
-
-            // Prepare the player with the source.
             player?.prepare(dynamicConcatenatingMediaSource)
-            player?.playWhenReady = true
-            Log.d("PlayService", "player: ${player}")
-        } else {
-            Log.d("PlayService", "videoSource: ${videoSource}")
-            // Prepare the player with the source.
-            player?.stop()
-            player?.prepare(videoSource)
-
-            player?.playWhenReady = true
         }
+
     }
+
+    fun playMediaSource(index: Int) {
+        // Produces DataSource instances through which media data is loaded.
+        Log.d("PlayService", "player: ${player}")
+
+        Log.d("PlayService", "Concatenating size: ${dynamicConcatenatingMediaSource.size}")
+        // Prepare the player with the source.
+        player?.seekTo(index, 0)
+        player?.playWhenReady = true
+
+    }
+
+    fun nextMediaSource() {}
 
     fun setPlayerListener() {
         player?.addListener(object : Player.EventListener {
@@ -140,7 +136,9 @@ class PlayService : Service() {
             }
 
             override fun onPositionDiscontinuity(reason: Int) {
-
+                Log.d("playerWindow", "player?.currentWindowIndex: ${player?.currentWindowIndex}")
+                bundle.putString("ARTIST", songs[player?.currentWindowIndex!!].artist)
+                bundle.putString("SONG_NAME", songs[player?.currentWindowIndex!!].name)
             }
 
             override fun onRepeatModeChanged(repeatMode: Int) {
@@ -157,13 +155,17 @@ class PlayService : Service() {
 
             @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-
-
                 // put duration
+//                if (playbackState == Player.STATE_READY) {
+//                    Log.d("playerWindow", "player?.currentWindowIndex: ${player?.currentWindowIndex}")
+//                    bundle.putString("ARTIST", songs[player?.currentWindowIndex!!].artist)
+//                    bundle.putString("SONG_NAME", songs[player?.currentWindowIndex!!].name)
+//                }
+
                 bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
 //                Log.d("onPlayerStateChanged", "playbackState: ${playbackState}")
 
-                if(handlerThread.state == Thread.State.NEW) {
+                if (handlerThread.state == Thread.State.NEW) {
                     handlerThread.start()
                 } else if (handlerThread.state == Thread.State.RUNNABLE) {
                     Log.d("onPlayerStateChanged", "thread state: ${handlerThread.state}")
@@ -172,55 +174,30 @@ class PlayService : Service() {
 
                 // currentPositionSeconds that put in Runnable would not work, I still don't know why.
                 val runnable = Runnable {
+
                     Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
 
                     while (playbackState == Player.STATE_READY) {
-                        try {
 
-                            if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
-                                currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
-                                Log.d("onPlayerStateChanged", "currentPositionSeconds: ${currentPositionSeconds}")
 
-                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
+                        if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
+                            currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
+                            Log.d("onPlayerStateChanged", "currentPositionSeconds: ${currentPositionSeconds}")
 
-                                val message = uiHandler.obtainMessage()
-                                message.data = bundle
+                            bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
 
-                                val placedSuccess = uiHandler.sendMessageAtTime(message, 100)
-                            }
-                        } catch (e: IndexOutOfBoundsException) {
-                            e.printStackTrace()
+                            val message = uiHandler.obtainMessage()
+                            message.data = bundle
+
+                            val placedSuccess = uiHandler.sendMessageAtTime(message, 100)
                         }
+
                     }
                 }
 
                 val handler = Handler(handlerThread.looper)
 
                 handler.post(runnable)
-
-//                    Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-//                    currentPositionSeconds = 0
-//
-//                    while (playbackState == Player.STATE_READY) {
-//                        try {
-//                            if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
-//                                currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
-//                                Log.d("onPlayerStateChanged", "currentPositionSeconds: ${currentPositionSeconds}")
-//
-//                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
-//
-//                                val message = uiHandler.obtainMessage()
-//                                message.data = bundle
-//
-//                                val placedSuccess = uiHandler.sendMessageAtTime(message, 500)
-//                            }
-//                        } catch (e: IndexOutOfBoundsException) {
-//                            e.printStackTrace()
-//                        }
-////                        bundle.putInt("CURRENT_POSITION", player?.currentPosition.toI)
-//
-//                    }
-
             }
         })
     }
