@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view.playercontrol
+package com.york.android.musicsession.view.playercontrol
 
 import android.content.Context
 import android.os.Bundle
@@ -8,7 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.york.android.exomusicplayer.R;
+import com.york.android.musicsession.R;
 
 /**
  * A fragment that shows a list of items as a modal bottom sheet.

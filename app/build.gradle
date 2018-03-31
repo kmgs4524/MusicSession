@@ -7,7 +7,7 @@ apply plugin: 'kotlin-android-extensions'
 android {
     compileSdkVersion 26
     defaultConfig {
-        applicationId "com.york.android.exomusicplayer"
+        applicationId "com.york.android.musicsession"
         minSdkVersion 15
         targetSdkVersion 26
         versionCode 1
@@ -33,6 +33,14 @@ dependencies {
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
+    // Anki
+    implementation "org.jetbrains.anko:anko:0.10.4"
+    // okhttp
+    implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+    // KKBOX Open API
+    implementation 'com.kkbox:openapideveloper:1.0.0'
+    // Android Asynchronous Networking and Image Loading(for KKBOX API)
+    implementation 'com.koushikdutta.ion:ion:2.1.6'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'

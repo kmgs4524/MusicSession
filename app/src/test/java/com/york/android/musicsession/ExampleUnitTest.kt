@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer
+package com.york.android.musicsession
 
 import org.junit.Test
 

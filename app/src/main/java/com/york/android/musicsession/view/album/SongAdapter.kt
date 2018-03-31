@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view.album
+package com.york.android.musicsession.view.album
 
 import android.app.Service
 import android.content.ComponentName
@@ -14,9 +14,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.google.android.exoplayer2.ui.PlayerControlView
-import com.york.android.exomusicplayer.service.PlayService
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.model.Song
+import com.york.android.musicsession.service.PlayService
+import com.york.android.musicsession.R
+import com.york.android.musicsession.model.Song
 import kotlinx.android.synthetic.main.activity_album.*
 
 /**

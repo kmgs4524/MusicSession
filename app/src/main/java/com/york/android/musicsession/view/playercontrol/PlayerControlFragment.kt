@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.musicsession.view.playercontrol
 
 import android.content.Context
 import android.net.Uri
@@ -8,17 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import com.york.android.exomusicplayer.R
+import com.york.android.musicsession.R
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [SpecialFragment.OnFragmentInteractionListener] interface
+ * [PlayerControlFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [SpecialFragment.newInstance] factory method to
+ * Use the [PlayerControlFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SpecialFragment : Fragment() {
+class PlayerControlFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -37,7 +37,9 @@ class SpecialFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_special, container, false)
+        val view = inflater!!.inflate(R.layout.fragment_player_control, container, false)
+
+        return view
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -87,11 +89,11 @@ class SpecialFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment SpecialFragment.
+         * @return A new instance of fragment PlayerControlFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): SpecialFragment {
-            val fragment = SpecialFragment()
+        fun newInstance(param1: String, param2: String): PlayerControlFragment {
+            val fragment = PlayerControlFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

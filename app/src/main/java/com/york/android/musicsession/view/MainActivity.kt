@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.musicsession.view
 
 import android.net.Uri
 import android.os.Build
@@ -8,11 +8,11 @@ import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
 import android.view.*
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.view.mymusic.MyMusicFragment
-import com.york.android.exomusicplayer.view.playercontrol.PlayerControlDialogFragment
-import com.york.android.exomusicplayer.view.playercontrol.PlayerControlFragment
-import com.york.android.exomusicplayer.view.rank.RankFragment
+import com.york.android.musicsession.R
+import com.york.android.musicsession.view.mymusic.MyMusicFragment
+import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
+import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
+import com.york.android.musicsession.view.rank.RankFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, DiscoverFragment.OnFragmentInteractionListener,

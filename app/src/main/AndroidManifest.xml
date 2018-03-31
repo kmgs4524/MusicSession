@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.york.android.exomusicplayer">
+    package="com.york.android.musicsession">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -12,17 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".view.album.AlbumActivity"></activity>
+
+        <activity android:name="com.york.android.musicsession.view.album.AlbumActivity"></activity>
 
         <service
-            android:name=".service.PlayService"
+            android:name="com.york.android.musicsession.service.PlayService"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".view.MainActivity">
-
+        <activity android:name="com.york.android.musicsession.view.MainActivity">
         </activity>
-        <activity android:name=".view.TestActivity">
+
+        <activity android:name="com.york.android.musicsession.view.TestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

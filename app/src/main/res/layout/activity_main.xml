@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.york.android.exomusicplayer.view.MainActivity">
+        tools:context="com.york.android.musicsession.view.MainActivity">
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/main_container"

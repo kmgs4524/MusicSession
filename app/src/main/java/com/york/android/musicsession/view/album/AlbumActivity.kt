@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view.album
+package com.york.android.musicsession.view.album
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -10,8 +10,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import kotlinx.android.synthetic.main.activity_album.*
 
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.model.Song
+import com.york.android.musicsession.R
+import com.york.android.musicsession.model.Song
 import kotlinx.android.synthetic.main.controlview.*
 
 class AlbumActivity : AppCompatActivity() {

@@ -1,27 +1,31 @@
-package com.york.android.exomusicplayer.view.rank
+package com.york.android.musicsession.view.mymusic
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.view.GravityCompat
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.model.Rank
-import kotlinx.android.synthetic.main.fragment_rank.*
+import com.york.android.musicsession.R
+import com.york.android.musicsession.model.LibraryItem
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_my_music.*
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [RankFragment.OnFragmentInteractionListener] interface
+ * [MyMusicFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [RankFragment.newInstance] factory method to
+ * Use the [MyMusicFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class RankFragment : Fragment() {
+class MyMusicFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -40,30 +44,7 @@ class RankFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_rank, container, false)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        initRecyclerView()
-    }
-
-    fun initRecyclerView() {
-        val items = ArrayList<Rank>()
-        val songRanking = ArrayList<String>()
-
-        songRanking.add("慢慢喜歡你")
-        songRanking.add("我的事不關你的事")
-        songRanking.add("Dancer - Flo Rida(佛羅里達)")
-
-        items.add(Rank("綜合新歌排行榜", "每小時更新", songRanking))
-        items.add(Rank("華語新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("西洋新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("韓語新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("日語新歌排行榜", "2018-03-27", songRanking))
-
-        recyclerView_rank.layoutManager = LinearLayoutManager(activity)
-        recyclerView_rank.adapter = RankAdapter(items, activity)
+        return inflater!!.inflate(R.layout.fragment_my_music, container, false)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -71,6 +52,46 @@ class RankFragment : Fragment() {
         if (mListener != null) {
             mListener!!.onFragmentInteraction(uri)
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        initToolbarTitle()
+        initRecyclerView()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when(item?.itemId) {
+            R.id.home -> {
+                drawerLayout_main.openDrawer(GravityCompat.START)
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+    fun initToolbarTitle() {
+        val appCompatActivity = activity as AppCompatActivity
+        appCompatActivity.setSupportActionBar(toolbar_mymusic)
+        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
+    }
+
+    fun initRecyclerView() {
+        val items = ArrayList<LibraryItem>()
+
+        items.add(LibraryItem("全部歌曲", 0, 0, true))
+        items.add(LibraryItem("可離線播放歌曲", 0, 0, true))
+        items.add(LibraryItem("播放紀錄", 0, 0, true))
+        items.add(LibraryItem("我的收藏", 0, 0, false))
+        items.add(LibraryItem("收藏歌曲", 0, 0, true))
+        items.add(LibraryItem("收藏專輯", 0, 0, true))
+        items.add(LibraryItem("收藏歌單", 0, 0, true))
+        items.add(LibraryItem("我的歌單", 0, 0, false))
+        items.add(LibraryItem("已分享歌單", 0, 0, true))
+
+        recyclerView_myMusic.layoutManager = LinearLayoutManager(context)
+        recyclerView_myMusic.adapter = LibraryItemAdapter(items, activity)
     }
 
     override fun onAttach(context: Context?) {
@@ -113,11 +134,11 @@ class RankFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment RankFragment.
+         * @return A new instance of fragment MyMusicFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): RankFragment {
-            val fragment = RankFragment()
+        fun newInstance(param1: String, param2: String): MyMusicFragment {
+            val fragment = MyMusicFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

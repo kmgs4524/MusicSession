@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view.rank
+package com.york.android.musicsession.view.rank
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.model.Rank
+import com.york.android.musicsession.R
+import com.york.android.musicsession.model.Rank
 
 /**
  * Created by York on 2018/3/27.

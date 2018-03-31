@@ -1,32 +1,24 @@
-package com.york.android.exomusicplayer.view.mymusic
+package com.york.android.musicsession.view
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
-import android.support.v4.widget.DrawerLayout
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 
-import com.york.android.exomusicplayer.R
-import com.york.android.exomusicplayer.model.LibraryItem
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_my_music.*
+import com.york.android.musicsession.R
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [MyMusicFragment.OnFragmentInteractionListener] interface
+ * [SpecialFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [MyMusicFragment.newInstance] factory method to
+ * Use the [SpecialFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class MyMusicFragment : Fragment() {
+class SpecialFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -45,7 +37,7 @@ class MyMusicFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_my_music, container, false)
+        return inflater!!.inflate(R.layout.fragment_special, container, false)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -53,46 +45,6 @@ class MyMusicFragment : Fragment() {
         if (mListener != null) {
             mListener!!.onFragmentInteraction(uri)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        initToolbarTitle()
-        initRecyclerView()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId) {
-            R.id.home -> {
-                drawerLayout_main.openDrawer(GravityCompat.START)
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    fun initToolbarTitle() {
-        val appCompatActivity = activity as AppCompatActivity
-        appCompatActivity.setSupportActionBar(toolbar_mymusic)
-        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
-    }
-
-    fun initRecyclerView() {
-        val items = ArrayList<LibraryItem>()
-
-        items.add(LibraryItem("全部歌曲", 0, 0, true))
-        items.add(LibraryItem("可離線播放歌曲", 0, 0, true))
-        items.add(LibraryItem("播放紀錄", 0, 0, true))
-        items.add(LibraryItem("我的收藏", 0, 0, false))
-        items.add(LibraryItem("收藏歌曲", 0, 0, true))
-        items.add(LibraryItem("收藏專輯", 0, 0, true))
-        items.add(LibraryItem("收藏歌單", 0, 0, true))
-        items.add(LibraryItem("我的歌單", 0, 0, false))
-        items.add(LibraryItem("已分享歌單", 0, 0, true))
-
-        recyclerView_myMusic.layoutManager = LinearLayoutManager(context)
-        recyclerView_myMusic.adapter = LibraryItemAdapter(items, activity)
     }
 
     override fun onAttach(context: Context?) {
@@ -135,11 +87,11 @@ class MyMusicFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment MyMusicFragment.
+         * @return A new instance of fragment SpecialFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): MyMusicFragment {
-            val fragment = MyMusicFragment()
+        fun newInstance(param1: String, param2: String): SpecialFragment {
+            val fragment = SpecialFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

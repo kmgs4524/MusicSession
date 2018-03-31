@@ -1,4 +1,4 @@
-package com.york.android.exomusicplayer.view
+package com.york.android.musicsession.view
 
 import android.content.Context
 import android.net.Uri
@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-import com.york.android.exomusicplayer.R
+import com.york.android.musicsession.R
 
 /**
  * A simple [Fragment] subclass.
