@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view
+package com.york.android.musicsession.view.artist
 
 import android.content.Context
 import android.net.Uri
@@ -13,12 +13,12 @@ import com.york.android.musicsession.R
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [StyleFragment.OnFragmentInteractionListener] interface
+ * [ArtistFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [StyleFragment.newInstance] factory method to
+ * Use the [ArtistFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class StyleFragment : Fragment() {
+class ArtistFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -86,11 +86,11 @@ class StyleFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment StyleFragment.
+         * @return A new instance of fragment ArtistFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): StyleFragment {
-            val fragment = StyleFragment()
+        fun newInstance(param1: String, param2: String): ArtistFragment {
+            val fragment = ArtistFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

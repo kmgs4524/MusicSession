@@ -13,6 +13,8 @@ import android.view.ViewGroup
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.view.album.AlbumFragment
+import com.york.android.musicsession.view.artist.ArtistFragment
+import com.york.android.musicsession.view.songs.SongsFragment
 import kotlinx.android.synthetic.main.fragment_discover.*
 
 /**
@@ -76,7 +78,7 @@ class LibraryFragment : Fragment() {
 
         fragments.add(SongsFragment.newInstance("", ""))
         fragments.add(AlbumFragment.newInstance("", ""))
-        fragments.add(StyleFragment.newInstance("", ""))
+        fragments.add(ArtistFragment.newInstance("", ""))
 
         viewPager_discover.adapter = FragmentAdapter(fragments, childFragmentManager)
     }

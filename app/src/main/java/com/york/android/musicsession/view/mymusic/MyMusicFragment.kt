@@ -55,7 +55,7 @@ class MyMusicFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-        initToolbarTitle()
+//        initToolbarTitle()
         initRecyclerView()
     }
 
@@ -69,12 +69,12 @@ class MyMusicFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun initToolbarTitle() {
-        val appCompatActivity = activity as AppCompatActivity
-        appCompatActivity.setSupportActionBar(toolbar_mymusic)
-        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
-    }
+//    fun initToolbarTitle() {
+//        val appCompatActivity = activity as AppCompatActivity
+//        appCompatActivity.setSupportActionBar(toolbar_mymusic)
+//        appCompatActivity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        appCompatActivity.supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_menu_black_24dp)
+//    }
 
     fun initRecyclerView() {
         val items = ArrayList<LibraryItem>()
