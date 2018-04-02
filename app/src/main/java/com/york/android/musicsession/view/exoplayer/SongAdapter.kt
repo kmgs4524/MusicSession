@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.album
+package com.york.android.musicsession.view.exoplayer
 
 import android.app.Service
 import android.content.ComponentName

@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.album
+package com.york.android.musicsession.view.exoplayer
 
 import android.Manifest
 import android.content.pm.PackageManager

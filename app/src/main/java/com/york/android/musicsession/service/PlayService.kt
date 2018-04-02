@@ -18,7 +18,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.Song
-import com.york.android.musicsession.view.album.AlbumActivity
+import com.york.android.musicsession.view.exoplayer.AlbumActivity
 
 
 class PlayService : Service() {

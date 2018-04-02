@@ -13,12 +13,12 @@ import com.york.android.musicsession.R
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [SpecialFragment.OnFragmentInteractionListener] interface
+ * [SongsFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [SpecialFragment.newInstance] factory method to
+ * Use the [SongsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SpecialFragment : Fragment() {
+class SongsFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -28,14 +28,13 @@ class SpecialFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            mParam1 = arguments.getString(ARG_PARAM1)
-            mParam2 = arguments.getString(ARG_PARAM2)
+        arguments.let {
+            mParam1 = arguments?.getString(ARG_PARAM1)
+            mParam2 = arguments?.getString(ARG_PARAM2)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater!!.inflate(R.layout.fragment_special, container, false)
     }
@@ -87,11 +86,11 @@ class SpecialFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment SpecialFragment.
+         * @return A new instance of fragment SongsFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): SpecialFragment {
-            val fragment = SpecialFragment()
+        fun newInstance(param1: String, param2: String): SongsFragment {
+            val fragment = SongsFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

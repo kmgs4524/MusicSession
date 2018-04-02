@@ -1,29 +1,27 @@
-package com.york.android.musicsession.view
+package com.york.android.musicsession.view.album
 
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.view.rank.RankFragment
-import kotlinx.android.synthetic.main.fragment_discover.*
+import com.york.android.musicsession.model.Rank
+import kotlinx.android.synthetic.main.fragment_rank.*
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [DiscoverFragment.OnFragmentInteractionListener] interface
+ * [AlbumFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [DiscoverFragment.newInstance] factory method to
+ * Use the [AlbumFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class DiscoverFragment : Fragment() {
+class AlbumFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -31,55 +29,40 @@ class DiscoverFragment : Fragment() {
 
     private var mListener: OnFragmentInteractionListener? = null
 
-    val fragments = ArrayList<Fragment>()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments.getString(ARG_PARAM1)
-            mParam2 = arguments.getString(ARG_PARAM2)
+            mParam1 = arguments?.getString(ARG_PARAM1)
+            mParam2 = arguments?.getString(ARG_PARAM2)
         }
-
-        (activity as AppCompatActivity).setSupportActionBar(toolbar_discover)
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_discover, container, false)
+        return inflater!!.inflate(R.layout.fragment_rank, container, false)
     }
 
     override fun onStart() {
         super.onStart()
-        setupViewPager()
-        initTabLayout()
+        initRecyclerView()
     }
 
-    fun initTabLayout() {
-        if(tabLayout_discover.tabCount == 0) {
-//            val tabSpecial = tabLayout_discover.newTab()
-//            val tabCharts = tabLayout_discover.newTab()
-//            val tabNewPublic = tabLayout_discover.newTab()
-//            val tabStyle = tabLayout_discover.newTab()
+    fun initRecyclerView() {
+        val items = ArrayList<Rank>()
+        val songRanking = ArrayList<String>()
 
-//            tabLayout_discover.addTab(tabSpecial.setText("精選"))
-//            tabLayout_discover.addTab(tabStyle.setText("排行榜"))
-//            tabLayout_discover.addTab(tabCharts.setText("新發行"))
-//            tabLayout_discover.addTab(tabNewPublic.setText("曲風情境"))
-        }
+        songRanking.add("慢慢喜歡你")
+        songRanking.add("我的事不關你的事")
+        songRanking.add("Dancer - Flo Rida(佛羅里達)")
 
-        tabLayout_discover.setupWithViewPager(viewPager_discover, true)
-//        tabLayout_discover.setupWithViewPager()
-    }
+        items.add(Rank("綜合新歌排行榜", "每小時更新", songRanking))
+        items.add(Rank("華語新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("西洋新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("韓語新歌排行榜", "2018-03-27", songRanking))
+        items.add(Rank("日語新歌排行榜", "2018-03-27", songRanking))
 
-    fun setupViewPager() {
-        val fragments = ArrayList<Fragment>()
-
-        fragments.add(SpecialFragment.newInstance("", ""))
-        fragments.add(RankFragment.newInstance("", ""))
-        fragments.add(StyleFragment.newInstance("", ""))
-
-        viewPager_discover.adapter = FragmentAdapter(fragments, childFragmentManager)
+        recyclerView_rank.layoutManager = LinearLayoutManager(activity)
+        recyclerView_rank.adapter = RankAdapter(items, activity)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -117,26 +100,6 @@ class DiscoverFragment : Fragment() {
         fun onFragmentInteraction(uri: Uri)
     }
 
-    inner class FragmentAdapter(val fragments: List<Fragment>, fm: FragmentManager?) : FragmentPagerAdapter(fm) {
-        override fun getItem(position: Int): Fragment {
-            return fragments[position]
-        }
-
-        override fun getCount(): Int {
-            return fragments.size
-        }
-
-        override fun getPageTitle(position: Int): CharSequence {
-            var title = "無"
-            when(position) {
-                0 -> return "精選"
-                1 -> return "排行榜"
-                2 -> return "曲風情境"
-            }
-            return title
-        }
-    }
-
     companion object {
         // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -149,11 +112,11 @@ class DiscoverFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment DiscoverFragment.
+         * @return A new instance of fragment AlbumFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): DiscoverFragment {
-            val fragment = DiscoverFragment()
+        fun newInstance(param1: String, param2: String): AlbumFragment {
+            val fragment = AlbumFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

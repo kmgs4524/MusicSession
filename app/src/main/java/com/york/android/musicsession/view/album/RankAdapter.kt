@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.rank
+package com.york.android.musicsession.view.album
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView

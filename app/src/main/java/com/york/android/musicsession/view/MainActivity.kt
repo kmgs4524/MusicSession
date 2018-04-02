@@ -12,11 +12,11 @@ import com.york.android.musicsession.R
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
-import com.york.android.musicsession.view.rank.RankFragment
+import com.york.android.musicsession.view.album.AlbumFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, DiscoverFragment.OnFragmentInteractionListener,
-        SpecialFragment.OnFragmentInteractionListener, RankFragment.OnFragmentInteractionListener,
+class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
+        SongsFragment.OnFragmentInteractionListener, AlbumFragment.OnFragmentInteractionListener,
         StyleFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener {
 
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     val bottomFragment = PlayerControlFragment.newInstance("", "")
     val myMusicFragment = MyMusicFragment.newInstance("", "")
-    val discoverFragment = DiscoverFragment.newInstance("", "")
+    val discoverFragment = LibraryFragment.newInstance("", "")
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {

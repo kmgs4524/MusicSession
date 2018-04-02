@@ -8,7 +8,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.york.android.musicsession"
-        minSdkVersion 15
+        minSdkVersion 21
         targetSdkVersion 26
         versionCode 1
         versionName "1.0"
@@ -19,6 +19,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    configurations.all {
+        resolutionStrategy.force 'com.google.code.findbugs:jsr305:2.0.1'
     }
 }
 
@@ -41,6 +44,23 @@ dependencies {
     implementation 'com.kkbox:openapideveloper:1.0.0'
     // Android Asynchronous Networking and Image Loading(for KKBOX API)
     implementation 'com.koushikdutta.ion:ion:2.1.6'
+    // Youtube Player API
+    implementation files('libs/YouTubeAndroidPlayerApi.jar')
+    // YouTube Data API Client Library
+    implementation('com.google.apis:google-api-services-youtube:v3-rev193-1.23.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+    // Data API requires below library
+    // Google account login
+    implementation 'com.google.android.gms:play-services-auth:10.2.1'
+    // EasyPermissions
+    implementation 'pub.devrel:easypermissions:0.3.0'
+    // Google API Client library
+    // In order to use Youtube service
+        implementation('com.google.api-client:google-api-client-android:1.23.0') {
+        exclude group: 'org.apache.httpcomponents'
+    }
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
