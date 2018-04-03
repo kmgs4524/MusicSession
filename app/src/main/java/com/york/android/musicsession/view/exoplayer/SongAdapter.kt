@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.ui.PlayerControlView
 import com.york.android.musicsession.service.PlayService
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.Song
+import com.york.android.musicsession.view.MainActivity
 import kotlinx.android.synthetic.main.activity_album.*
 
 /**
@@ -31,8 +32,8 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
     override fun onBindViewHolder(holder: SongItemHolder?, position: Int) {
         holder?.bind(songs[position])
         holder?.itemView?.setOnClickListener {
-            Log.d("bind", "position: ${position}")
-            (context as AlbumActivity).verifyStoragePermission()
+            Log.d("bind", "position: ${position} song path: ${songs[position].filePath}")
+//            (context as MainActivity).verifyStoragePermission()
             (service as PlayService).playMediaSource(position)
         }
     }
@@ -54,7 +55,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
 
         // start and bind service
         intent.setClass(context, PlayService::class.java)
-        (context as AlbumActivity).startService(intent)
+        (context as MainActivity).startService(intent)
         context.bindService(intent, connection, 0)
 
     }
@@ -67,8 +68,10 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         fun bind(song: Song) {
             val textViewName = itemView.findViewById<TextView>(R.id.textView_songItem_name)
             val textViewArtist = itemView.findViewById<TextView>(R.id.textView_songItem_artist)
+            // split filename extension
+            val tokens = song.name.split(".")
 
-            textViewName.setText(song.name)
+            textViewName.setText(tokens[0])
             textViewArtist.setText(song.artist)
         }
     }
@@ -82,8 +85,8 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             (service as PlayService).createConcatenatingMediaSource(songs)
-            ((context as AlbumActivity).playerView_main as PlayerControlView).player = (service as PlayService).player
-            Log.d("onServiceConnected", "player: ${context.playerView_main.player}")
+            ((context as MainActivity).playerView_album as PlayerControlView).player = (service as PlayService).player
+            Log.d("onServiceConnected", "player: ${context.playerView_album.player}")
 
             (service as PlayService).uiHandler = handler
         }

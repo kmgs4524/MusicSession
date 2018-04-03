@@ -4,17 +4,25 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
+import android.os.Handler
+import android.os.Message
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.google.android.exoplayer2.source.MediaSource
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.SongFactory
+import com.york.android.musicsession.view.exoplayer.SongAdapter
+import kotlinx.android.synthetic.main.activity_album.*
+import kotlinx.android.synthetic.main.controlview.*
+import kotlinx.android.synthetic.main.fragment_songs.*
 
 /**
  * A simple [Fragment] subclass.
@@ -34,6 +42,21 @@ class SongsFragment : Fragment() {
     private var mParam2: String? = null
 
     private var mListener: OnFragmentInteractionListener? = null
+    val handler = object: Handler() {
+        override fun handleMessage(msg: Message?) {
+            val data = msg?.data
+//                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
+            Log.d("handler", "data: ${data}")
+            if(data != null) {
+                Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
+//                progressbar_album.progress = data?.getInt("CURRENT_POSITION")
+//                progressbar_album.max = data?.getInt("DURATION")
+
+//                textView_controlview_artist.setText(data?.getString("ARTIST"))
+//                textView_controlview_songname.setText(data?.getString("SONG_NAME"))
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,38 +78,26 @@ class SongsFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         Log.d("SongsFragment", "grantResults: ${grantResults}")
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            getMediaSource("還島快樂")
+            initRecyclerView()
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_special, container, false)
+        return inflater!!.inflate(R.layout.fragment_songs, container, false)
     }
 
-    fun getMediaSource(songTitle: String) {
-        val cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA),
-                MediaStore.Audio.Media.TITLE + "=?",   // selection formatted as an SQL WHERE clause
-                arrayOf(songTitle),
-                "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
-        val count = cursor.count    // number of rows
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun initRecyclerView() {
+        val factory = SongFactory(activity)
+        val songs = factory.getSongs("", "")
 
-        val songs = arrayOfNulls<String>(count)
-        val audioPath = arrayOfNulls<String>(count)
-
-        if(cursor.moveToFirst()) {
-            var i = 0
-            do {
-                songs[i] = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-                audioPath[i] = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-            } while (cursor.moveToNext())
-        }
-        cursor.close()  // release cursor's resource after query
-        Log.d("SongsFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+        recyclerView_songs.layoutManager = LinearLayoutManager(activity)
+        recyclerView_songs.adapter = SongAdapter(songs, activity, null, null, handler)
     }
 
     fun onButtonPressed(uri: Uri) {
@@ -109,15 +120,6 @@ class SongsFragment : Fragment() {
         mListener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
@@ -129,14 +131,6 @@ class SongsFragment : Fragment() {
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment SongsFragment.
-         */
         // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): SongsFragment {
             val fragment = SongsFragment()

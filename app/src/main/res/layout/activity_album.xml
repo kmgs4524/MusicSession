@@ -114,12 +114,12 @@
         android:layout_height="wrap_content"
         android:max="100"
         android:progress="40"
-        app:layout_anchor="@+id/playerView_main"
+        app:layout_anchor="@+id/playerView_album"
         app:layout_anchorGravity="top|right"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"/>
 
     <com.google.android.exoplayer2.ui.PlayerControlView
-        android:id="@+id/playerView_main"
+        android:id="@+id/playerView_album"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:elevation="@dimen/design_bottom_sheet_modal_elevation"

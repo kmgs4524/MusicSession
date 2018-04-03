@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.Song
 import com.york.android.musicsession.view.exoplayer.AlbumActivity
+import java.util.*
 
 
 class PlayService : Service() {
@@ -51,6 +52,7 @@ class PlayService : Service() {
     override fun onCreate() {
         val notificationIntent = Intent(applicationContext, AlbumActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
+        // create notification
         val notification = Notification.Builder(applicationContext)
                 .setContentTitle("音樂播放")
                 .setContentText("正在播放歌曲")
@@ -61,7 +63,7 @@ class PlayService : Service() {
         Log.d("PlayService", "onCreate notification: ${notification}")
 //        val notification = Notification(R.drawable.exo_controls_play, "音樂播放",
 //                System.currentTimeMillis())
-
+        // start foreground service
         startForeground(ONGOING_NOTIFICATION_ID, notification)
     }
 
@@ -84,18 +86,20 @@ class PlayService : Service() {
         songs.forEach {
             var videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(it.filePath))
             dynamicConcatenatingMediaSource.addMediaSource(videoSource)
-            Log.d("concatenating", "song name: ${it.name}")
+            Log.d("PlayService", "song name: ${it.filePath}")
         }
-//        for (i in 0 until dynamicConcatenatingMediaSource.size) {
-//            Log.d("concatenating", "concatenating source index: ${dynamicConcatenatingMediaSource.(i)}")
-//        }
+
+//        val videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(
+//                Uri.parse("/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳-迷路汪洋.mp3"))
+//        dynamicConcatenatingMediaSource.addMediaSource(videoSource)
 
         // Prepare the player with the source.
         if (player == null) {
-            Log.d("concatenating", "player is null")
+            Log.d("PlayService", "player is null")
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
             setPlayerListener()
             player?.prepare(dynamicConcatenatingMediaSource)
+            player?.playWhenReady = true
         }
 
     }
@@ -104,14 +108,12 @@ class PlayService : Service() {
         // Produces DataSource instances through which media data is loaded.
         Log.d("PlayService", "player: ${player}")
 
-        Log.d("PlayService", "Concatenating size: ${dynamicConcatenatingMediaSource.size}")
+//        player?.seekTo(index, 0)
+        Log.d("PlayService", ": ${player?.currentWindowIndex}")
         // Prepare the player with the source.
-        player?.seekTo(index, 0)
         player?.playWhenReady = true
 
     }
-
-    fun nextMediaSource() {}
 
     fun setPlayerListener() {
         player?.addListener(object : Player.EventListener {

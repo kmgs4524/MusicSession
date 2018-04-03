@@ -34,7 +34,6 @@ import com.york.android.musicsession.R
 import com.york.android.musicsession.R.id.textView
 import kotlinx.android.synthetic.main.activity_test.*
 import okhttp3.OkHttpClient
-import org.jetbrains.anko.doAsync
 import pub.devrel.easypermissions.AfterPermissionGranted
 import pub.devrel.easypermissions.EasyPermissions
 
@@ -65,9 +64,9 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         setContentView(R.layout.activity_test)
 
         // KKBOX access token and api
-        val auth = Auth(CLIENT_ID, CLIENT_SECRET, this)
-        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
-        val api = Api(accessToken, "TW", this)
+//        val auth = Auth(CLIENT_ID, CLIENT_SECRET, this)
+//        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
+//        val api = Api(accessToken, "TW", this)
         // used for KKBOX API
         val client = OkHttpClient()
 
@@ -80,7 +79,7 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         setFragment()
         setButton()
-        doAsync {
+//        doAsync {
             //            api.albumFetcher.setAlbumId ("KmRKnW5qmUrTnGRuxF")
 //            val searchResult = api.searchFetcher.fetchSearchResult(50, 0).get().get(accessToken)
 //            val result = api.albumFetcher.fetchTracks(10, 0).get().get(accessToken).asString
@@ -96,7 +95,7 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 //            val str = "\u7121\u7aae (Endlessness)"
 //            Log.d("TestActivity", "response: ${str}")
 //            runOnUiThread { textView_test.setText(str) }
-        }
+//        }
 //        val searchResult = api.searchFetcher.fetchSearchResult(10, 2).get().get(accessToken)
 
     }
