@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.LibraryItem
+import com.york.android.musicsession.model.data.LibraryItem
 
 /**
  * Created by York on 2018/3/27.

@@ -1,4 +1,4 @@
-package com.york.android.musicsession.model
+package com.york.android.musicsession.model.data
 
 /**
  * Created by York on 2018/3/27.

@@ -8,8 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.Album
-import com.york.android.musicsession.model.Rank
+import com.york.android.musicsession.model.data.Album
 
 /**
  * Created by York on 2018/3/27.

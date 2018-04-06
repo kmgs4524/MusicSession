@@ -10,9 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.Album
-import com.york.android.musicsession.model.Rank
-import com.york.android.musicsession.model.Song
+import com.york.android.musicsession.model.data.Album
+import com.york.android.musicsession.model.data.Song
 import kotlinx.android.synthetic.main.fragment_album.*
 
 /**

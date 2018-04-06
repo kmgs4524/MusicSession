@@ -11,7 +11,7 @@ import android.util.Log
 import kotlinx.android.synthetic.main.activity_album.*
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.Song
+import com.york.android.musicsession.model.data.Song
 import kotlinx.android.synthetic.main.controlview.*
 
 class AlbumActivity : AppCompatActivity() {
@@ -35,7 +35,7 @@ class AlbumActivity : AppCompatActivity() {
         val path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
         val songs = ArrayList<Song>()
 
-        songs.add(Song("還島快樂", "吳汶芳", R.drawable.album_cover, 0,"/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳,舒米恩-還島快樂.mp3"))
+        songs.add(Song("還島快樂", "吳汶芳", R.drawable.album_cover, 0, "/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳,舒米恩-還島快樂.mp3"))
         songs.add(Song("不要來找我 (成全遼闊版)", "吳汶芳", R.drawable.album_cover, 0, "/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳-不要來找我 (成全遼闊版).mp3"))
         songs.add(Song("不要來找我 (放手解脫版)", "吳汶芳", R.drawable.album_cover, 0, "/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳-不要來找我 (放手解脫版).mp3"))
         songs.add(Song("心之所向", "吳汶芳", R.drawable.album_cover, 0, "/storage/emulated/0/Music/吳汶芳 - 我來自/吳汶芳-心之所向.mp3"))

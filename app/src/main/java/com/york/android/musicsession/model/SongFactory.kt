@@ -1,13 +1,10 @@
-package com.york.android.musicsession
+package com.york.android.musicsession.model
 
-import android.database.Cursor
 import android.os.Build
 import android.provider.MediaStore
 import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentActivity
-import android.support.v7.app.AppCompatActivity
-import android.util.Log
-import com.york.android.musicsession.model.Song
+import com.york.android.musicsession.model.data.Song
 import java.util.*
 
 /**
@@ -62,7 +59,7 @@ class SongFactory(val activity: FragmentActivity) {
         val songs = ArrayList<Song>()
         for(i in 0 until names.size) {
 //            Log.d("SongsFactory", "names[${i}]: ${names[i]}")
-            songs.add(Song(names[i]!!, artist[i]!!, 0, duration[i]!!,path[i]!!))
+            songs.add(Song(names[i]!!, artist[i]!!, 0, duration[i]!!, path[i]!!))
         }
 
 //        Log.d("SongsFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")

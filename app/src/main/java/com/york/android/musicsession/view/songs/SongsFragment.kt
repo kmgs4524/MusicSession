@@ -11,17 +11,17 @@ import android.os.Message
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.SongFactory
+import com.york.android.musicsession.model.SongFactory
 import com.york.android.musicsession.view.exoplayer.SongAdapter
-import kotlinx.android.synthetic.main.activity_album.*
-import kotlinx.android.synthetic.main.controlview.*
 import kotlinx.android.synthetic.main.fragment_songs.*
 
 /**
@@ -102,6 +102,7 @@ class SongsFragment : Fragment() {
 
         recyclerView_songs.layoutManager = LinearLayoutManager(activity)
         recyclerView_songs.adapter = SongAdapter(songs, activity, null, null, handler)
+        recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 
     fun onButtonPressed(uri: Uri) {
