@@ -2,7 +2,9 @@ package com.york.android.musicsession.view.album
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
 import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.AlbumFactory
 import com.york.android.musicsession.model.data.Album
 import com.york.android.musicsession.model.data.Song
 import kotlinx.android.synthetic.main.fragment_album.*
@@ -43,22 +46,24 @@ class AlbumFragment : Fragment() {
         return inflater!!.inflate(R.layout.fragment_album, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
         initRecyclerView()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun initRecyclerView() {
-        val albums = ArrayList<Album>()
+        val albums = AlbumFactory(activity).getAlbums("", "")
 
-        albums.add(Album("天堂/懸崖", "李佳薇", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("天堂/懸崖", "李佳薇", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
 
         val layoutManager = GridLayoutManager(activity, 2)
         recyclerView_album.layoutManager = layoutManager

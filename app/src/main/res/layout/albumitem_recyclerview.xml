@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/imageVIew_albumItem"
+        android:id="@+id/imageVIew_albumItem_albumArt"
         android:layout_width="178dp"
         android:layout_height="210dp"
         android:layout_marginBottom="1dp"
@@ -29,9 +29,9 @@
         android:layout_height="0dp"
         android:background="@drawable/albumitem_gradientblack"
         android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem"
-        app:layout_constraintEnd_toEndOf="@+id/imageVIew_albumItem"
-        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem" />
+        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem_albumArt"
+        app:layout_constraintEnd_toEndOf="@+id/imageVIew_albumItem_albumArt"
+        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem_albumArt" />
 
     <TextView
         android:id="@+id/textView_albumItem_name"
@@ -42,9 +42,9 @@
         android:text="album name"
         android:textColor="@color/md_white_1000"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem"
-        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem"
-        app:layout_constraintTop_toTopOf="@+id/imageVIew_albumItem"
+        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem_albumArt"
+        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem_albumArt"
+        app:layout_constraintTop_toTopOf="@+id/imageVIew_albumItem_albumArt"
         app:layout_constraintVertical_bias="0.9"/>
 
     <TextView
@@ -55,8 +55,8 @@
         android:text="未知的演唱者"
         android:textColor="@color/md_blue_grey_100"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem"
-        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem"
+        app:layout_constraintBottom_toBottomOf="@+id/imageVIew_albumItem_albumArt"
+        app:layout_constraintStart_toStartOf="@+id/imageVIew_albumItem_albumArt"
         app:layout_constraintTop_toBottomOf="@+id/textView_albumItem_name"
         app:layout_constraintVertical_bias="0.99" />
 

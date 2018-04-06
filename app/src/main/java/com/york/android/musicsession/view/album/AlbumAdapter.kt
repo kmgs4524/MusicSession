@@ -1,6 +1,8 @@
 package com.york.android.musicsession.view.album
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -30,8 +32,14 @@ class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.
 
     inner class RankItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(album: Album) {
-            val imageView = itemView.findViewById<ImageView>(R.id.imageVIew_albumItem)
+            val textViewArtistName = itemView.findViewById<TextView>(R.id.textView_albumItem_artist)
             val textViewAlbumName = itemView.findViewById<TextView>(R.id.textView_albumItem_name)
+            val imageViewAlbumArt = itemView.findViewById<ImageView>(R.id.imageVIew_albumItem_albumArt)
+
+            textViewAlbumName.setText(album.name)
+            textViewArtistName.setText(album.artist)
+
+            imageViewAlbumArt.setImageBitmap(BitmapFactory.decodeFile(album.coverImageUrl))
         }
     }
 }

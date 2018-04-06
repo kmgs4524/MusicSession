@@ -23,15 +23,33 @@ class SongFactory(val activity: FragmentActivity) {
         when(type) {
             "Title" -> {
                 cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA),
+                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
+                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.TITLE + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
             "DiplayName" -> {
                 cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA),
+                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
+                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.DISPLAY_NAME + "=?",   // selection formatted as an SQL WHERE clause
+                        arrayOf(keyword),
+                        "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
+            }
+            "Album" -> {
+                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
+                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                        MediaStore.Audio.Media.ALBUM + "=?",   // selection formatted as an SQL WHERE clause
+                        arrayOf(keyword),
+                        "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
+            }
+            "Artist" -> {
+                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
+                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                        MediaStore.Audio.Media.ARTIST + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
