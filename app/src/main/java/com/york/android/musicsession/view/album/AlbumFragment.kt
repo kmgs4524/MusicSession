@@ -4,14 +4,16 @@ import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.GridLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.Album
 import com.york.android.musicsession.model.Rank
-import kotlinx.android.synthetic.main.fragment_rank.*
+import com.york.android.musicsession.model.Song
+import kotlinx.android.synthetic.main.fragment_album.*
 
 /**
  * A simple [Fragment] subclass.
@@ -39,7 +41,7 @@ class AlbumFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_rank, container, false)
+        return inflater!!.inflate(R.layout.fragment_album, container, false)
     }
 
     override fun onStart() {
@@ -48,21 +50,20 @@ class AlbumFragment : Fragment() {
     }
 
     fun initRecyclerView() {
-        val items = ArrayList<Rank>()
-        val songRanking = ArrayList<String>()
+        val albums = ArrayList<Album>()
 
-        songRanking.add("慢慢喜歡你")
-        songRanking.add("我的事不關你的事")
-        songRanking.add("Dancer - Flo Rida(佛羅里達)")
+        albums.add(Album("天堂/懸崖", "李佳薇", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
+        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
 
-        items.add(Rank("綜合新歌排行榜", "每小時更新", songRanking))
-        items.add(Rank("華語新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("西洋新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("韓語新歌排行榜", "2018-03-27", songRanking))
-        items.add(Rank("日語新歌排行榜", "2018-03-27", songRanking))
-
-        recyclerView_rank.layoutManager = LinearLayoutManager(activity)
-        recyclerView_rank.adapter = RankAdapter(items, activity)
+        val layoutManager = GridLayoutManager(activity, 2)
+        recyclerView_album.layoutManager = layoutManager
+        recyclerView_album.adapter = AlbumAdapter(albums, activity)
     }
 
     // TODO: Rename method, update argument and hook method into UI event

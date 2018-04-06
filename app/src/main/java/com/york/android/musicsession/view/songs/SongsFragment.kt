@@ -64,7 +64,6 @@ class SongsFragment : Fragment() {
             mParam1 = arguments?.getString(ARG_PARAM1)
             mParam2 = arguments?.getString(ARG_PARAM2)
         }
-        verifyStoragePermission()
 
     }
 
@@ -89,6 +88,11 @@ class SongsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater!!.inflate(R.layout.fragment_songs, container, false)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        verifyStoragePermission()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
