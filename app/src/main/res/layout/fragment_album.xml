@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.york.android.musicsession.view.albumtab.AlbumFragment">
+    tools:context="com.york.android.musicsession.view.albumpage.AlbumFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView_album"

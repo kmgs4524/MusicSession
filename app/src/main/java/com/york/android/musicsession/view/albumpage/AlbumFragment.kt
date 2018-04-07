@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.albumtab
+package com.york.android.musicsession.view.albumpage
 
 import android.content.Context
 import android.net.Uri

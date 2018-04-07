@@ -12,9 +12,9 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.view.albumtab.AlbumFragment
-import com.york.android.musicsession.view.artisttab.ArtistFragment
-import com.york.android.musicsession.view.songtab.SongsFragment
+import com.york.android.musicsession.view.albumpage.AlbumFragment
+import com.york.android.musicsession.view.artistpage.ArtistFragment
+import com.york.android.musicsession.view.songpage.SongsFragment
 import kotlinx.android.synthetic.main.fragment_discover.*
 
 /**

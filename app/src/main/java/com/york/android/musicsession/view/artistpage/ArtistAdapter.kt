@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.artisttab
+package com.york.android.musicsession.view.artistpage
 
 import android.content.Context
 import android.support.v7.widget.RecyclerView
