@@ -50,9 +50,9 @@ class AlbumActivity : AppCompatActivity() {
 
 
         Log.d("initRecycleView", "called")
-        recyclerView_album.layoutManager = LinearLayoutManager(this)
+        recyclerView_album_activity.layoutManager = LinearLayoutManager(this)
 //        songAdapter = SongAdapter(songs, this, null, null, handler)
-        recyclerView_album.adapter = SongAdapter(songs, this, null, null, handler)
+        recyclerView_album_activity.adapter = SongAdapter(songs, this, null, null, handler)
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

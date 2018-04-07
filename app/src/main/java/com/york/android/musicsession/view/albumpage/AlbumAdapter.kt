@@ -2,6 +2,7 @@ package com.york.android.musicsession.view.albumpage
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Album
+import com.york.android.musicsession.view.album.AlbumFragment
 
 /**
  * Created by York on 2018/3/27.
@@ -23,6 +25,12 @@ class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.
 
     override fun onBindViewHolder(holder: RankItemHolder?, position: Int) {
         holder?.bind(albums[position])
+        holder?.itemView?.setOnClickListener {
+            val transaction = (context as FragmentActivity).supportFragmentManager.beginTransaction()
+
+            transaction.replace(R.id.constraintLayout_main_mainContainer, AlbumFragment.newInstance(albums[position]))
+            transaction.commit()
+        }
     }
 
     override fun getItemCount(): Int {

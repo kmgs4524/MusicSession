@@ -54,18 +54,9 @@ class AlbumPageFragment : Fragment() {
     fun initRecyclerView() {
         val albums = AlbumFactory(activity).getAlbums("", "")
 
-//        albums.add(Album("天堂/懸崖", "李佳薇", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-//        albums.add(Album("我來自", "吳汶芳", ArrayList<Song>(), ""))
-
         val layoutManager = GridLayoutManager(activity, 2)
-        recyclerView_album.layoutManager = layoutManager
-        recyclerView_album.adapter = AlbumAdapter(albums, activity)
+        recyclerView_albumPage.layoutManager = layoutManager
+        recyclerView_albumPage.adapter = AlbumAdapter(albums, activity)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -109,14 +100,6 @@ class AlbumPageFragment : Fragment() {
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment AlbumPageFragment.
-         */
         // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): AlbumPageFragment {
             val fragment = AlbumPageFragment()

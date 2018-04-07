@@ -17,7 +17,7 @@
         tools:context="com.york.android.musicsession.view.MainActivity">
 
         <android.support.constraint.ConstraintLayout
-            android:id="@+id/main_container"
+            android:id="@+id/constraintLayout_main_mainContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -50,7 +50,7 @@
         </android.support.constraint.ConstraintLayout>
 
         <FrameLayout
-            android:id="@+id/fragment_container"
+            android:id="@+id/frameLayout_main_controlContainer"
             android:name="com.york.android.exomusicplayer.view.PlayerControlFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

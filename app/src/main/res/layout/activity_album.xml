@@ -34,7 +34,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/textView_album_albumName"
+                    android:id="@+id/textView_activity_albumName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -45,7 +45,7 @@
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
-                    android:id="@+id/textView_album_artist"
+                    android:id="@+id/textView_activity_artist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -100,7 +100,7 @@
 
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerView_album"
+        android:id="@+id/recyclerView_album_activity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginEnd="8dp"

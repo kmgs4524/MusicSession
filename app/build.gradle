@@ -20,6 +20,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    // use experimental function 'Parcelize' annotation
+    androidExtensions {
+        experimental = true
+    }
 //    configurations.all {
 //        resolutionStrategy.force 'com.google.code.findbugs:jsr305:2.0.1'
 //    }

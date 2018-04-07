@@ -6,7 +6,6 @@ import android.app.Activity
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.net.ConnectivityManager
 import android.os.AsyncTask
 import android.support.v7.app.AppCompatActivity
@@ -22,16 +21,11 @@ import com.google.android.youtube.player.YouTubePlayerSupportFragment
 import com.google.api.client.extensions.android.http.AndroidHttp
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
 import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecoverableAuthIOException
-import com.google.api.client.json.JsonFactory
 import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.YouTubeScopes
-import com.google.api.services.youtube.model.SearchResult
-import com.kkbox.openapideveloper.api.Api
-import com.kkbox.openapideveloper.auth.Auth
 import com.york.android.musicsession.R
-import com.york.android.musicsession.R.id.textView
 import kotlinx.android.synthetic.main.activity_test.*
 import okhttp3.OkHttpClient
 import pub.devrel.easypermissions.AfterPermissionGranted

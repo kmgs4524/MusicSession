@@ -58,7 +58,7 @@
     <!--app:layout_constraintTop_toTopOf="parent" />-->
 
     <ImageView
-        android:id="@+id/imageView_album_artwork"
+        android:id="@+id/imageView_controlview_artwork"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_marginEnd="8dp"
