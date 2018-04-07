@@ -82,7 +82,7 @@ class ArtistFactory(val activity: FragmentActivity) {
             artists.add(Artist(names[i]!!, albums, ""))
         }
 
-//        Log.d("SongsFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+//        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
         return artists
     }
 }

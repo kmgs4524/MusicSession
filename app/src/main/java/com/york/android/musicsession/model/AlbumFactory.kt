@@ -72,7 +72,7 @@ class AlbumFactory(val activity: FragmentActivity) {
             }
         }
 
-//        Log.d("SongsFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+//        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
         return albums
     }
 }

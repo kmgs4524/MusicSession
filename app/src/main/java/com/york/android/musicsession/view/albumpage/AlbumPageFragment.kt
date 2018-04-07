@@ -13,17 +13,17 @@ import android.view.ViewGroup
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.AlbumFactory
-import kotlinx.android.synthetic.main.fragment_album.*
+import kotlinx.android.synthetic.main.fragment_albumpage.*
 
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [AlbumFragment.OnFragmentInteractionListener] interface
+ * [AlbumPageFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [AlbumFragment.newInstance] factory method to
+ * Use the [AlbumPageFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AlbumFragment : Fragment() {
+class AlbumPageFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
@@ -41,7 +41,7 @@ class AlbumFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_album, container, false)
+        return inflater!!.inflate(R.layout.fragment_albumpage, container, false)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -115,11 +115,11 @@ class AlbumFragment : Fragment() {
          *
          * @param param1 Parameter 1.
          * @param param2 Parameter 2.
-         * @return A new instance of fragment AlbumFragment.
+         * @return A new instance of fragment AlbumPageFragment.
          */
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): AlbumFragment {
-            val fragment = AlbumFragment()
+        fun newInstance(param1: String, param2: String): AlbumPageFragment {
+            val fragment = AlbumPageFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

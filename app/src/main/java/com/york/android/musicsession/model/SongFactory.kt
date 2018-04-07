@@ -80,7 +80,7 @@ class SongFactory(val activity: FragmentActivity) {
             songs.add(Song(names[i]!!, artist[i]!!, 0, duration[i]!!, path[i]!!))
         }
 
-//        Log.d("SongsFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+//        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
         return songs
     }
 }

@@ -12,14 +12,14 @@ import com.york.android.musicsession.R
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
-import com.york.android.musicsession.view.albumpage.AlbumFragment
-import com.york.android.musicsession.view.artistpage.ArtistFragment
-import com.york.android.musicsession.view.songpage.SongsFragment
+import com.york.android.musicsession.view.albumpage.AlbumPageFragment
+import com.york.android.musicsession.view.artistpage.ArtistPageFragment
+import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
-        SongsFragment.OnFragmentInteractionListener, AlbumFragment.OnFragmentInteractionListener,
-        ArtistFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
+        SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
+        ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener {
 
     override fun onPlayerControlClicked(position: Int) {

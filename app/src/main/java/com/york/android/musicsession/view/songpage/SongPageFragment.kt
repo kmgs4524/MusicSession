@@ -27,12 +27,12 @@ import kotlinx.android.synthetic.main.fragment_songs.*
 /**
  * A simple [Fragment] subclass.
  * Activities that contain this fragment must implement the
- * [SongsFragment.OnFragmentInteractionListener] interface
+ * [SongPageFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
- * Use the [SongsFragment.newInstance] factory method to
+ * Use the [SongPageFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class SongsFragment : Fragment() {
+class SongPageFragment : Fragment() {
     // verify permission
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -79,7 +79,7 @@ class SongsFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        Log.d("SongsFragment", "grantResults: ${grantResults}")
+        Log.d("SongPageFragment", "grantResults: ${grantResults}")
         if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initRecyclerView()
         }
@@ -137,8 +137,8 @@ class SongsFragment : Fragment() {
         private val ARG_PARAM2 = "param2"
 
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): SongsFragment {
-            val fragment = SongsFragment()
+        fun newInstance(param1: String, param2: String): SongPageFragment {
+            val fragment = SongPageFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)

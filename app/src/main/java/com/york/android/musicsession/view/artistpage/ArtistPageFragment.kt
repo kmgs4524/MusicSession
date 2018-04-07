@@ -15,9 +15,9 @@ import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.ArtistFactory
-import kotlinx.android.synthetic.main.fragment_style.*
+import kotlinx.android.synthetic.main.fragment_artistpage.*
 
-class ArtistFragment : Fragment() {
+class ArtistPageFragment : Fragment() {
     private var mParam1: String? = null
     private var mParam2: String? = null
 
@@ -33,7 +33,7 @@ class ArtistFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater!!.inflate(R.layout.fragment_style, container, false)
+        return inflater!!.inflate(R.layout.fragment_artistpage, container, false)
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -86,8 +86,8 @@ class ArtistFragment : Fragment() {
         private val ARG_PARAM2 = "param2"
 
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): ArtistFragment {
-            val fragment = ArtistFragment()
+        fun newInstance(param1: String, param2: String): ArtistPageFragment {
+            val fragment = ArtistPageFragment()
             val args = Bundle()
             args.putString(ARG_PARAM1, param1)
             args.putString(ARG_PARAM2, param2)
