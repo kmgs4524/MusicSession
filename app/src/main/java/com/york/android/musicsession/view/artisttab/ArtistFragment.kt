@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.artist
+package com.york.android.musicsession.view.artisttab
 
 import android.content.Context
 import android.net.Uri
@@ -15,8 +15,6 @@ import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.ArtistFactory
-import com.york.android.musicsession.model.data.Album
-import com.york.android.musicsession.model.data.Artist
 import kotlinx.android.synthetic.main.fragment_style.*
 
 class ArtistFragment : Fragment() {

@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.songs
+package com.york.android.musicsession.view.songtab
 
 import android.Manifest
 import android.content.Context

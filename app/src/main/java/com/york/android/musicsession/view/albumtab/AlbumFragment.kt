@@ -1,4 +1,4 @@
-package com.york.android.musicsession.view.album
+package com.york.android.musicsession.view.albumtab
 
 import android.content.Context
 import android.net.Uri
@@ -13,8 +13,6 @@ import android.view.ViewGroup
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.AlbumFactory
-import com.york.android.musicsession.model.data.Album
-import com.york.android.musicsession.model.data.Song
 import kotlinx.android.synthetic.main.fragment_album.*
 
 /**
