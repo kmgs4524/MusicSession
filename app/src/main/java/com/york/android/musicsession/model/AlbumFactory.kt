@@ -30,12 +30,12 @@ class AlbumFactory(val activity: FragmentActivity) {
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
-            "DiplayName" -> {
-                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                        arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA),
-                        MediaStore.Audio.Media.DISPLAY_NAME + "=?",   // selection formatted as an SQL WHERE clause
+            "Artist" -> {
+                cursor = activity.contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Audio.Albums.ALBUM, MediaStore.Audio.Albums.ARTIST, MediaStore.Audio.Albums.ALBUM_ART),
+                        MediaStore.Audio.Albums.ARTIST + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
-                        "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
+                        "")
             }
         }
 

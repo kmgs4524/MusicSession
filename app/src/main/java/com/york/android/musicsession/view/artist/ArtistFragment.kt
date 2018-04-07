@@ -2,7 +2,9 @@ package com.york.android.musicsession.view.artist
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
@@ -12,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.ArtistFactory
 import com.york.android.musicsession.model.data.Album
 import com.york.android.musicsession.model.data.Artist
 import kotlinx.android.synthetic.main.fragment_style.*
@@ -47,11 +50,12 @@ class ArtistFragment : Fragment() {
         initRecyclerView()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun initRecyclerView() {
-        val artists = ArrayList<Artist>()
+        val artists = ArtistFactory(activity).getArtists("", "")
 
-        artists.add(Artist("吳汶芳", ArrayList<Album>(), ""))
-        artists.add(Artist("李佳薇", ArrayList<Album>(), ""))
+//        artists.add(Artist("吳汶芳", ArrayList<Album>(), ""))
+//        artists.add(Artist("李佳薇", ArrayList<Album>(), ""))
 
         recyclerView_artist.layoutManager = LinearLayoutManager(activity)
         recyclerView_artist.adapter = ArtistAdapter(artists, activity)
