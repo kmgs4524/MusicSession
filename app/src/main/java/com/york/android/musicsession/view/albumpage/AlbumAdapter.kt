@@ -17,6 +17,9 @@ import com.york.android.musicsession.view.album.AlbumFragment
  * Created by York on 2018/3/27.
  */
 class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.Adapter<AlbumAdapter.RankItemHolder>() {
+    companion object {
+        val ENTER_ALBUM_STATE = "AlbumFragment"
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RankItemHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.albumitem_recyclerview, parent, false)
@@ -29,6 +32,7 @@ class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.
             val transaction = (context as FragmentActivity).supportFragmentManager.beginTransaction()
 
             transaction.replace(R.id.constraintLayout_main_mainContainer, AlbumFragment.newInstance(albums[position]))
+            transaction.addToBackStack(ENTER_ALBUM_STATE)
             transaction.commit()
         }
     }

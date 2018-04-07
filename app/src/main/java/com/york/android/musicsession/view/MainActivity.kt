@@ -5,17 +5,20 @@ import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.annotation.RequiresApi
+import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
 import android.util.Log
 import android.view.*
 import com.york.android.musicsession.R
 import com.york.android.musicsession.view.album.AlbumFragment
+import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
+import com.york.android.musicsession.view.exoplayer.SongAdapter
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -23,9 +26,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
         ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener {
-
-    val DISCOVER_FRAGMENT = 10
-    val DISCOVER_STATE = "DiscoverFragment"
 
     override fun onPlayerControlClicked(position: Int) {
 
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
         transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
         transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
-        transition.addToBackStack(DISCOVER_STATE)
+        transition.addToBackStack(null)
         transition.commit()
 
         setDrawerListener()
@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             val transition:FragmentTransaction = supportFragmentManager.beginTransaction()
 
             when(item.itemId) {
-                R.id.nav_mymusic ->   transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment, DISCOVER_FRAGMENT)
+                R.id.nav_mymusic ->   transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment)
                 R.id.nav_dicover -> transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
                 else -> true
             }
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         val count = supportFragmentManager.backStackEntryCount
 
         Log.d("MainActivity", "onBackPressed count: ${count}")
-        val success = if(count == 0) super.onBackPressed() else supportFragmentManager.popBackStack()
+        val success = if(count == 0) super.onBackPressed() else supportFragmentManager.popBackStack(AlbumAdapter.ENTER_ALBUM_STATE, POP_BACK_STACK_INCLUSIVE)
         Log.d("MainActivity", "onBackPressed success: ${success}")
     }
 
