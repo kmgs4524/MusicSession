@@ -70,6 +70,49 @@
 
     </android.support.design.widget.AppBarLayout>
 
+
+    <LinearLayout
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        app:layout_anchor="@id/constraintLayout_album"
+        app:layout_anchorGravity="top|center"
+        android:background="@drawable/functionbar_background">
+
+        <Button
+            android:layout_weight="3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="播放"
+            android:textColor="@color/md_white_1000"
+            android:elevation="0dp"
+            android:backgroundTint="#00ffffff"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/md_white_1000"/>
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_add_white_36dp"
+            android:scaleType="center"
+            android:backgroundTint="#00ffffff"/>
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:background="@color/md_white_1000"/>
+
+        <ImageButton
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_file_download_white_36dp"
+            android:backgroundTint="#00ffffff"/>
+
+    </LinearLayout>
     <android.support.constraint.ConstraintLayout
         android:id="@+id/constraintLayout_album"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
