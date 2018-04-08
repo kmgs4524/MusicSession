@@ -22,7 +22,7 @@ class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): RankItemHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.albumitem_recyclerview, parent, false)
+        val view = LayoutInflater.from(context).inflate(R.layout.albumitem_recyclerview_albumpage, parent, false)
         return RankItemHolder(view)
     }
 

@@ -55,9 +55,9 @@ class ArtistPageFragment : Fragment() {
 //        artists.add(Artist("吳汶芳", ArrayList<Album>(), ""))
 //        artists.add(Artist("李佳薇", ArrayList<Album>(), ""))
 
-        recyclerView_artist.layoutManager = LinearLayoutManager(activity)
-        recyclerView_artist.adapter = ArtistAdapter(artists, activity)
-        recyclerView_artist.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+        recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
+        recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
+        recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 
     override fun onAttach(context: Context?) {

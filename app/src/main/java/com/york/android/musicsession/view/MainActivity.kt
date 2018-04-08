@@ -17,6 +17,7 @@ import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
+import com.york.android.musicsession.view.artist.ArtistFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import com.york.android.musicsession.view.songpage.SongPageFragment
@@ -25,7 +26,8 @@ import kotlinx.android.synthetic.main.activity_main.*
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
         SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
         ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
-        PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener {
+        PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
+        ArtistFragment.OnFragmentInteractionListener {
 
     override fun onPlayerControlClicked(position: Int) {
 
