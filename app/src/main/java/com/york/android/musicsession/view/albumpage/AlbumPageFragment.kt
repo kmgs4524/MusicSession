@@ -12,7 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.AlbumFactory
+import com.york.android.musicsession.model.datafactory.AlbumFactory
 import kotlinx.android.synthetic.main.fragment_albumpage.*
 
 /**

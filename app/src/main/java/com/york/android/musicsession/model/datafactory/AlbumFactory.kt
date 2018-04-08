@@ -1,4 +1,4 @@
-package com.york.android.musicsession.model
+package com.york.android.musicsession.model.datafactory
 
 import android.os.Build
 import android.provider.MediaStore

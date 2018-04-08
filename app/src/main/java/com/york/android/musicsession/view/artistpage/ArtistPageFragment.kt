@@ -14,7 +14,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.ArtistFactory
+import com.york.android.musicsession.model.datafactory.ArtistFactory
 import kotlinx.android.synthetic.main.fragment_artistpage.*
 
 class ArtistPageFragment : Fragment() {

@@ -20,7 +20,7 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.SongFactory
+import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.fragment_songs.*
 

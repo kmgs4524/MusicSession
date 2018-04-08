@@ -17,10 +17,9 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.AlbumFactory
-import com.york.android.musicsession.model.SongFactory
+import com.york.android.musicsession.model.datafactory.AlbumFactory
+import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.model.data.Artist
-import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.activity_album.*
 import kotlinx.android.synthetic.main.controlview.*
