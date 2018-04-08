@@ -37,7 +37,10 @@ dependencies {
     implementation 'com.android.support:design:26.1.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
+    // Exoplayer
     implementation 'com.google.android.exoplayer:exoplayer:2.7.1'
+    // flac extension
+    implementation files('libs/extension-flac.aar')
     implementation 'com.android.support:support-v4:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
