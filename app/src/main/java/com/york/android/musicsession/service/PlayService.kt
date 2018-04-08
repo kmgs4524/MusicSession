@@ -9,11 +9,14 @@ import android.os.*
 import android.support.annotation.RequiresApi
 import android.util.Log
 import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ext.flac.FlacExtractor
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.*
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
+import com.google.android.exoplayer2.upstream.DefaultDataSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.R
@@ -83,8 +86,11 @@ class PlayService : Service() {
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
 
+
         songs.forEach {
-            var videoSource = ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(Uri.parse(it.filePath))
+            var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
+                    .setExtractorsFactory(DefaultExtractorsFactory())
+                    .createMediaSource(Uri.parse(it.filePath))
             dynamicConcatenatingMediaSource.addMediaSource(videoSource)
             Log.d("PlayService", "song name: ${it.filePath}")
         }
@@ -99,7 +105,8 @@ class PlayService : Service() {
             player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
             setPlayerListener()
             player?.prepare(dynamicConcatenatingMediaSource)
-            player?.playWhenReady = true
+            player?.playWhenReady = false
+            Log.d("PlayService", "currentWindowIndex: ${player?.currentWindowIndex}")
         }
 
     }
@@ -108,8 +115,8 @@ class PlayService : Service() {
         // Produces DataSource instances through which media data is loaded.
         Log.d("PlayService", "player: ${player}")
 
-//        player?.seekTo(index, 0)
-        Log.d("PlayService", ": ${player?.currentWindowIndex}")
+        player?.seekTo(index, 0)
+        Log.d("PlayService", "currentWindowIndex: ${player?.currentWindowIndex}")
         // Prepare the player with the source.
         player?.playWhenReady = true
 
