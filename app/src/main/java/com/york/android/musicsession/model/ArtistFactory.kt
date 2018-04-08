@@ -5,15 +5,22 @@ import android.provider.MediaStore
 import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentActivity
 import android.util.Log
+import com.kkbox.openapideveloper.auth.Auth
 import com.york.android.musicsession.model.data.Album
 import com.york.android.musicsession.model.data.Artist
 import com.york.android.musicsession.model.data.Song
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.jetbrains.anko.doAsync
 import java.util.ArrayList
 
 /**
  * Created by York on 2018/4/7.
  */
 class ArtistFactory(val activity: FragmentActivity) {
+    // KKBOX client
+    val CLIENT_ID = "aa2dd565a7ae293236cb81e3e2497fe2"
+    val CLIENT_SECRET = "a3c20ad364b0ace2c52ca6b8f428796f"
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getArtists(keyword: String, type: String): List<Artist> {
@@ -82,7 +89,24 @@ class ArtistFactory(val activity: FragmentActivity) {
             artists.add(Artist(names[i]!!, albums, ""))
         }
 
-//        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+        getImage("吳汶芳")
+
         return artists
+    }
+
+    private fun getImage(queryString: String) {
+        val client = OkHttpClient()
+        val auth = Auth(CLIENT_ID, CLIENT_SECRET, activity)
+        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
+
+        doAsync {
+            val request = Request.Builder().url("https://api.kkbox.com/v1.1/search?q=${queryString}&type=artist&territory=TW")
+                    .addHeader("accept", "application/json")
+                    .addHeader("authorization", "Bearer ${accessToken}")
+                    .build()
+            val response = client.newCall(request).execute()
+            val result = response.body()?.string()
+            Log.d("ArtistFactory", "result: ${result}")
+        }
     }
 }

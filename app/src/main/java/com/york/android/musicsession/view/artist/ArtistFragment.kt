@@ -1,6 +1,7 @@
 package com.york.android.musicsession.view.artist
 
 import android.content.Context
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -18,7 +19,7 @@ import android.widget.LinearLayout
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.AlbumFactory
 import com.york.android.musicsession.model.SongFactory
-import com.york.android.musicsession.model.data.Album
+import com.york.android.musicsession.model.data.Artist
 import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.activity_album.*
@@ -27,16 +28,14 @@ import kotlinx.android.synthetic.main.fragment_artist.*
 
 class ArtistFragment : Fragment() {
 
-    private var mParam1: String? = null
-    private var mParam2: String? = null
+    private var param: Artist? = null
 
     private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            mParam1 = arguments.getString(ARG_PARAM1)
-            mParam2 = arguments.getString(ARG_PARAM2)
+            param = arguments.getParcelable(ARG_PARAM_ARTIST) as Artist
         }
     }
 
@@ -49,14 +48,25 @@ class ArtistFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
+
+        setArtistImage()
+        setArtistName()
         initArtistAlbumRecyclerView()
         initArtistSongRecyclerView()
+    }
+
+    fun setArtistName() {
+        textView_artist_artistName.setText(param?.name)
+    }
+
+    fun setArtistImage() {
+        circleImageView_artist_artistImage.setImageBitmap(BitmapFactory.decodeFile(param?.imageUrl))
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun initArtistAlbumRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
-        val albums = AlbumFactory(activity).getAlbums("吳汶芳", "Artist")
+        val albums = AlbumFactory(activity).getAlbums(param!!.name, "Artist")
 
         layoutManager.orientation = LinearLayout.HORIZONTAL
         recyclerView_artist_albums.layoutManager = layoutManager
@@ -66,7 +76,7 @@ class ArtistFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun initArtistSongRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
-        val songs = SongFactory(activity).getSongs("吳汶芳", "Artist")
+        val songs = SongFactory(activity).getSongs(param!!.name, "Artist")
         val handler = object: Handler() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
@@ -116,15 +126,13 @@ class ArtistFragment : Fragment() {
     companion object {
         // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        private val ARG_PARAM_ARTIST = "paramArtist"
 
         // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): ArtistFragment {
+        fun newInstance(param: Artist): ArtistFragment {
             val fragment = ArtistFragment()
             val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
+            args.putParcelable(ARG_PARAM_ARTIST, param)
             fragment.arguments = args
             return fragment
         }

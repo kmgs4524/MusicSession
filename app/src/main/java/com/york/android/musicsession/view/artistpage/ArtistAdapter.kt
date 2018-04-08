@@ -33,7 +33,7 @@ class ArtistAdapter(val artists: List<Artist>, val context: Context): RecyclerVi
             val ENTER_ARTIST_STATE = "ArtistFragment"
             val transaction = (context as MainActivity).supportFragmentManager.beginTransaction()
 
-            transaction.replace(R.id.constraintLayout_main_mainContainer, ArtistFragment.newInstance("", ""))
+            transaction.replace(R.id.constraintLayout_main_mainContainer, ArtistFragment.newInstance(artists[position]))
             transaction.addToBackStack(ENTER_ARTIST_STATE)
             transaction.commit()
         }

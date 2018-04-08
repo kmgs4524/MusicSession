@@ -25,6 +25,7 @@ import com.google.api.client.json.jackson2.JacksonFactory
 import com.google.api.client.util.ExponentialBackOff
 import com.google.api.services.youtube.YouTube
 import com.google.api.services.youtube.YouTubeScopes
+import com.kkbox.openapideveloper.auth.Auth
 import com.york.android.musicsession.R
 import kotlinx.android.synthetic.main.activity_test.*
 import okhttp3.OkHttpClient
@@ -58,23 +59,14 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         setContentView(R.layout.activity_test)
 
         // KKBOX access token and api
-//        val auth = Auth(CLIENT_ID, CLIENT_SECRET, this)
-//        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
+        val auth = Auth(CLIENT_ID, CLIENT_SECRET, this)
+        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
 //        val api = Api(accessToken, "TW", this)
         // used for KKBOX API
         val client = OkHttpClient()
 
-        progress = ProgressDialog(this)
-        progress.setMessage("Calling Youtube Data API...")
-
-        scopes.add(YouTubeScopes.YOUTUBE_READONLY)  // scope of view Youtube account for use with Youtube Data API
-        // create Google account credential
-        credential = GoogleAccountCredential.usingOAuth2(this, scopes).setBackOff(ExponentialBackOff())
-
-        setFragment()
-        setButton()
-//        doAsync {
-            //            api.albumFetcher.setAlbumId ("KmRKnW5qmUrTnGRuxF")
+        //        doAsync {
+        //            api.albumFetcher.setAlbumId ("KmRKnW5qmUrTnGRuxF")
 //            val searchResult = api.searchFetcher.fetchSearchResult(50, 0).get().get(accessToken)
 //            val result = api.albumFetcher.fetchTracks(10, 0).get().get(accessToken).asString
 
@@ -92,6 +84,15 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 //        }
 //        val searchResult = api.searchFetcher.fetchSearchResult(10, 2).get().get(accessToken)
 
+        progress = ProgressDialog(this)
+        progress.setMessage("Calling Youtube Data API...")
+
+        scopes.add(YouTubeScopes.YOUTUBE_READONLY)  // scope of view Youtube account for use with Youtube Data API
+        // create Google account credential
+        credential = GoogleAccountCredential.usingOAuth2(this, scopes).setBackOff(ExponentialBackOff())
+
+        setFragment()
+        setButton()
     }
 
     fun setFragment() {
@@ -111,11 +112,6 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         override fun onInitializationFailure(provider: YouTubePlayer.Provider?, player: YouTubeInitializationResult?) {
 
         }
-
-    }
-
-    override fun onStart() {
-        super.onStart()
 
     }
 
