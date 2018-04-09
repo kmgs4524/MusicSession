@@ -82,14 +82,20 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onStart() {
         super.onStart()
         // bottom sheet fragment
-
     }
 
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
         Log.d("MainActivity", "onBackPressed count: ${count}")
-        val success = if(count == 0) super.onBackPressed() else supportFragmentManager.popBackStack(AlbumAdapter.ENTER_ALBUM_STATE, POP_BACK_STACK_INCLUSIVE)
+        val success = if(count == 0)  {
+            super.onBackPressed()
+        } else {
+            // get top of entry in the back stack
+            val topBackStackEntry = supportFragmentManager.getBackStackEntryAt(count - 1)
+            // pop the last fragment transaction
+            supportFragmentManager.popBackStack(topBackStackEntry.name, POP_BACK_STACK_INCLUSIVE)
+        }
         Log.d("MainActivity", "onBackPressed success: ${success}")
     }
 

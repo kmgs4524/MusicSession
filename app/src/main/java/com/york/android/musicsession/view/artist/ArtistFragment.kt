@@ -91,8 +91,6 @@ class ArtistFragment : Fragment() {
             constraintLayout_artist_collapse.background = BitmapDrawable(resources, blurredBitmap)
             Log.d("ArtistFragment", "bitmap: ${bitmap}")
         }
-//        val blurredBitmap = BlurBuilder().blur(bitmap!!, activity)
-//        constraintLayout_artist_collapse.background = BitmapDrawable(resources, bitmap)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

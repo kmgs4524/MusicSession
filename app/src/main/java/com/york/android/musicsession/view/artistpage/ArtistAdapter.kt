@@ -21,6 +21,10 @@ import org.jetbrains.anko.coroutines.experimental.bg
  * Created by York on 2018/4/6.
  */
 class ArtistAdapter(val artists: List<Artist>, val activity: Context): RecyclerView.Adapter<ArtistAdapter.ArtistItemHolder>() {
+    companion object {
+        val ENTER_ARTIST_STATE = "ArtistFragment"
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ArtistItemHolder {
         val view = LayoutInflater.from(activity).inflate(R.layout.artistitem_recyclerview, parent, false)
         val holder = ArtistItemHolder(view)
@@ -35,7 +39,6 @@ class ArtistAdapter(val artists: List<Artist>, val activity: Context): RecyclerV
     override fun onBindViewHolder(holder: ArtistItemHolder?, position: Int) {
         holder?.bind(artists[position])
         holder?.itemView?.setOnClickListener {
-            val ENTER_ARTIST_STATE = "ArtistFragment"
             val transaction = (activity as MainActivity).supportFragmentManager.beginTransaction()
 
             Log.d("ArtistAdapter", "artist iamgeUrl: ${artists[position].imageUrl}")
