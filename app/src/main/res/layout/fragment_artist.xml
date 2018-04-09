@@ -23,8 +23,6 @@
         android:visibility="visible"
         tools:context="com.york.android.musicsession.view.artist.ArtistFragment">
 
-
-
         <android.support.design.widget.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -32,9 +30,11 @@
             <android.support.design.widget.CollapsingToolbarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_scrollFlags="scroll|exitUntilCollapsed">
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:contentScrim="@color/colorPrimary">
 
                 <android.support.constraint.ConstraintLayout
+                    android:id="@+id/constraintLayout_artist_collapse"
                     android:layout_width="match_parent"
                     android:layout_height="220dp">
 

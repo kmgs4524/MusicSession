@@ -1,7 +1,7 @@
 package com.york.android.musicsession.view.artist
 
 import android.content.Context
-import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +20,8 @@ import com.squareup.picasso.Picasso
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.GetArtistImage
+import com.york.android.musicsession.model.bitmap.BlurBuilder
+import com.york.android.musicsession.model.bitmap.GetBitmapFromUrl
 import com.york.android.musicsession.model.datafactory.AlbumFactory
 import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.model.data.Artist
@@ -59,6 +61,7 @@ class ArtistFragment : Fragment() {
             val imageUrl = bg { GetArtistImage(activity).getImage(param!!.name) }
             Log.d("ArtistFragment", "imageUrl:${imageUrl.await()}")
             setArtistImage(imageUrl.await())
+            setCollspseBackground(imageUrl.await())
             progressbar_artist.visibility = View.GONE
             coordinatorLayout_artist.visibility = View.VISIBLE
         }
@@ -75,10 +78,21 @@ class ArtistFragment : Fragment() {
     }
 
     fun setArtistImage(imageUrl: String) {
-        Log.d("handler", "param.imageUrl: ${param?.imageUrl}")
         Picasso.get()
                 .load(imageUrl)
                 .into(circleImageView_artist_artistImage)
+    }
+
+    fun setCollspseBackground(imageUrl: String) {
+        async(UI) {
+            Log.d("setCollspseBackground", "param.imageUrl: ${imageUrl}")
+            val bitmap = bg { GetBitmapFromUrl().getBitmap(imageUrl) }
+            val blurredBitmap = BlurBuilder().blur(bitmap.await()!!, activity)
+            constraintLayout_artist_collapse.background = BitmapDrawable(resources, blurredBitmap)
+            Log.d("ArtistFragment", "bitmap: ${bitmap}")
+        }
+//        val blurredBitmap = BlurBuilder().blur(bitmap!!, activity)
+//        constraintLayout_artist_collapse.background = BitmapDrawable(resources, bitmap)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -95,12 +109,12 @@ class ArtistFragment : Fragment() {
     fun initArtistSongRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
         val songs = SongFactory(activity).getSongs(param!!.name, "Artist")
-        val handler = object: Handler() {
+        val handler = object : Handler() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
 //                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
                 Log.d("handler", "data: ${data}")
-                if(data != null) {
+                if (data != null) {
                     Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
                     progressbar_album.progress = data?.getInt("CURRENT_POSITION")
                     progressbar_album.max = data?.getInt("DURATION")
