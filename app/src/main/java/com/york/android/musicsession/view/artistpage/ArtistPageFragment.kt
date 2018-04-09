@@ -16,6 +16,9 @@ import android.widget.LinearLayout
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.datafactory.ArtistFactory
 import kotlinx.android.synthetic.main.fragment_artistpage.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.coroutines.experimental.bg
 
 class ArtistPageFragment : Fragment() {
     private var mParam1: String? = null
@@ -43,6 +46,7 @@ class ArtistPageFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
         initRecyclerView()
@@ -52,12 +56,10 @@ class ArtistPageFragment : Fragment() {
     fun initRecyclerView() {
         val artists = ArtistFactory(activity).getArtists("", "")
 
-//        artists.add(Artist("吳汶芳", ArrayList<Album>(), ""))
-//        artists.add(Artist("李佳薇", ArrayList<Album>(), ""))
-
         recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
         recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
         recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+
     }
 
     override fun onAttach(context: Context?) {

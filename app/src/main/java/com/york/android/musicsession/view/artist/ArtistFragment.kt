@@ -9,14 +9,17 @@ import android.os.Handler
 import android.os.Message
 import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
+import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
+import com.squareup.picasso.Picasso
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.GetArtistImage
 import com.york.android.musicsession.model.datafactory.AlbumFactory
 import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.model.data.Artist
@@ -24,6 +27,9 @@ import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.activity_album.*
 import kotlinx.android.synthetic.main.controlview.*
 import kotlinx.android.synthetic.main.fragment_artist.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
+import org.jetbrains.anko.coroutines.experimental.bg
 
 class ArtistFragment : Fragment() {
 
@@ -40,7 +46,6 @@ class ArtistFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         return inflater!!.inflate(R.layout.fragment_artist, container, false)
     }
 
@@ -48,7 +53,18 @@ class ArtistFragment : Fragment() {
     override fun onStart() {
         super.onStart()
 
-        setArtistImage()
+        // Inflate the layout for this fragment
+        async(UI) {
+            Log.d("ArtistFragment", "param.name: ${param!!.name}")
+            val imageUrl = bg { GetArtistImage(activity).getImage(param!!.name) }
+            Log.d("ArtistFragment", "imageUrl:${imageUrl.await()}")
+            setArtistImage(imageUrl.await())
+            progressbar_artist.visibility = View.GONE
+            coordinatorLayout_artist.visibility = View.VISIBLE
+        }
+//        val imageUrl = "https://i.kfs.io/artist/global/1210236,0v8/fit/160x160.jpg"
+//        setArtistImage(imageUrl)
+
         setArtistName()
         initArtistAlbumRecyclerView()
         initArtistSongRecyclerView()
@@ -58,8 +74,11 @@ class ArtistFragment : Fragment() {
         textView_artist_artistName.setText(param?.name)
     }
 
-    fun setArtistImage() {
-        circleImageView_artist_artistImage.setImageBitmap(BitmapFactory.decodeFile(param?.imageUrl))
+    fun setArtistImage(imageUrl: String) {
+        Log.d("handler", "param.imageUrl: ${param?.imageUrl}")
+        Picasso.get()
+                .load(imageUrl)
+                .into(circleImageView_artist_artistImage)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -94,6 +113,7 @@ class ArtistFragment : Fragment() {
 
         recyclerView_artist_songs.layoutManager = layoutManager
         recyclerView_artist_songs.adapter = SongAdapter(songs, activity, null, null, handler)
+        recyclerView_artist_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -50,6 +50,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.10.0'
     // Gson
     implementation 'com.google.code.gson:gson:2.8.2'
+    // Picasso
+    implementation 'com.squareup.picasso:picasso:2.71828'
     // KKBOX Open API
     implementation 'com.kkbox:openapideveloper:1.0.0'
     // Android Asynchronous Networking and Image Loading(for KKBOX API)

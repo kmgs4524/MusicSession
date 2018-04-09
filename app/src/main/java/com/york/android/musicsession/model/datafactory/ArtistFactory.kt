@@ -23,6 +23,8 @@ class ArtistFactory(val activity: FragmentActivity) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getArtists(keyword: String, type: String): List<Artist> {
+
+
         var cursor = activity.contentResolver.query(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Audio.Artists.ARTIST, MediaStore.Audio.Artists.NUMBER_OF_ALBUMS),
                 "",
@@ -81,36 +83,16 @@ class ArtistFactory(val activity: FragmentActivity) {
         val artists = ArrayList<Artist>()
         val albumFactory = AlbumFactory(activity)
 
+
         for (i in 0 until names.size) {
-//            Log.d("SongsFactory", "names[${i}]: ${names[i]}")
             val albums = albumFactory.getAlbums(names[i]!!, "Artist")
-            Log.d("ArtistFactory", "name: ${names[i]} ")
-            artists.add(Artist(names[i]!!, albums, ""))
+            val artist = Artist(names[i]!!, albums, "")
+
+            artists.add(artist)
         }
 
-        getImage("吳汶芳")
-
+        Log.d("ArtistFactory", "artists size: ${artists.size} ")
         return artists
     }
 
-    private fun getImage(queryString: String) {
-        val client = OkHttpClient()
-        val auth = Auth(CLIENT_ID, CLIENT_SECRET, activity)
-        val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
-
-        doAsync {
-            val request = Request.Builder().url("https://api.kkbox.com/v1.1/search?q=${queryString}&type=artist&territory=TW")
-                    .addHeader("accept", "application/json")
-                    .addHeader("authorization", "Bearer ${accessToken}")
-                    .build()
-            val response = client.newCall(request).execute()
-            val result = response.body()?.string()
-
-            if (result != null) {
-                val converter = ArtistConverter()
-                val imageUrl = converter.convertToImageUrl(result)
-                Log.d("ArtistFactory", "imageUrl: ${imageUrl}")
-            }
-        }
-    }
 }
