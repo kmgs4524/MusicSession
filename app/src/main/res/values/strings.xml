@@ -5,5 +5,6 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <string name="item_mymusic_title">我的音樂庫</string>
+    <string name="item_playlist_title">播放歌單</string>
     <string name="item_discover_title">發現</string>
 </resources>

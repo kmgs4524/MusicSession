@@ -4,6 +4,9 @@
         android:id="@+id/nav_mymusic"
         android:icon="@drawable/ic_music_note_black_24dp"
         android:title="@string/item_mymusic_title" />
+    <item android:id="@+id/nav_playlist"
+        android:title="@string/item_playlist_title"
+        android:icon="@drawable/ic_queue_music_black_36dp"/>
     <item android:id="@+id/nav_dicover"
         android:title="@string/item_discover_title"
         android:icon="@drawable/ic_library_music_black_24dp"/>

@@ -103,7 +103,6 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
     }
 
     inner class OnInitializedListener(val videoIds: List<String>) : YouTubePlayer.OnInitializedListener {
-
         override fun onInitializationSuccess(provider: YouTubePlayer.Provider?, player: YouTubePlayer?, p2: Boolean) {
             Log.d("TestActivity", "onInitializationSuccess videoIds: ${videoIds}")
             player?.cueVideo("FqrzCxSWaZY")
@@ -112,7 +111,6 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         override fun onInitializationFailure(provider: YouTubePlayer.Provider?, player: YouTubeInitializationResult?) {
 
         }
-
     }
 
     fun setButton() {

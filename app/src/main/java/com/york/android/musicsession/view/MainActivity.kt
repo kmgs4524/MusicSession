@@ -20,6 +20,7 @@ import com.york.android.musicsession.view.albumpage.AlbumPageFragment
 import com.york.android.musicsession.view.artist.ArtistFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
 import com.york.android.musicsession.view.exoplayer.SongAdapter
+import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
         ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
-        ArtistFragment.OnFragmentInteractionListener {
+        ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
 
     override fun onPlayerControlClicked(position: Int) {
 
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     val bottomFragment = PlayerControlFragment.newInstance("", "")
     val myMusicFragment = MyMusicFragment.newInstance("", "")
+    val playlisPageFragment = PlaylistPageFragment.newInstance("", "")
     val discoverFragment = LibraryFragment.newInstance("", "")
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -68,6 +70,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
             when(item.itemId) {
                 R.id.nav_mymusic ->   transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment)
+                R.id.nav_playlist -> transition.replace(R.id.constraintLayout_main_mainContainer, playlisPageFragment)
                 R.id.nav_dicover -> transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
                 else -> true
             }
