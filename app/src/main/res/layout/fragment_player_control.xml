@@ -64,7 +64,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView_controlview_artist" />
 
     <ImageView
-        android:id="@+id/exo_play"
+        android:id="@+id/imageView_playerControl_play"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="8dp"
@@ -78,7 +78,7 @@
         app:srcCompat="@drawable/ic_play" />
 
     <ImageView
-        android:id="@+id/exo_pause"
+        android:id="@+id/imageView_playerControl_pause"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginTop="8dp"

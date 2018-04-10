@@ -211,6 +211,14 @@ class PlayService : Service() {
         })
     }
 
+    fun playPrevious() {
+        player?.seekTo(player!!.previousWindowIndex, 0)
+    }
+
+    fun playNext() {
+        player?.seekTo(player!!.nextWindowIndex, 0)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         (player as SimpleExoPlayer).release()

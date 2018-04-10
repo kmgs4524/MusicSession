@@ -63,9 +63,9 @@ class PlayerControlFragment : Fragment() {
     }
 
     // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
+    fun onPrevButtonPressed() {
         if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
+            mListener!!.onPlayPrevSong()
         }
     }
 
@@ -85,7 +85,8 @@ class PlayerControlFragment : Fragment() {
 
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
+        fun onPlayPrevSong()
+        fun onPlayNextSong()
     }
 
     companion object {

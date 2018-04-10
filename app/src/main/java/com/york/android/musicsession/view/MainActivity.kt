@@ -1,5 +1,6 @@
 package com.york.android.musicsession.view
 
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.view.*
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BlurBuilder
 import com.york.android.musicsession.model.datafactory.SongFactory
+import com.york.android.musicsession.service.PlayService
 import com.york.android.musicsession.view.album.AlbumFragment
 import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
@@ -34,6 +36,22 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
         ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
+
+    fun bindPlayService() {
+        val intent = Intent()
+        val connection =
+        intent.setClass(this, PlayService::class.java)
+        startService(intent)
+        bindPlayService(intent, )
+    }
+
+    override fun onPlayPrevSong() {
+
+    }
+
+    override fun onPlayNextSong() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     override fun onPlayerControlClicked(position: Int) {
 
