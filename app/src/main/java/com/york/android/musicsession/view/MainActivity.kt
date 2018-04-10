@@ -1,5 +1,7 @@
 package com.york.android.musicsession.view
 
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -11,6 +13,8 @@ import android.support.v4.view.GravityCompat
 import android.util.Log
 import android.view.*
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.bitmap.BlurBuilder
+import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.album.AlbumFragment
 import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
@@ -23,6 +27,7 @@ import com.york.android.musicsession.view.exoplayer.SongAdapter
 import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.controlview.*
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
         SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
@@ -82,9 +87,25 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         })
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
+//        setBlurBackground()
         // bottom sheet fragment
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setBlurBackground() {
+        val songs = SongFactory(this).getSongs("C.NARI", "Artist")
+        if(songs[0].coverImageUrl != "none") {
+            Log.d("PlayerControlFragment", "coverImageUrl: ${songs[0].coverImageUrl}")
+            val coverBitmap = BitmapFactory.decodeFile(songs[0].coverImageUrl)
+            Log.d("PlayerControlFragment", "coverBitmap: ${coverBitmap}")
+            val blurredBitmap = BlurBuilder().blur(coverBitmap, this)
+            Log.d("PlayerControlFragment", "blurredBitmap: ${blurredBitmap}")
+            constraintLayout_controlView.background = BitmapDrawable(resources, blurredBitmap)
+            imageView_controlView_artwork.setImageBitmap(coverBitmap)
+        }
     }
 
     override fun onBackPressed() {

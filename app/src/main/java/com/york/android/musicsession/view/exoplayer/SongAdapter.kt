@@ -7,6 +7,7 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Handler
 import android.os.IBinder
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -55,7 +56,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
 
         // start and bind service
         intent.setClass(context, PlayService::class.java)
-        (context as MainActivity).startService(intent)
+        (context as AppCompatActivity).startService(intent)
         context.bindService(intent, connection, 0)
 
     }
@@ -85,8 +86,8 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             (service as PlayService).createConcatenatingMediaSource(songs)
-            ((context as MainActivity).playerView_album as PlayerControlView).player = (service as PlayService).player
-            Log.d("onServiceConnected", "player: ${context.playerView_album.player}")
+//            ((context as AppCompatActivity).playerView_album as PlayerControlView).player = (service as PlayService).player
+//            Log.d("onServiceConnected", "player: ${(context as AppCompatActivity).playerView_album.player}")
 
             (service as PlayService).uiHandler = handler
         }

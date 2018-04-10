@@ -32,19 +32,19 @@
             app:behavior_peekHeight="64dp"
             app:layout_behavior="@string/bottom_sheet_behavior" />
 
-        <com.google.android.exoplayer2.ui.PlayerControlView
-            android:id="@+id/playerView_album"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:elevation="@dimen/design_bottom_sheet_modal_elevation"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            app:behavior_peekHeight="64dp"
-            app:controller_layout_id="@layout/controlview"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:show_timeout="0" />
+        <!--<com.google.android.exoplayer2.ui.PlayerControlView-->
+            <!--android:id="@+id/playerView_album"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:elevation="@dimen/design_bottom_sheet_modal_elevation"-->
+            <!--app:layout_behavior="@string/bottom_sheet_behavior"-->
+            <!--app:behavior_peekHeight="64dp"-->
+            <!--app:controller_layout_id="@layout/controlview"-->
+            <!--app:layout_constraintBottom_toBottomOf="parent"-->
+            <!--app:layout_constraintEnd_toEndOf="parent"-->
+            <!--app:layout_constraintStart_toStartOf="parent"-->
+            <!--app:layout_constraintTop_toTopOf="parent"-->
+            <!--app:show_timeout="0" />-->
 
     </android.support.design.widget.CoordinatorLayout>
 

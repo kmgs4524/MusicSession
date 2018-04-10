@@ -4,6 +4,7 @@ import android.os.Build
 import android.provider.MediaStore
 import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentActivity
+import android.util.Log
 import com.york.android.musicsession.model.data.Song
 import java.util.*
 
@@ -14,73 +15,94 @@ class SongFactory(val activity: FragmentActivity) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSongs(keyword: String, type: String): List<Song> {
-        var cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+        var mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
-                        MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                        MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                 MediaStore.Audio.Media.IS_MUSIC + "=?",
                 arrayOf("1"),
                 "")
         when(type) {
             "Title" -> {
-                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
-                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.TITLE + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
             "DiplayName" -> {
-                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
-                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.DISPLAY_NAME + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
             "Album" -> {
-                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
-                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.ALBUM + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
             "Artist" -> {
-                cursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
-                                MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
+                                MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                         MediaStore.Audio.Media.ARTIST + "=?",   // selection formatted as an SQL WHERE clause
                         arrayOf(keyword),
                         "LOWER(${MediaStore.Audio.Media.TITLE}) ASC")
             }
         }
 
-        val count = cursor.count    // number of rows
+        val count = mediaCursor.count    // number of rows
 
         val names = arrayOfNulls<String>(count)
         val path = arrayOfNulls<String>(count)
         val artist = arrayOfNulls<String>(count)
+        val album = arrayOfNulls<String>(count)
         val duration = arrayOfNulls<Long>(count)
 
-        if(cursor.moveToFirst()) {
+        // get result from cursor
+        if(mediaCursor.moveToFirst()) {
             var i = 0
             do {
-                names[i] = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
-                path[i] = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
-                artist[i] = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
-                duration[i] = cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
+                names[i] = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
+                path[i] = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA))
+                artist[i] = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST))
+                album[i] = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM))
+                duration[i] = mediaCursor.getLong(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION))
                 i++
-            } while (cursor.moveToNext())
+            } while (mediaCursor.moveToNext())
         }
-        cursor.close()  // release cursor's resource after query
+        mediaCursor.close()  // release cursor's resource after query
 
         val songs = ArrayList<Song>()
         for(i in 0 until names.size) {
-//            Log.d("SongsFactory", "names[${i}]: ${names[i]}")
-            songs.add(Song(names[i]!!, artist[i]!!, 0, duration[i]!!, path[i]!!))
+            Log.d("SongsFactory", "names[${i}]: ${names[i]}")
+            songs.add(Song(names[i]!!, album[i]!!, artist[i]!!, getAlbumArtPath(album[i]!!), duration[i]!!, path[i]!!))
         }
-
 //        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
         return songs
+    }
+
+    // get album artwork of song
+    fun getAlbumArtPath(albumName: String): String {
+        var albumCursor = activity.contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+                arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
+                MediaStore.Audio.Media.ALBUM + "=?",
+                arrayOf(albumName),
+                "")
+
+        albumCursor.moveToFirst()
+        var albumArtPath = albumCursor.getString(albumCursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
+
+        if(albumArtPath == null) {
+            albumArtPath = "none"
+        }
+        Log.d("SongFactory", "albumArtPath: ${albumArtPath}")
+
+        return albumArtPath
     }
 }

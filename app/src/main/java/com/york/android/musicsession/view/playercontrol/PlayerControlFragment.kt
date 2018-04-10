@@ -1,23 +1,23 @@
 package com.york.android.musicsession.view.playercontrol
 
 import android.content.Context
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.bitmap.BlurBuilder
+import com.york.android.musicsession.model.datafactory.SongFactory
+import kotlinx.android.synthetic.main.fragment_player_control.*
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [PlayerControlFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [PlayerControlFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class PlayerControlFragment : Fragment() {
 
     // TODO: Rename and change types of parameters
@@ -41,6 +41,27 @@ class PlayerControlFragment : Fragment() {
         return view
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onStart() {
+        super.onStart()
+        setBlurBackground()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setBlurBackground() {
+        val songs = SongFactory(activity).getSongs("吳汶芳", "Artist")
+        if(songs[0].coverImageUrl != "none") {
+            Log.d("PlayerControlFragment", "coverImageUrl: ${songs[0].coverImageUrl}")
+            val coverBitmap = BitmapFactory.decodeFile(songs[0].coverImageUrl)
+            Log.d("PlayerControlFragment", "coverBitmap: ${coverBitmap}")
+            val blurredBitmap = BlurBuilder().blur(coverBitmap, activity)
+            Log.d("PlayerControlFragment", "blurredBitmap: ${blurredBitmap}")
+            constrainLayout_playerControl_container.background = BitmapDrawable(resources, blurredBitmap)
+//            constraintLayout_controlView.background = BitmapDrawable(resources, blurredBitmap)
+            imageView_playerControl_artwork.setImageBitmap(coverBitmap)
+        }
+    }
+
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
         if (mListener != null) {
@@ -62,15 +83,6 @@ class PlayerControlFragment : Fragment() {
         mListener = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments](http://developer.android.com/training/basics/fragments/communicating.html) for more information.
-     */
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
@@ -82,14 +94,6 @@ class PlayerControlFragment : Fragment() {
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PlayerControlFragment.
-         */
         // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): PlayerControlFragment {
             val fragment = PlayerControlFragment()

@@ -9,5 +9,5 @@ import kotlinx.android.parcel.Parcelize
  */
 
 @Parcelize
-class Song(val name: String, val artist: String, val coverImageUrl: Int, val duration: Long, val filePath: String) : Parcelable {
+class Song(val name: String, val artist: String, val album: String, val coverImageUrl: String, val duration: Long, val filePath: String) : Parcelable {
 }
