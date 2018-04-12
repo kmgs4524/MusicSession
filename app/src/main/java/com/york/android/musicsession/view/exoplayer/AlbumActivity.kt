@@ -114,6 +114,6 @@ class AlbumActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        songAdapter?.unbindService()
+//        songAdapter?.unbindService()
     }
 }

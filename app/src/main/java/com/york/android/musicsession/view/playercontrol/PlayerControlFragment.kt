@@ -19,7 +19,6 @@ import kotlinx.android.synthetic.main.fragment_player_control.*
 
 
 class PlayerControlFragment : Fragment() {
-
     // TODO: Rename and change types of parameters
     private var mParam1: String? = null
     private var mParam2: String? = null

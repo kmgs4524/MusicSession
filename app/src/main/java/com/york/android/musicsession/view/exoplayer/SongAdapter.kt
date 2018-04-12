@@ -35,7 +35,7 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         holder?.itemView?.setOnClickListener {
             Log.d("bind", "position: ${position} song path: ${songs[position].filePath}")
 //            (context as MainActivity).verifyStoragePermission()
-            (service as PlayService).playMediaSource(position)
+            (context as MainActivity).playMedia(position)
         }
     }
 
@@ -50,20 +50,20 @@ class SongAdapter(val songs: List<Song>, val context: Context, var service: Serv
         return songs.size
     }
 
-    fun setService(song: List<Song>) {
-        val intent = Intent()
-        val connection = MusicServiceConnection(songs)
+    fun setService(songs: List<Song>) {
+//        val intent = Intent()
+//        val connection = MusicServiceConnection(songs)
 
         // start and bind service
-        intent.setClass(context, PlayService::class.java)
-        (context as AppCompatActivity).startService(intent)
-        context.bindService(intent, connection, 0)
-
+//        intent.setClass(context, PlayService::class.java)
+//        (context as AppCompatActivity).startService(intent)
+//        context.bindService(intent, connection, 0)
+        (context as MainActivity).bindPlayService(songs)
     }
 
-    fun unbindService() {
-        service?.unbindService(connection)
-    }
+//    fun unbindService() {
+//        service?.unbindService(connection)
+//    }
 
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(song: Song) {

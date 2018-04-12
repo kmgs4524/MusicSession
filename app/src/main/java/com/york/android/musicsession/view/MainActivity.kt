@@ -1,12 +1,17 @@
 package com.york.android.musicsession.view
 
+import android.app.Service
+import android.content.ComponentName
 import android.content.Intent
+import android.content.ServiceConnection
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
 import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
@@ -15,17 +20,16 @@ import android.util.Log
 import android.view.*
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BlurBuilder
+import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.service.PlayService
 import com.york.android.musicsession.view.album.AlbumFragment
-import com.york.android.musicsession.view.albumpage.AlbumAdapter
 import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
 import com.york.android.musicsession.view.artist.ArtistFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
-import com.york.android.musicsession.view.exoplayer.SongAdapter
 import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -37,20 +41,27 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
         ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
 
-    fun bindPlayService() {
+    lateinit var service: PlayService
+
+    fun bindPlayService(songs: List<Song>) {
+//        val songs = ArrayList<Song>()   // put to PlayService
         val intent = Intent()
-        val connection =
+        val connection = MusicServiceConnection(songs, Handler())
         intent.setClass(this, PlayService::class.java)
         startService(intent)
-        bindPlayService(intent, )
+        bindService(intent, connection, 0)
+    }
+
+    fun playMedia(index: Int) {
+        service.playMediaSource(index)
     }
 
     override fun onPlayPrevSong() {
-
+        service.playPrevious()
     }
 
     override fun onPlayNextSong() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        service.playNext()
     }
 
     override fun onPlayerControlClicked(position: Int) {
@@ -145,4 +156,18 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    inner class MusicServiceConnection(var songs: List<Song>, val handler: Handler): ServiceConnection {
+        override fun onServiceDisconnected(p0: ComponentName?) {
+
+        }
+
+        override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
+            Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
+            service = (binder as PlayService.LocalBinder).getService()
+            Log.d("onServiceConnected", "service: ${service}")
+            service.createConcatenatingMediaSource(songs)
+            service.uiHandler = handler
+        }
+
+    }
 }
