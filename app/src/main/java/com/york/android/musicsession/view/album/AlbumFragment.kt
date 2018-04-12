@@ -82,7 +82,7 @@ class AlbumFragment : Fragment(), AlbumView {
             }
         }
         recyclerView_album.layoutManager = LinearLayoutManager(activity)
-        recyclerView_album.adapter = SongAdapter(songs, activity, null, null, handler)
+        recyclerView_album.adapter = SongAdapter(songs, activity)
     }
 
     // TODO: Rename method, update argument and hook method into UI event

@@ -124,7 +124,7 @@ class ArtistFragment : Fragment() {
         }
 
         recyclerView_artist_songs.layoutManager = layoutManager
-        recyclerView_artist_songs.adapter = SongAdapter(songs, activity, null, null, handler)
+        recyclerView_artist_songs.adapter = SongAdapter(songs, activity)
         recyclerView_artist_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 

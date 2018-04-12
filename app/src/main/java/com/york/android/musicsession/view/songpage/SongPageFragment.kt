@@ -101,7 +101,7 @@ class SongPageFragment : Fragment() {
         val songs = factory.getSongs("", "")
 
         recyclerView_songs.layoutManager = LinearLayoutManager(activity)
-        recyclerView_songs.adapter = SongAdapter(songs, activity, null, null, handler)
+        recyclerView_songs.adapter = SongAdapter(songs, activity)
         recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 
