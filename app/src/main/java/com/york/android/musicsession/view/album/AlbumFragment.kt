@@ -76,7 +76,7 @@ class AlbumFragment : Fragment(), AlbumView {
                     progressbar_album.progress = data?.getInt("CURRENT_POSITION")
                     progressbar_album.max = data?.getInt("DURATION")
 
-                    textView_controlview_artist.setText(data?.getString("ARTIST"))
+                    textView_playerControl_artistNameTitle.setText(data?.getString("ARTIST"))
                     textView_controlView_songName.setText(data?.getString("SONG_NAME"))
                 }
             }

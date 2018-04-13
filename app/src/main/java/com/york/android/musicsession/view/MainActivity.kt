@@ -1,6 +1,5 @@
 package com.york.android.musicsession.view
 
-import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -42,11 +41,14 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
 
     lateinit var service: PlayService
+    lateinit var timeHandler: Handler
+    lateinit var infoHandler: Handler
+    lateinit var statusHandler: Handler
 
     fun bindPlayService(songs: List<Song>) {
 //        val songs = ArrayList<Song>()   // put to PlayService
         val intent = Intent()
-        val connection = MusicServiceConnection(songs, Handler())
+        val connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
         intent.setClass(this, PlayService::class.java)
         startService(intent)
         bindService(intent, connection, 0)
@@ -54,6 +56,14 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     fun playMedia(index: Int) {
         service.playMediaSource(index)
+    }
+
+    override fun onDisplaySong() {
+        service.display()
+    }
+
+    override fun onPauseSong() {
+        service.pause()
     }
 
     override fun onPlayPrevSong() {
@@ -156,7 +166,8 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    inner class MusicServiceConnection(var songs: List<Song>, val handler: Handler): ServiceConnection {
+    inner class MusicServiceConnection(var songs: List<Song>, val timeHandler: Handler, val infoHandler: Handler,
+                                       val statusHandler: Handler): ServiceConnection {
         override fun onServiceDisconnected(p0: ComponentName?) {
 
         }
@@ -165,8 +176,10 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             Log.d("onServiceConnected", "service: ${service}")
+            service.timeHandler = timeHandler
+            service.infoHandler = infoHandler
+            service.statusHandler = statusHandler
             service.createConcatenatingMediaSource(songs)
-            service.uiHandler = handler
         }
 
     }

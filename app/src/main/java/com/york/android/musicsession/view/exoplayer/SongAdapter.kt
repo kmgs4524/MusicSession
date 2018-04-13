@@ -82,7 +82,7 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
 ////            ((context as AppCompatActivity).playerView_album as PlayerControlView).player = (service as PlayService).player
 ////            Log.d("onServiceConnected", "player: ${(context as AppCompatActivity).playerView_album.player}")
 //
-//            (service as PlayService).uiHandler = handler
+//            (service as PlayService).timeHandler = handler
 //        }
 //    }
 }
