@@ -40,38 +40,52 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
         ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
 
-    lateinit var service: PlayService
+    var service: PlayService? = null
     lateinit var timeHandler: Handler
     lateinit var infoHandler: Handler
     lateinit var statusHandler: Handler
 
+    //    lateinit var songs: List<Song>
+    lateinit var connection: MusicServiceConnection
+
     fun bindPlayService(songs: List<Song>) {
-//        val songs = ArrayList<Song>()   // put to PlayService
-        val intent = Intent()
-        val connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
-        intent.setClass(this, PlayService::class.java)
-        startService(intent)
-        bindService(intent, connection, 0)
+        if (service == null) {
+            Log.d("MainActivity", "service is null")
+            val intent = Intent()
+            intent.setClass(this, PlayService::class.java)
+            startService(intent)
+            var connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
+            bindService(intent, connection, 0)
+        }
+    }
+
+    fun setPlaylist(songs: List<Song>) {
+        Log.d("MainActivity", "songs ${songs} service: ${service}")
+        service?.createConcatenatingMediaSource(songs)
     }
 
     fun playMedia(index: Int) {
-        service.playMediaSource(index)
+        service?.playMediaSource(index)
     }
 
     override fun onDisplaySong() {
-        service.display()
+        service?.display()
     }
 
     override fun onPauseSong() {
-        service.pause()
+        service?.pause()
     }
 
     override fun onPlayPrevSong() {
-        service.playPrevious()
+        service?.playPrevious()
     }
 
     override fun onPlayNextSong() {
-        service.playNext()
+        service?.playNext()
+    }
+
+    override fun onSeekToPosition(position: Int) {
+//        service.
     }
 
     override fun onPlayerControlClicked(position: Int) {
@@ -88,7 +102,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val transition:FragmentTransaction = supportFragmentManager.beginTransaction()
+        val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
         transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
         transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
@@ -99,7 +113,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when(item?.itemId) {
+        when (item?.itemId) {
             R.id.home -> {
                 drawerLayout_main.openDrawer(GravityCompat.START)
                 return true
@@ -109,11 +123,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     fun setDrawerListener() {
-        navigationDrawer_main.setNavigationItemSelectedListener({item: MenuItem ->
-            val transition:FragmentTransaction = supportFragmentManager.beginTransaction()
+        navigationDrawer_main.setNavigationItemSelectedListener({ item: MenuItem ->
+            val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
-            when(item.itemId) {
-                R.id.nav_mymusic ->   transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment)
+            when (item.itemId) {
+                R.id.nav_mymusic -> transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment)
                 R.id.nav_playlist -> transition.replace(R.id.constraintLayout_main_mainContainer, playlisPageFragment)
                 R.id.nav_dicover -> transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
                 else -> true
@@ -133,25 +147,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         // bottom sheet fragment
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun setBlurBackground() {
-        val songs = SongFactory(this).getSongs("C.NARI", "Artist")
-        if(songs[0].coverImageUrl != "none") {
-            Log.d("PlayerControlFragment", "coverImageUrl: ${songs[0].coverImageUrl}")
-            val coverBitmap = BitmapFactory.decodeFile(songs[0].coverImageUrl)
-            Log.d("PlayerControlFragment", "coverBitmap: ${coverBitmap}")
-            val blurredBitmap = BlurBuilder().blur(coverBitmap, this)
-            Log.d("PlayerControlFragment", "blurredBitmap: ${blurredBitmap}")
-            constraintLayout_controlView.background = BitmapDrawable(resources, blurredBitmap)
-            imageView_controlView_artwork.setImageBitmap(coverBitmap)
-        }
-    }
-
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
         Log.d("MainActivity", "onBackPressed count: ${count}")
-        val success = if(count == 0)  {
+        val success = if (count == 0) {
             super.onBackPressed()
         } else {
             // get top of entry in the back stack
@@ -162,12 +162,17 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         Log.d("MainActivity", "onBackPressed success: ${success}")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unbindService(connection)
+    }
+
     override fun onFragmentInteraction(uri: Uri) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     inner class MusicServiceConnection(var songs: List<Song>, val timeHandler: Handler, val infoHandler: Handler,
-                                       val statusHandler: Handler): ServiceConnection {
+                                       val statusHandler: Handler) : ServiceConnection {
         override fun onServiceDisconnected(p0: ComponentName?) {
 
         }
@@ -176,10 +181,10 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             Log.d("onServiceConnected", "service: ${service}")
-            service.timeHandler = timeHandler
-            service.infoHandler = infoHandler
-            service.statusHandler = statusHandler
-            service.createConcatenatingMediaSource(songs)
+            service?.timeHandler = timeHandler
+            service?.infoHandler = infoHandler
+            service?.statusHandler = statusHandler
+            service?.createConcatenatingMediaSource(songs)
         }
 
     }

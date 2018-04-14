@@ -35,6 +35,7 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
         holder?.itemView?.setOnClickListener {
             Log.d("bind", "position: ${position} song path: ${songs[position].filePath}")
 //            (context as MainActivity).verifyStoragePermission()
+            (context as MainActivity).setPlaylist(songs)
             (context as MainActivity).playMedia(position)
         }
     }
@@ -52,6 +53,8 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
 
     fun setService(songs: List<Song>) {
         (context as MainActivity).bindPlayService(songs)
+        Log.d("SongAdapter", "songs ${songs}")
+//        context.setPlaylist(songs)
     }
 
 //    fun unbindService() {

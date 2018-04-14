@@ -66,20 +66,8 @@ class AlbumFragment : Fragment(), AlbumView {
 
     fun initRecyclerView(songs: ArrayList<Song>) {
         // UI Handler
-        val handler = object: Handler() {
-            override fun handleMessage(msg: Message?) {
-                val data = msg?.data
-//                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-                Log.d("handler", "data: ${data}")
-                if(data != null) {
-                    Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
-                    progressbar_album.progress = data?.getInt("CURRENT_POSITION")
-                    progressbar_album.max = data?.getInt("DURATION")
-
-                    textView_playerControl_artistNameTitle.setText(data?.getString("ARTIST"))
-                    textView_controlView_songName.setText(data?.getString("SONG_NAME"))
-                }
-            }
+        songs.forEach {
+            Log.d("AlbumFragment", "name: ${it.name} path: ${it.filePath}")
         }
         recyclerView_album.layoutManager = LinearLayoutManager(activity)
         recyclerView_album.adapter = SongAdapter(songs, activity)

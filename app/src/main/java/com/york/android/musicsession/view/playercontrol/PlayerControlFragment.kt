@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BlurBuilder
 import com.york.android.musicsession.model.datafactory.SongFactory
@@ -98,6 +99,29 @@ class PlayerControlFragment : Fragment() {
         imageView_playerControl_play.setOnClickListener {
             (activity as MainActivity).onDisplaySong()
         }
+
+        imageView_playerControl_prev.setOnClickListener {
+            (activity as MainActivity).onPlayPrevSong()
+        }
+
+        imageView_playerControl_next.setOnClickListener {
+            (activity as MainActivity).onPlayNextSong()
+        }
+
+        seekBar_playerControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+                mListener?.onSeekToPosition(seekBar_playerControl.progress)
+            }
+
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -174,6 +198,7 @@ class PlayerControlFragment : Fragment() {
         fun onPlayNextSong()
         fun onDisplaySong()
         fun onPauseSong()
+        fun onSeekToPosition(position: Int)
     }
 
     companion object {

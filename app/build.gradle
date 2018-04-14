@@ -41,7 +41,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
     // Exoplayer
-    implementation 'com.google.android.exoplayer:exoplayer:2.7.1'
+    implementation 'com.google.android.exoplayer:exoplayer:2.7.2'
     // flac extension
     implementation files('libs/extension-flac.aar')
     // Anko

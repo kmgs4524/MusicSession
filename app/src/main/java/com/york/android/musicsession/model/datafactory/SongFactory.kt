@@ -81,7 +81,7 @@ class SongFactory(val activity: FragmentActivity) {
         val songs = ArrayList<Song>()
         for(i in 0 until names.size) {
             Log.d("SongsFactory", "names[${i}]: ${names[i]}")
-            songs.add(Song(names[i]!!, album[i]!!, artist[i]!!, getAlbumArtPath(album[i]!!), duration[i]!!, path[i]!!))
+            songs.add(Song(names[i]!!, artist[i]!!, album[i]!!, getAlbumArtPath(album[i]!!), duration[i]!!, path[i]!!))
         }
 //        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
         return songs
