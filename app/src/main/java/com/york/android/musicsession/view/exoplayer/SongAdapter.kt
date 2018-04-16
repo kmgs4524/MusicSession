@@ -35,8 +35,9 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
         holder?.itemView?.setOnClickListener {
             Log.d("bind", "position: ${position} song path: ${songs[position].filePath}")
 //            (context as MainActivity).verifyStoragePermission()
-            (context as MainActivity).setPlaylist(songs)
-            (context as MainActivity).playMedia(position)
+            (context as MainActivity).setPlaylist(songs, position)
+            context.playMedia(position)
+            context.showBottomPlayerControl()
         }
     }
 
@@ -57,10 +58,6 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
 //        context.setPlaylist(songs)
     }
 
-//    fun unbindService() {
-//        service?.unbindService(connection)
-//    }
-
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
         fun bind(song: Song) {
             val textViewName = itemView.findViewById<TextView>(R.id.textView_songItem_name)
@@ -73,19 +70,4 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
         }
     }
 
-//    inner class MusicServiceConnection(var songs: List<Song>): ServiceConnection {
-//        override fun onServiceDisconnected(p0: ComponentName?) {
-//
-//        }
-//
-//        override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-//            Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
-//            service = (binder as PlayService.LocalBinder).getService()
-//            (service as PlayService).createConcatenatingMediaSource(songs)
-////            ((context as AppCompatActivity).playerView_album as PlayerControlView).player = (service as PlayService).player
-////            Log.d("onServiceConnected", "player: ${(context as AppCompatActivity).playerView_album.player}")
-//
-//            (service as PlayService).timeHandler = handler
-//        }
-//    }
 }

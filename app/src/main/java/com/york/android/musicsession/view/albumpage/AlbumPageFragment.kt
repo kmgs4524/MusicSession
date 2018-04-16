@@ -15,17 +15,8 @@ import com.york.android.musicsession.R
 import com.york.android.musicsession.model.datafactory.AlbumFactory
 import kotlinx.android.synthetic.main.fragment_albumpage.*
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [AlbumPageFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [AlbumPageFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AlbumPageFragment : Fragment() {
 
-    // TODO: Rename and change types of parameters
     private var mParam1: String? = null
     private var mParam2: String? = null
 

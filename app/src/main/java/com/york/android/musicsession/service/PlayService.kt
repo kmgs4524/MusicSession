@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.net.Uri
 import android.os.*
 import android.support.annotation.RequiresApi
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
@@ -41,8 +42,8 @@ class PlayService : Service() {
     val infoBundle = Bundle()
     var currentPositionSeconds: Int = 0
 
-    var songs: List<Song> = ArrayList<Song>()
-    var songsSize: Int = 0
+    var songs: List<Song> = ArrayList()
+    var currentWindowIndex = 0
 
     var handlerThread = HandlerThread("HandlerThread")
 
@@ -76,18 +77,14 @@ class PlayService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    fun setUiHandler() {
-
-    }
-
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d("PlayService", "onUnBind: intent: ${intent}")
         return true
     }
 
-    fun createConcatenatingMediaSource(songs: List<Song>) {
+    fun createMediaSource(songs: List<Song>) {
         this.songs = songs
-        Log.d("PlayService", "createConcatenatingMediaSource songs size: ${songs.size}")
+        Log.d("PlayService", "createMediaSource songs size: ${songs.size}")
 //        this.songs = songs
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
@@ -95,23 +92,21 @@ class PlayService : Service() {
         // Prepare the player with the source.
         if (player == null) {
             Log.d("PlayService", "player is null")
-            player = ExoPlayerFactory.newSimpleInstance(this, trackSelector)
+            player = ExoPlayerFactory.newSimpleInstance(applicationContext, trackSelector)
+            setPlayerListener()
             songs.forEach {
                 var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
 //                        .setExtractorsFactory(DefaultExtractorsFactory())
                         .createMediaSource(Uri.parse(it.filePath))
                 dynamicConcatenatingMediaSource.addMediaSource(videoSource)
-//                Log.d("PlayService", "createConcatenatingMediaSource song: ${it.name}")
+//                Log.d("PlayService", "createMediaSource song: ${it.name}")
             }
             Log.d("PlayService", "dynamicConcatenatingMediaSource size: ${dynamicConcatenatingMediaSource.size}")
-            player?.prepare(dynamicConcatenatingMediaSource)
-            Log.d("PlayService", "songSize: ${songsSize}")
-            setPlayerListener()
-            player?.shuffleModeEnabled = false
             player?.setRepeatMode(Player.REPEAT_MODE_ALL)
+            player?.prepare(dynamicConcatenatingMediaSource)
             Log.d("PlayService", "currentWindowIndex: ${player?.currentWindowIndex}")
         } else {
-            Log.d("PlayService", "player not null")
+            Log.d("createMediaSource", "player not null")
             // remove existing media sources
             val playListSize = dynamicConcatenatingMediaSource.size
 
@@ -120,26 +115,15 @@ class PlayService : Service() {
                         .setExtractorsFactory(DefaultExtractorsFactory())
                         .createMediaSource(Uri.parse(it.filePath))
                 dynamicConcatenatingMediaSource.addMediaSource(videoSource)
-                Log.d("PlayService", "createConcatenatingMediaSource song: ${it.name}")
+//                Log.d("PlayService", "createMediaSource song: ${it.name}")
             }
-//            val currentSource = dynamicConcatenatingMediaSource.moveMediaSource(player?.currentWindowIndex!!, 0)
+
             for (i in 0 until playListSize) {
                 dynamicConcatenatingMediaSource.removeMediaSource(0)
             }
-//            Log.d("PlayService", "index: 0 element: ${dynamicConcatenatingMediaSource.getMediaSource(0)} " +
-////                    "index: 1 element: ${dynamicConcatenatingMediaSource.getMediaSource(1)} " +
-//                    "currentWindowIndex: ${player?.currentWindowIndex!!}" +
-//                    "current media: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentWindowIndex!!)}" +
-//                    "currentPeriodIndex ${player?.currentPeriodIndex}" +
-//                    "current media: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentPeriodIndex!!)}")
-//            Log.d("PlayService", "index 0 element: ${dynamicConcatenatingMediaSource.getMediaSource(0)} " +
-//                    "currentWindowIndex: ${player?.currentWindowIndex!!}" +
-//                    "current media: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentWindowIndex!!)}" +
-//                    "currentPeriodIndex ${player?.currentPeriodIndex}" +
-//                    "current media: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentPeriodIndex!!)}")
 
-            Log.d("PlayService", "playList size: ${dynamicConcatenatingMediaSource.size}")
         }
+
     }
 
     fun setPlayerListener() {
@@ -157,25 +141,27 @@ class PlayService : Service() {
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
-
+                Log.d("PlayService", "onPlayerError ${error}")
             }
 
             override fun onLoadingChanged(isLoading: Boolean) {
-
+//                Log.d("PlayService", "onLoadingChanged isLoading: ${isLoading}")
             }
 
             // called every time the video changes or "seeks" to the next in the playlist.
             override fun onPositionDiscontinuity(reason: Int) {
-                Log.d("PlayService", "onPositionDiscontinuity player?.currentWindowIndex: ${player?.currentWindowIndex} player?.currentPeriodIndex: ${player?.currentPeriodIndex}" +
-                        "song: ${songs[player?.currentWindowIndex!!]}" +
-                        "name: ${songs[player?.currentWindowIndex!!].name} artist: ${songs[player?.currentWindowIndex!!].artist}")
-                val message = Message()
+                Thread(Runnable {
+                    //                    val currentWindowIndex = player?.currentWindowIndex
+//                    val periodWindowIndex = player?.currentPeriodIndex
+                    Log.d("PlayService", "onPositionDiscontinuity currentWindowIndex: ${currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
+                    val message = Message()
 
-                Log.d("PlayService", "song artist: ${songs[player?.currentPeriodIndex!!].artist}")
-                infoBundle.putString("ARTIST_NAME", songs[player?.currentWindowIndex!!].artist)
-                infoBundle.putString("SONG_NAME", songs[player?.currentWindowIndex!!].name)
-                message.data = infoBundle
-                infoHandler.sendMessage(message)
+                    infoBundle.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
+                    infoBundle.putString("SONG_NAME", songs[currentWindowIndex].name)
+                    infoBundle.putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
+                    message.data = infoBundle
+                    infoHandler.sendMessage(message)
+                }).run()
             }
 
             override fun onRepeatModeChanged(repeatMode: Int) {
@@ -183,7 +169,7 @@ class PlayService : Service() {
             }
 
             override fun onShuffleModeEnabledChanged(shuffleModeEnabled: Boolean) {
-
+                Log.d("PlayService", "onShuffleModeEnabledChanged shuffle mode: ${shuffleModeEnabled}")
             }
 
             override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
@@ -220,7 +206,7 @@ class PlayService : Service() {
                     }
                     // currentPositionSeconds that put in Runnable would not work, I still don't know why.
                     val runnable = Runnable {
-//                        Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
+                        // Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
 
                         while (playbackState == Player.STATE_READY) {
                             if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
@@ -247,14 +233,19 @@ class PlayService : Service() {
     }
 
     fun playMediaSource(index: Int) {
+        currentWindowIndex = index
         // Produces DataSource instances through which media data is loaded.
-        Log.d("PlayService", "player: ${player}")
-        player?.seekTo(index, 0)
-        Log.d("PlayService", "currentWindowIndex: ${player?.currentWindowIndex}")
-        Log.d("PlayService", "dynamicConcatenatingMediaSource: ${dynamicConcatenatingMediaSource.size}")
-        Log.d("PlayService", "dynamicConcatenatingMediaSource: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentWindowIndex!!)}")
-        // Prepare the player with the source.
-        player?.playWhenReady = true
+        Log.d("PlayService", "playMediaSource index : ${index}")
+        val handler = Handler()
+        handler.postDelayed(Runnable {
+            player?.seekTo(index, 0)
+            Log.d("PlayService", "playMediaSource playMediaSource currentWindowIndex: ${player?.currentWindowIndex}")
+//        Log.d("PlayService", "dynamicConcatenatingMediaSource: ${dynamicConcatenatingMediaSource.size}")
+            Log.d("PlayService", "playMediaSource dynamicConcatenatingMediaSource: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentWindowIndex!!)}")
+            // Prepare the player with the source.
+            player?.playWhenReady = true
+        }, 500)
+
     }
 
     fun display() {
@@ -266,14 +257,34 @@ class PlayService : Service() {
     }
 
     fun playPrevious() {
-        Log.d("playPrevious", "windowIndex; ${player?.currentWindowIndex} prev Index: ${player?.previousWindowIndex}")
-        player?.seekToDefaultPosition(player!!.previousWindowIndex)
+        if (currentWindowIndex != 0) {
+            currentWindowIndex = currentWindowIndex - 1
+        } else {
+            currentWindowIndex = songs.size - 1
+        }
+
+//        Log.d("playPrevious", "currentWindowIndex; ${currentWindowIndex} ")
+        Log.d("playNext", "nextWindowIndex; ${player?.previousWindowIndex}")
+        player?.seekToDefaultPosition(currentWindowIndex)
     }
 
     fun playNext() {
-        Log.d("playNext", "windowIndex; ${player?.currentWindowIndex} next index: ${player?.nextWindowIndex}")
+//        val currentPeriodIndex = player?.currentPeriodIndex
+        val handler = Handler()
+//        handler.postDelayed(Runnable {
+        if (currentWindowIndex < songs.size - 1) {
+            currentWindowIndex = currentWindowIndex + 1
+        } else {
+            currentWindowIndex = 0
+        }
+
+//            Log.d("playNext", "currentWindowIndex; ${currentWindowIndex}")
+
 //        player?.seekTo(player!!.nextWindowIndex, C.TIME_UNSET)
-        player?.seekToDefaultPosition(player!!.nextWindowIndex)
+            player?.seekToDefaultPosition(currentWindowIndex)
+
+//        }, 500)
+
     }
 
     override fun onDestroy() {

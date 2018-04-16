@@ -13,8 +13,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.bitmap.BitmapCompression
 import com.york.android.musicsession.model.bitmap.BlurBuilder
 import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.MainActivity
@@ -54,9 +54,12 @@ class PlayerControlFragment : Fragment() {
     }
 
     val infoHandler = object : Handler() {
+        @RequiresApi(Build.VERSION_CODES.O)
         override fun handleMessage(msg: Message?) {
             setSongName(msg?.data?.getString("SONG_NAME")!!)
             setArtistName(msg?.data?.getString("ARTIST_NAME")!!)
+            setBlurBackground(msg?.data?.getString("ALBUM_ARTWORK")!!)
+            setAlbumArtwork(msg?.data?.getString("ALBUM_ARTWORK")!!)
 
             Log.d("infoHandler", "${msg?.data?.getBoolean("IS_PLAYING")!!}")
             if (msg?.data?.getBoolean("IS_PLAYING")!!) {
@@ -81,7 +84,6 @@ class PlayerControlFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        // Inflate the layout for this fragment
         val view = inflater!!.inflate(R.layout.fragment_player_control, container, false)
 
         return view
@@ -90,7 +92,7 @@ class PlayerControlFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-        setBlurBackground()
+//        setBlurBackground()
 
         imageView_playerControl_pause.setOnClickListener {
             (activity as MainActivity).onPauseSong()
@@ -107,29 +109,14 @@ class PlayerControlFragment : Fragment() {
         imageView_playerControl_next.setOnClickListener {
             (activity as MainActivity).onPlayNextSong()
         }
-
-        seekBar_playerControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {
-
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(p0: SeekBar?) {
-                mListener?.onSeekToPosition(seekBar_playerControl.progress)
-            }
-
-        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun setBlurBackground() {
+    fun setBlurBackground(imageUrl: String) {
         val songs = SongFactory(activity).getSongs("吳汶芳", "Artist")
-        if (songs[0].coverImageUrl != "none") {
-            Log.d("PlayerControlFragment", "coverImageUrl: ${songs[0].coverImageUrl}")
-            val coverBitmap = BitmapFactory.decodeFile(songs[0].coverImageUrl)
+        if (imageUrl != "none") {
+            Log.d("PlayerControlFragment", "coverImageUrl: ${imageUrl}")
+            val coverBitmap = BitmapFactory.decodeFile(imageUrl)
             Log.d("PlayerControlFragment", "coverBitmap: ${coverBitmap}")
             val blurredBitmap = BlurBuilder().blur(coverBitmap, activity)
             Log.d("PlayerControlFragment", "blurredBitmap: ${blurredBitmap}")
@@ -137,6 +124,12 @@ class PlayerControlFragment : Fragment() {
 //            constraintLayout_controlView.background = BitmapDrawable(resources, blurredBitmap)
             imageView_playerControl_artwork.setImageBitmap(coverBitmap)
         }
+    }
+
+    fun setAlbumArtwork(imageUrl: String) {
+        val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
+        imageView_playerControl_artwork.setImageBitmap(bitmap)
+        imageView_playerControl_artworkSmall.setImageBitmap(bitmap)
     }
 
     fun setArtistName(artistName: String) {

@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.york.android.musicsession.view.playercontrol.PlayerControlFragment"
-    android:background="@color/md_grey_800">
+    android:background="@color/md_grey_800"
+    android:clickable="true">
 
     <View
         android:layout_width="match_parent"
@@ -13,7 +14,7 @@
         android:background="@drawable/albumitem_gradientblack" />
 
     <ImageView
-        android:id="@+id/imageView_playerControl_coverSmall"
+        android:id="@+id/imageView_playerControl_artworkSmall"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="24dp"
@@ -192,6 +193,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="16dp"
         android:text="artist name"
+        android:textColor="@color/md_grey_300"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_playerControl_songName" />
