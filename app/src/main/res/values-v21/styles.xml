@@ -6,8 +6,8 @@
         <item name="android:windowContentTransitions">true</item>
 
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/md_grey_100</item>
+        <item name="colorPrimaryDark">@color/md_grey_700</item>
         <item name="colorAccent">@color/colorAccent</item>
         <!-- specify enter and exit transitions -->
         <!--<item name="android:windowEnterTransition">@transition/change_image_transform</item>-->

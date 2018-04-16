@@ -68,7 +68,7 @@ class PlayService : Service() {
 //        val notification = Notification(R.drawable.exo_controls_play, "音樂播放",
 //                System.currentTimeMillis())
         // start foreground service
-//        startForeground(ONGOING_NOTIFICATION_ID, notification)
+        startForeground(ONGOING_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -281,7 +281,7 @@ class PlayService : Service() {
 //            Log.d("playNext", "currentWindowIndex; ${currentWindowIndex}")
 
 //        player?.seekTo(player!!.nextWindowIndex, C.TIME_UNSET)
-            player?.seekToDefaultPosition(currentWindowIndex)
+        player?.seekToDefaultPosition(currentWindowIndex)
 
 //        }, 500)
 

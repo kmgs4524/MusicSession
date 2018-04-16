@@ -14,31 +14,18 @@
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar_discover"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:background="@color/md_white_1000"
+            app:title="我的音樂庫" />
 
         <android.support.design.widget.TabLayout
             android:id="@+id/tabLayout_discover"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="scrollable" />
-
-        <!--<android.support.design.widget.CollapsingToolbarLayout-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="200dp"-->
-        <!--android:minHeight="0dp"-->
-        <!--app:layout_scrollFlags="scroll" >-->
-
-        <!--<ImageView-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:src="@drawable/lee_album_cover" />-->
-
-        <!--<View-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:background="#70ffffff" />-->
-
-        <!--</android.support.design.widget.CollapsingToolbarLayout>-->
+            app:tabMode="scrollable"
+            android:background="@color/md_white_1000"
+            app:tabIndicatorColor="@color/md_blue_400"
+            app:tabSelectedTextColor="@color/md_blue_400"/>
 
     </android.support.design.widget.AppBarLayout>
 
