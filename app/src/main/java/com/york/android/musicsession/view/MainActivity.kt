@@ -177,7 +177,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     override fun onDestroy() {
         super.onDestroy()
-        unbindService(connection)
+//        unbindService(connection)
     }
 
     override fun onFragmentInteraction(uri: Uri) {

@@ -1,14 +1,18 @@
 package com.york.android.musicsession.service
 
-import android.app.Notification
-import android.app.Service
+import android.app.*
 import android.content.Intent
-import android.app.PendingIntent
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.*
 import android.support.annotation.RequiresApi
+import android.support.v4.app.NotificationCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import android.view.View
+import android.widget.RemoteViews
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.*
@@ -19,13 +23,18 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.bitmap.BitmapCompression
 import com.york.android.musicsession.model.data.Song
+import com.york.android.musicsession.view.MainActivity
 import com.york.android.musicsession.view.exoplayer.AlbumActivity
+import com.york.android.musicsession.view.notification.PlayerControlNotification
+import org.jetbrains.anko.notificationManager
 import java.util.*
 
 
 class PlayService : Service() {
     val ONGOING_NOTIFICATION_ID = 1
+
 
     // Measures bandwidth during playback. Can be null if not required.
     val bandwidthMeter = DefaultBandwidthMeter()
@@ -33,19 +42,19 @@ class PlayService : Service() {
     val trackSelector = DefaultTrackSelector(videoTrackSelectionFactory)
     var player: ExoPlayer? = null
 
-    val dynamicConcatenatingMediaSource = DynamicConcatenatingMediaSource()
+    val dynamicConcatenatingMediaSource = DynamicConcatenatingMediaSource() // playlist that store media sources
 
     lateinit var timeHandler: Handler  // responsible for updating progressbar
-    lateinit var infoHandler: Handler
+    lateinit var infoHandler: Handler   // responsible for updating song information
     lateinit var statusHandler: Handler
     val bundle = Bundle()   // package including media's duration and current position
     val infoBundle = Bundle()
     var currentPositionSeconds: Int = 0
 
-    var songs: List<Song> = ArrayList()
+    var songs: List<Song> = ArrayList() // store received songs
     var currentWindowIndex = 0
 
-    var handlerThread = HandlerThread("HandlerThread")
+    var handlerThread = HandlerThread("HandlerThread")  // handle player's current position
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d("PlayService", "onBind: ")
@@ -54,21 +63,8 @@ class PlayService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
-        val notificationIntent = Intent(applicationContext, AlbumActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(applicationContext, 0, notificationIntent, 0)
-        // create notification
-        val notification = Notification.Builder(applicationContext)
-                .setContentTitle("音樂播放")
-                .setContentText("正在播放歌曲")
-                .setContentIntent(pendingIntent)
-                .setSmallIcon(R.drawable.exo_controls_play)
-                .build()
-
-        Log.d("PlayService", "onCreate notification: ${notification}")
-//        val notification = Notification(R.drawable.exo_controls_play, "音樂播放",
-//                System.currentTimeMillis())
         // start foreground service
-        startForeground(ONGOING_NOTIFICATION_ID, notification)
+//        startForeground(ONGOING_NOTIFICATION_ID, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -246,6 +242,10 @@ class PlayService : Service() {
             player?.playWhenReady = true
         }, 500)
 
+        // create notification
+        val notification = PlayerControlNotification(applicationContext, songs, currentWindowIndex)
+
+        notification.show()
     }
 
     fun display() {
