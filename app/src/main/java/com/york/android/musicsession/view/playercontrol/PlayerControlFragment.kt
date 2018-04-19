@@ -78,9 +78,6 @@ class PlayerControlFragment : Fragment() {
             mParam1 = arguments?.getString(ARG_PARAM1)
             mParam2 = arguments?.getString(ARG_PARAM2)
         }
-        (activity as MainActivity).timeHandler = timeHandler
-        (activity as MainActivity).infoHandler = infoHandler
-        (activity as MainActivity).statusHandler = statusHandler
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -92,7 +89,9 @@ class PlayerControlFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-//        setBlurBackground()
+        (activity as MainActivity).timeHandler = timeHandler
+        (activity as MainActivity).infoHandler = infoHandler
+        (activity as MainActivity).statusHandler = statusHandler
 
         imageView_playerControl_pause.setOnClickListener {
             (activity as MainActivity).onPauseSong()

@@ -106,13 +106,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
-
-        transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
-        transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
-        transition.addToBackStack(null)
-        transition.commit()
-
         setDrawerListener()
     }
 
@@ -149,6 +142,13 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         super.onStart()
 //        setBlurBackground()
         // bottom sheet fragment
+
+        val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
+
+        transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
+        transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
+        transition.addToBackStack(null)
+        transition.commit()
     }
 
     override fun onBackPressed() {

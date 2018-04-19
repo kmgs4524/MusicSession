@@ -38,11 +38,14 @@ class PlayerControlNotification(val context: Context, val songs: List<Song>, var
         stackBuilder.addParentStack(MainActivity::class.java)
         stackBuilder.addNextIntent(notificationIntent)
 
+        // PendingIntent that starts Activity which holds PlayerControlFragment
         val resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
+//        val playNextPendingIntent = PendingIntent.getService()
+
         PendingIntent.getActivity(context, 0, notificationIntent, 0)
 
         // set action and style of builder
-        val playAction = NotificationCompat.Action(R.drawable.ic_play, "PLAY_ACTION", resultPendingIntent)
+        val playAction = NotificationCompat.Action(R.drawable.exo_controls_play, "PLAY_ACTION", resultPendingIntent)
         val previousAction = NotificationCompat.Action(R.drawable.back_24dp, "PREVIOUS_ACTION", resultPendingIntent)
         val nextAction = NotificationCompat.Action(R.drawable.next_24dp, "NEXT_ACTION", resultPendingIntent)
         builder.addAction(previousAction)
