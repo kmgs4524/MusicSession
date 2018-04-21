@@ -1,18 +1,15 @@
 package com.york.android.musicsession.service
 
+import android.Manifest
 import android.app.*
-import android.content.Intent
+import android.content.BroadcastReceiver
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.content.Intent
+import android.content.IntentFilter
 import android.net.Uri
 import android.os.*
 import android.support.annotation.RequiresApi
-import android.support.v4.app.NotificationCompat
-import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
-import android.view.View
-import android.widget.RemoteViews
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.*
@@ -22,20 +19,14 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
-import com.york.android.musicsession.R
-import com.york.android.musicsession.model.bitmap.BitmapCompression
+import com.york.android.musicsession.boradcast.MusicReceiver
+import com.york.android.musicsession.boradcast.SetBroadcastReceiver
 import com.york.android.musicsession.model.data.Song
-import com.york.android.musicsession.view.MainActivity
-import com.york.android.musicsession.view.exoplayer.AlbumActivity
-import com.york.android.musicsession.view.notification.PlayerControlNotification
-import org.jetbrains.anko.notificationManager
+import com.york.android.musicsession.view.notification.PlayerNotificationBuilder
 import java.util.*
 
 
 class PlayService : Service() {
-    val ONGOING_NOTIFICATION_ID = 1
-
-
     // Measures bandwidth during playback. Can be null if not required.
     val bandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
@@ -56,6 +47,8 @@ class PlayService : Service() {
 
     var handlerThread = HandlerThread("HandlerThread")  // handle player's current position
 
+    val receiver = MusicReceiver()
+
     override fun onBind(intent: Intent): IBinder? {
         Log.d("PlayService", "onBind: ")
         return LocalBinder()
@@ -64,12 +57,11 @@ class PlayService : Service() {
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
         // start foreground service
-//        startForeground(ONGOING_NOTIFICATION_ID, notification)
+        setBroadcastReceiver()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d("PlayService", "onStartCommand intent: ${intent}")
-
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -78,10 +70,19 @@ class PlayService : Service() {
         return true
     }
 
+    fun setBroadcastReceiver() {
+//        val intentFilter = IntentFilter()
+//        intentFilter.addAction("ACTION_PLAY_MUSIC")
+//        intentFilter.addAction("ACTION_PAUSE_MUSIC")
+//        val intent = registerReceiver(receiver, intentFilter)
+        val setReceiver = SetBroadcastReceiver()
+        setReceiver.setReceiver(this, receiver)
+        Log.d("PlayService", "setBroadcastReceiver")
+    }
+
     fun createMediaSource(songs: List<Song>) {
         this.songs = songs
         Log.d("PlayService", "createMediaSource songs size: ${songs.size}")
-//        this.songs = songs
         val dataSourceFactory = DefaultDataSourceFactory(this,
                 Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
 
@@ -147,8 +148,6 @@ class PlayService : Service() {
             // called every time the video changes or "seeks" to the next in the playlist.
             override fun onPositionDiscontinuity(reason: Int) {
                 Thread(Runnable {
-                    //                    val currentWindowIndex = player?.currentWindowIndex
-//                    val periodWindowIndex = player?.currentPeriodIndex
                     Log.d("PlayService", "onPositionDiscontinuity currentWindowIndex: ${currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
                     val message = Message()
 
@@ -186,7 +185,6 @@ class PlayService : Service() {
                 Log.d("onPlayerStateChanged", "playbackState: ${playbackState} playWhenReady: ${playWhenReady} windowIndex: ${player?.currentWindowIndex}")
 
                 if (playbackState == Player.STATE_READY) {
-//                    bundle.putBoolean("IS_PLAYING", player?.playbackState)
                     // put duration
                     try {
                         bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
@@ -202,8 +200,6 @@ class PlayService : Service() {
                     }
                     // currentPositionSeconds that put in Runnable would not work, I still don't know why.
                     val runnable = Runnable {
-                        // Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-
                         while (playbackState == Player.STATE_READY) {
                             if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
                                 currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
@@ -215,10 +211,8 @@ class PlayService : Service() {
 
                                 val placedSuccess = timeHandler.sendMessageAtTime(message, 100)
                             }
-
                         }
                     }
-
                     val handler = Handler(handlerThread.looper)
 
                     handler.post(runnable)
@@ -243,9 +237,9 @@ class PlayService : Service() {
         }, 500)
 
         // create notification
-        val notification = PlayerControlNotification(applicationContext, songs, currentWindowIndex)
-
-        notification.show()
+        val ONGOING_NOTIFICATION_ID = 1904
+        val notification = PlayerNotificationBuilder(applicationContext, songs[0])
+        startForeground(ONGOING_NOTIFICATION_ID, notification.show())
     }
 
     fun display() {
@@ -253,6 +247,7 @@ class PlayService : Service() {
     }
 
     fun pause() {
+        Log.d("PlayService", "onPause")
         player?.playWhenReady = false
     }
 
@@ -269,27 +264,21 @@ class PlayService : Service() {
     }
 
     fun playNext() {
-//        val currentPeriodIndex = player?.currentPeriodIndex
         val handler = Handler()
-//        handler.postDelayed(Runnable {
+
         if (currentWindowIndex < songs.size - 1) {
             currentWindowIndex = currentWindowIndex + 1
         } else {
             currentWindowIndex = 0
         }
-
-//            Log.d("playNext", "currentWindowIndex; ${currentWindowIndex}")
-
-//        player?.seekTo(player!!.nextWindowIndex, C.TIME_UNSET)
         player?.seekToDefaultPosition(currentWindowIndex)
-
-//        }, 500)
-
     }
 
     override fun onDestroy() {
         super.onDestroy()
         (player as SimpleExoPlayer).release()
+        unregisterReceiver(receiver)
+        Log.d("PlayService", "onDestroy: ${receiver}")
     }
 
     inner class LocalBinder : Binder() {
@@ -298,4 +287,24 @@ class PlayService : Service() {
         }
     }
 
+    inner class MusicBroadcastReceiver : BroadcastReceiver() {
+        init {
+            Log.d("MusicBroadcastReceiver", "init")
+        }
+
+        override fun onReceive(context: Context, intent: Intent) {
+            Log.d("MusicBroadcastReceiver", "onReceive context: ${context}")
+            // an Intent broadcast.
+            when(intent.action) {
+                "ACTION_PLAY_MUSIC" -> {
+                    this@PlayService.display()
+                    Log.d("MusicBroadcastReceiver", intent.action)
+                }
+                "ACTION_PAUSE_MUSIC" -> {
+                    this@PlayService.pause()
+                    Log.d("MusicBroadcastReceiver", intent.action)
+                }
+            }
+        }
+    }
 }

@@ -1,25 +1,15 @@
 package com.york.android.musicsession.view.exoplayer
 
-import android.app.Service
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
-import android.os.Handler
-import android.os.IBinder
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import com.google.android.exoplayer2.ui.PlayerControlView
-import com.york.android.musicsession.service.PlayService
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.view.MainActivity
-import kotlinx.android.synthetic.main.activity_album.*
 
 /**
  * Created by York on 2018/3/20.
@@ -38,6 +28,8 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
             (context as MainActivity).setPlaylist(songs, position)
             context.playMedia(position)
             context.showBottomPlayerControl()
+            context.setNotification(songs[position])
+            context.setBroadcastReceiver()
         }
     }
 

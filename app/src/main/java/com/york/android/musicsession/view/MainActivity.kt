@@ -1,8 +1,7 @@
 package com.york.android.musicsession.view
 
-import android.content.ComponentName
-import android.content.Intent
-import android.content.ServiceConnection
+import android.Manifest
+import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -12,15 +11,12 @@ import android.os.IBinder
 import android.support.annotation.RequiresApi
 import android.support.design.widget.BottomSheetBehavior
 import android.support.transition.ChangeBounds
-import android.support.transition.TransitionInflater
 import android.support.transition.TransitionManager
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.view.GravityCompat
-import android.transition.Transition
 import android.util.Log
 import android.view.*
-import android.widget.FrameLayout
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.service.PlayService
@@ -31,6 +27,7 @@ import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
 import com.york.android.musicsession.view.artist.ArtistFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
+import com.york.android.musicsession.view.notification.PlayerNotificationBuilder
 import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
@@ -58,6 +55,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             var connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
             bindService(intent, connection, 0)
         }
+    }
+
+    fun setNotification(song: Song) {
+        val notification = PlayerNotificationBuilder(applicationContext, song)
+        notification.show()
     }
 
     fun setPlaylist(songs: List<Song>, index: Int) {
@@ -105,7 +107,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         setDrawerListener()
     }
 
@@ -201,4 +202,5 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         }
 
     }
+
 }
