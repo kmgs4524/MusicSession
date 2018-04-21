@@ -6,8 +6,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.*
+import android.service.media.MediaBrowserService
 import android.support.annotation.RequiresApi
 import android.util.Log
 import com.google.android.exoplayer2.*
@@ -26,7 +28,16 @@ import com.york.android.musicsession.view.notification.PlayerNotificationBuilder
 import java.util.*
 
 
-class PlayService : Service() {
+class PlayService : MediaBrowserService() {
+    override fun onLoadChildren(p0: String?, p1: Result<MutableList<MediaBrowser.MediaItem>>?) {
+
+    }
+
+    override fun onGetRoot(p0: String?, p1: Int, p2: Bundle?): BrowserRoot {
+        val bundle = Bundle()
+        return BrowserRoot("ROOT_ID", bundle)
+    }
+
     // Measures bandwidth during playback. Can be null if not required.
     val bandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
