@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.browse.MediaBrowser
+import android.media.session.MediaSession
 import android.net.Uri
 import android.os.*
 import android.service.media.MediaBrowserService
@@ -29,15 +30,6 @@ import java.util.*
 
 
 class PlayService : MediaBrowserService() {
-    override fun onLoadChildren(p0: String?, p1: Result<MutableList<MediaBrowser.MediaItem>>?) {
-
-    }
-
-    override fun onGetRoot(p0: String?, p1: Int, p2: Bundle?): BrowserRoot {
-        val bundle = Bundle()
-        return BrowserRoot("ROOT_ID", bundle)
-    }
-
     // Measures bandwidth during playback. Can be null if not required.
     val bandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
@@ -58,7 +50,15 @@ class PlayService : MediaBrowserService() {
 
     var handlerThread = HandlerThread("HandlerThread")  // handle player's current position
 
-    val receiver = MusicReceiver()
+    val callback = object : MediaSession.Callback() {
+        override fun onPlay() {
+            display()
+        }
+
+        override fun onPause() {
+            pause()
+        }
+    }
 
     override fun onBind(intent: Intent): IBinder? {
         Log.d("PlayService", "onBind: ")
@@ -67,8 +67,19 @@ class PlayService : MediaBrowserService() {
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
-        // start foreground service
-        setBroadcastReceiver()
+        val mediaSession = MediaSession(this, "MEDIA_SESSION")
+        // connect MediaBrowserService to MediaSession
+        this.sessionToken = mediaSession.sessionToken
+        mediaSession.setCallback(callback)
+    }
+
+    override fun onLoadChildren(p0: String?, p1: Result<MutableList<MediaBrowser.MediaItem>>?) {
+
+    }
+
+    override fun onGetRoot(p0: String?, p1: Int, p2: Bundle?): BrowserRoot {
+        val bundle = Bundle()
+        return BrowserRoot("ROOT_ID", bundle)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -79,16 +90,6 @@ class PlayService : MediaBrowserService() {
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d("PlayService", "onUnBind: intent: ${intent}")
         return true
-    }
-
-    fun setBroadcastReceiver() {
-//        val intentFilter = IntentFilter()
-//        intentFilter.addAction("ACTION_PLAY_MUSIC")
-//        intentFilter.addAction("ACTION_PAUSE_MUSIC")
-//        val intent = registerReceiver(receiver, intentFilter)
-        val setReceiver = SetBroadcastReceiver()
-        setReceiver.setReceiver(this, receiver)
-        Log.d("PlayService", "setBroadcastReceiver")
     }
 
     fun createMediaSource(songs: List<Song>) {
@@ -258,7 +259,7 @@ class PlayService : MediaBrowserService() {
     }
 
     fun pause() {
-        Log.d("PlayService", "onPause")
+        Log.d("PlayService", "pause")
         player?.playWhenReady = false
     }
 
