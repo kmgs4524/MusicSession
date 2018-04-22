@@ -1,7 +1,10 @@
 package com.york.android.musicsession.view
 
-import android.Manifest
 import android.content.*
+import android.media.browse.MediaBrowser
+import android.media.session.MediaController
+import android.media.session.MediaSession
+import android.media.session.MediaSessionManager
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -14,9 +17,13 @@ import android.support.transition.ChangeBounds
 import android.support.transition.TransitionManager
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.view.GravityCompat
 import android.util.Log
 import android.view.*
+import com.google.android.exoplayer2.PlaybackPreparer
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.service.PlayService
@@ -38,12 +45,21 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
         ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
 
+    // service used to play music
     var service: PlayService? = null
+    // update playback's state
     lateinit var timeHandler: Handler
     lateinit var infoHandler: Handler
     lateinit var statusHandler: Handler
-
-    //    lateinit var songs: List<Song>
+    // MusicSession framework component
+    val connectionCallback = ConnectionCallback()
+    val subscriptionCallback = SubscriptionCallback()
+    val controllerCallback = ControllerCallback()
+    lateinit var mediaBrowser: MediaBrowserCompat   // Browses media content offered by a MediaBrowserServiceCompat.
+    lateinit var sessionToken: MediaSessionCompat.Token
+    lateinit var controller: MediaControllerCompat
+    lateinit var transportControls: MediaControllerCompat.TransportControls
+    // used to bind PlayService
     lateinit var connection: MusicServiceConnection
 
     fun bindPlayService(songs: List<Song>) {
@@ -64,7 +80,15 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     fun setPlaylist(songs: List<Song>, index: Int) {
         Log.d("MainActivity", "setPlaylist songs ${songs} service: ${service}")
-        service?.createMediaSource(songs)
+        // old version
+//        service?.createMediaSource(songs)
+
+        // new version
+        // MediaBrowserCompat wraps the API for bound services
+        val bundle = Bundle()
+        bundle.putParcelableArrayList("SONGS", (songs as ArrayList<Song>))
+        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, bundle)
+        mediaBrowser.connect()
     }
 
     fun playMedia(index: Int) {
@@ -72,11 +96,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     override fun onDisplaySong() {
-        service?.display()
+        transportControls.play()
     }
 
     override fun onPauseSong() {
-        service?.pause()
+        transportControls.pause()
     }
 
     override fun onPlayPrevSong() {
@@ -141,15 +165,14 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-//        setBlurBackground()
-        // bottom sheet fragment
-
+        // add content and bottom fragments
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
         transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
         transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
         transition.addToBackStack(null)
         transition.commit()
+
     }
 
     override fun onBackPressed() {
@@ -200,6 +223,35 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             service?.statusHandler = statusHandler
 //            service?.createMediaSource(songs)
         }
+
+    }
+
+    // used to get the MediaController
+    inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            sessionToken = mediaBrowser.sessionToken
+            // MediaControllerCompat give access to everything
+            controller = MediaControllerCompat(this@MainActivity, sessionToken)
+            // set created MediaController in order to use it everywhere
+            MediaControllerCompat.setMediaController(this@MainActivity, controller)
+            transportControls = controller.transportControls
+        }
+
+        override fun onConnectionSuspended() {
+            super.onConnectionSuspended()
+        }
+
+        override fun onConnectionFailed() {
+            super.onConnectionFailed()
+        }
+    }
+
+    inner class ControllerCallback : MediaController.Callback() {
+
+    }
+
+    // show the content from service
+    inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {
 
     }
 

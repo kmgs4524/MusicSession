@@ -29,6 +29,7 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
             context.playMedia(position)
             context.showBottomPlayerControl()
             context.setNotification(songs[position])
+            context.setPlaylist(songs, position)
         }
     }
 
@@ -44,7 +45,7 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
     }
 
     fun setService(songs: List<Song>) {
-        (context as MainActivity).bindPlayService(songs)
+//        (context as MainActivity).bindPlayService(songs)
         Log.d("SongAdapter", "songs ${songs}")
 //        context.setPlaylist(songs)
     }
