@@ -5,6 +5,7 @@ import android.media.browse.MediaBrowser
 import android.media.session.MediaController
 import android.media.session.MediaSession
 import android.media.session.MediaSessionManager
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -62,6 +63,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     // used to bind PlayService
     lateinit var connection: MusicServiceConnection
 
+    var songs: List<Song> = ArrayList<Song>()
+    var currentWindowIndex = 0
+    lateinit var songUri: Uri
+
+
     fun bindPlayService(songs: List<Song>) {
         if (service == null) {
             Log.d("MainActivity", "service is null")
@@ -78,7 +84,35 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         notification.show()
     }
 
+    // used to get the MediaController
+    inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
+        override fun onConnected() {
+            Log.d("playSong", "onConnected")
+            sessionToken = mediaBrowser.sessionToken
+            // MediaController give access to everything.
+            controller = MediaControllerCompat(this@MainActivity, sessionToken)
+            // MediaController registers callback to change UI when playback's state changes.
+            controller.registerCallback(controllerCallback)
+            // set created MediaController in order to use it everywhere
+            MediaControllerCompat.setMediaController(this@MainActivity, controller)
+            transportControls = controller.transportControls
+
+        }
+
+        override fun onConnectionSuspended() {
+
+            super.onConnectionSuspended()
+        }
+
+        override fun onConnectionFailed() {
+            super.onConnectionFailed()
+        }
+    }
+
     fun setPlaylist(songs: List<Song>, index: Int) {
+        this.songs = songs
+        this.currentWindowIndex = index
+        songUri = Uri.parse(songs[index].filePath)
         Log.d("MainActivity", "setPlaylist songs ${songs} service: ${service}")
         // old version
 //        service?.createMediaSource(songs)
@@ -86,9 +120,10 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         // new version
         // MediaBrowserCompat wraps the API for bound services
         val bundle = Bundle()
-        bundle.putParcelableArrayList("SONGS", (songs as ArrayList<Song>))
-        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, bundle)
-        mediaBrowser.connect()
+        bundle.putParcelableArrayList("SONGS", songs as ArrayList)
+        bundle.putInt("CURRENT_WINDOW_INDEX", index)
+        transportControls.playFromUri(songUri, bundle)
+        Log.d("playSong", "uri: ${songUri} hashcode: ${bundle.hashCode()} bundle: ${bundle} ")
     }
 
     fun playMedia(index: Int) {
@@ -173,6 +208,8 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         transition.addToBackStack(null)
         transition.commit()
 
+        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, null)
+        mediaBrowser.connect()
     }
 
     override fun onBackPressed() {
@@ -226,28 +263,13 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     }
 
-    // used to get the MediaController
-    inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
-        override fun onConnected() {
-            sessionToken = mediaBrowser.sessionToken
-            // MediaControllerCompat give access to everything
-            controller = MediaControllerCompat(this@MainActivity, sessionToken)
-            // set created MediaController in order to use it everywhere
-            MediaControllerCompat.setMediaController(this@MainActivity, controller)
-            transportControls = controller.transportControls
-        }
 
-        override fun onConnectionSuspended() {
-            super.onConnectionSuspended()
-        }
-
-        override fun onConnectionFailed() {
-            super.onConnectionFailed()
-        }
-    }
 
     inner class ControllerCallback : MediaController.Callback() {
-
+        override fun onPlaybackStateChanged(state: PlaybackState?) {
+            // When playback state changed, onPlaybackStateChanged shold be called.
+            super.onPlaybackStateChanged(state)
+        }
     }
 
     // show the content from service

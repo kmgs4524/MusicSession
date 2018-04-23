@@ -64,7 +64,15 @@ class PlayService : MediaBrowserServiceCompat() {
     lateinit var mediaSession: MediaSessionCompat
     // transport controls will invoke play, puase, etc actions on the connectionCallback
     val callback = object : MediaSessionCompat.Callback() {
-
+        override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
+            super.onPlayFromUri(uri, extras)
+            Log.d("playSong", "onPlayFromUri uri: ${uri} hashcode: ${bundle.hashCode()} extras: ${extras}")
+            extras?.classLoader = Song::class.java.classLoader
+            currentWindowIndex = extras?.getInt("CURRENT_WINDOW_INDEX")!!
+            Log.d("playSong", "currentWindowIndex: ${currentWindowIndex}")
+            createMediaSource(extras?.getParcelableArrayList<Song>("SONGS")!!)
+            playMediaSource(currentWindowIndex)
+        }
 
         override fun onPlay() {
             display()
@@ -96,8 +104,8 @@ class PlayService : MediaBrowserServiceCompat() {
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
-        songs = rootHints?.getParcelableArrayList<Song>("SONGS")!!
-        Log.d("onGetRoot", "Bundle: ${songs?.size}")
+//        songs = rootHints?.getParcelableArrayList<Song>("SONGS")!!
+//        Log.d("onGetRoot", "Bundle: ${songs?.size}")
         return BrowserRoot("MusicSession", null)
     }
 
@@ -265,12 +273,13 @@ class PlayService : MediaBrowserServiceCompat() {
             Log.d("PlayService", "playMediaSource dynamicConcatenatingMediaSource: ${dynamicConcatenatingMediaSource.getMediaSource(player?.currentWindowIndex!!)}")
             // Prepare the player with the source.
             player?.playWhenReady = true
+
         }, 500)
 
         // create notification
-        val ONGOING_NOTIFICATION_ID = 1904
-        val notification = PlayerNotificationBuilder(applicationContext, songs[0])
-        startForeground(ONGOING_NOTIFICATION_ID, notification.show())
+//        val ONGOING_NOTIFICATION_ID = 1904
+//        val notification = PlayerNotificationBuilder(applicationContext, songs[0])
+//        startForeground(ONGOING_NOTIFICATION_ID, notification.show())
     }
 
     fun display() {

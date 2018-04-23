@@ -29,7 +29,7 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
             context.playMedia(position)
             context.showBottomPlayerControl()
             context.setNotification(songs[position])
-            context.setPlaylist(songs, position)
+//            context.onDisplaySong()
         }
     }
 
