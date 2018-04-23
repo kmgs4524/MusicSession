@@ -2,10 +2,6 @@ package com.york.android.musicsession.view
 
 import android.content.*
 import android.media.browse.MediaBrowser
-import android.media.session.MediaController
-import android.media.session.MediaSession
-import android.media.session.MediaSessionManager
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
@@ -19,13 +15,13 @@ import android.support.transition.TransitionManager
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.util.Log
 import android.view.*
-import com.google.android.exoplayer2.PlaybackPreparer
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.service.PlayService
@@ -40,6 +36,8 @@ import com.york.android.musicsession.view.notification.PlayerNotificationBuilder
 import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
         SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
@@ -49,7 +47,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     // service used to play music
     var service: PlayService? = null
-    // update playback's state
+    // update playback's stateBuilder
     lateinit var timeHandler: Handler
     lateinit var infoHandler: Handler
     lateinit var statusHandler: Handler
@@ -68,6 +66,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     var currentWindowIndex = 0
     lateinit var songUri: Uri
 
+    lateinit var playbackState: PlaybackStateCompat
 
     fun bindPlayService(songs: List<Song>) {
         if (service == null) {
@@ -92,7 +91,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             sessionToken = mediaBrowser.sessionToken
             // MediaController give access to everything.
             controller = MediaControllerCompat(this@MainActivity, sessionToken)
-            // MediaController registers callback to change UI when playback's state changes.
+            // MediaController registers callback to change UI when playback's stateBuilder changes.
             controller.registerCallback(controllerCallback)
             // set created MediaController in order to use it everywhere
             MediaControllerCompat.setMediaController(this@MainActivity, controller)
@@ -246,6 +245,21 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     }
 
+    val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
+    val currentPositionUpdateHandler = Handler()
+    val updateTask = Runnable {
+        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+        playerControlFragment.updateCurrentPosition(playbackState)
+    }
+
+    fun schedulePositionUpdate() {
+        if(!currentPositionExecutorService.isShutdown) {
+            currentPositionExecutorService.scheduleAtFixedRate(Runnable {
+                currentPositionUpdateHandler.post(updateTask)
+            }, 100, 1000, TimeUnit.MILLISECONDS)
+        }
+    }
+
     inner class MusicServiceConnection(var songs: List<Song>, val timeHandler: Handler, val infoHandler: Handler,
                                        val statusHandler: Handler) : ServiceConnection {
         override fun onServiceDisconnected(p0: ComponentName?) {
@@ -268,10 +282,27 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     inner class ControllerCallback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             super.onPlaybackStateChanged(state)
-            // When playback state changed, onPlaybackStateChanged shold be called.
-            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT")
-            (playerControlFragment as PlayerControlFragment).setPlayIcon(state?.state!!)
-            playerControlFragment.setTextViewCurrentPostition(state?.position.toInt())
+            // When playback stateBuilder changed, onPlaybackStateChanged shold be called.
+            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+            Log.d("MainActivity", "onPlaybackStateChanged stateBuilder: ${state?.state!!}")
+            playerControlFragment.setPlayIcon(state?.state!!)
+
+            playerControlFragment.updateCurrentPosition(state)
+
+            this@MainActivity.playbackState = state
+            schedulePositionUpdate()
+//            playerControlFragment.setCurrentPostition(state?.position.toInt())
+        }
+
+        @RequiresApi(Build.VERSION_CODES.O)
+        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+            super.onMetadataChanged(metadata)
+            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+            playerControlFragment.setAlbumArtwork(metadata?.getString("ALBUM_ARTWORK")!!)
+            playerControlFragment.setBlurBackground(metadata?.getString("ALBUM_ARTWORK")!!)
+            playerControlFragment.setArtistName(metadata?.getString("ARTIST_NAME")!!)
+            playerControlFragment.setSongName(metadata?.getString("SONG_NAME")!!)
+            playerControlFragment.setDuration(metadata?.getLong("DURATION").toInt())
         }
     }
 

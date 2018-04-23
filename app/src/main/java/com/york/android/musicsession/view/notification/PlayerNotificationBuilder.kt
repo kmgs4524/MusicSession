@@ -47,7 +47,7 @@ class PlayerNotificationBuilder(val context: Context, val song: Song) {
         // create play, pause intents
         val playIntent = Intent()
         val pauseIntent = Intent()
-        // set intents'action and handler component
+        // set intents'action and currentPositionUpdateHandler component
         playIntent.setAction("ACTION_PLAY_MUSIC")
         playIntent.setClass(context, MusicReceiver::class.java)
         pauseIntent.setClass(context, MusicReceiver::class.java)   // set the component to handle the intent

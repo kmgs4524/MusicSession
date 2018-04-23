@@ -70,7 +70,7 @@ class AlbumActivity : AppCompatActivity() {
 
         Log.d("initRecycleView", "called")
         recyclerView_album_activity.layoutManager = LinearLayoutManager(this)
-//        songAdapter = SongAdapter(songs, this, null, null, handler)
+//        songAdapter = SongAdapter(songs, this, null, null, currentPositionUpdateHandler)
         recyclerView_album_activity.adapter = SongAdapter(songs, this)
     }
 
@@ -83,9 +83,9 @@ class AlbumActivity : AppCompatActivity() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
 //                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-                Log.d("handler", "data: ${data}")
+                Log.d("currentPositionUpdateHandler", "data: ${data}")
                 if(data != null) {
-                    Log.d("handler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
+                    Log.d("currentPositionUpdateHandler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
                     progressbar_album.progress = data?.getInt("CURRENT_POSITION")
                     progressbar_album.max = data?.getInt("DURATION")
 

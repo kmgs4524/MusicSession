@@ -3,10 +3,7 @@ package com.york.android.musicsession.view.playercontrol
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
-import android.os.Build
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
+import android.os.*
 import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
 import android.support.v4.media.session.PlaybackStateCompat
@@ -34,9 +31,9 @@ class PlayerControlFragment : Fragment() {
             val duration = msg?.data?.getInt("DURATION")!!
             val currentPosition = msg?.data?.getInt("CURRENT_POSITION")!!
 
-            setSeekBar(duration, currentPosition)
-            setTextViewDuration(duration)
-            setTextViewCurrentPostition(currentPosition)
+//            setSeekBar(duration, currentPosition)
+            setDuration(duration)
+            setCurrentPostition(currentPosition)
         }
     }
 
@@ -127,6 +124,7 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun setPlayIcon(state: Int) {
+        Log.d("PlayerControlFragment", "stateBuilder: ${state}")
         if (state == PlaybackStateCompat.STATE_PLAYING) {
             imageView_playerControl_pause.visibility = View.VISIBLE
             imageView_playerControl_play.visibility = View.GONE
@@ -152,24 +150,37 @@ class PlayerControlFragment : Fragment() {
         textView_playerControl_songNameTitle.setText(songName)
     }
 
-    fun setSeekBar(duration: Int, currentPosition: Int) {
-        seekBar_playerControl.max = duration
-        seekBar_playerControl.progress = currentPosition
-    }
-
-    fun setTextViewDuration(duration: Int) {
+    fun setDuration(duration: Int) {
+        Log.d("PlayerControlFragment", "duration: ${duration}")
         if (duration % 60 < 10) {
             textView_playerControl_duration.setText("${duration / 60}:0${duration % 60}")
         } else {
             textView_playerControl_duration.setText("${duration / 60}:${duration % 60}")
         }
+        seekBar_playerControl.max = duration
     }
 
-    fun setTextViewCurrentPostition(currentPosition: Int) {
-        if (currentPosition % 60 < 10) {
-            textView_playerControl_currentPosition.setText("${currentPosition / 60}:0${currentPosition % 60}")
-        } else {
-            textView_playerControl_currentPosition.setText("${currentPosition / 60}:${currentPosition % 60}")
+    fun setCurrentPostition(currentPosition: Int) {
+        activity.runOnUiThread {
+            if (currentPosition % 60 < 10) {
+                textView_playerControl_currentPosition.setText("${currentPosition / 60}:0${currentPosition % 60}")
+            } else {
+                textView_playerControl_currentPosition.setText("${currentPosition / 60}:${currentPosition % 60}")
+            }
+            seekBar_playerControl.progress = currentPosition
+        }
+    }
+
+    fun updateCurrentPosition(playbackState: PlaybackStateCompat) {
+        var currentPosition = playbackState.position
+        var timeDelta = (SystemClock.elapsedRealtime() - playbackState.lastPositionUpdateTime) // the time between last update time and current system time
+        Log.d("PlayerControlFragment", "elapsedRealtime: ${SystemClock.elapsedRealtime()} lastPositionUpdateTime: ${playbackState.lastPositionUpdateTime}")
+        Log.d("PlayerControlFragment", "currentPosition: ${currentPosition} timeDelta: ${timeDelta}")
+
+        if (playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
+            currentPosition = currentPosition + timeDelta * playbackState.playbackSpeed.toLong()
+            Log.d("PlayerControlFragment", "currentPosition : ${currentPosition} timeDelta: ${timeDelta} playbackSpeed: ${playbackState.playbackSpeed.toLong()}")
+            setCurrentPostition((currentPosition!! / 1000).toInt())
         }
     }
 
@@ -197,6 +208,7 @@ class PlayerControlFragment : Fragment() {
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onPlayPrevSong()
+
         fun onPlayNextSong()
         fun onDisplaySong()
         fun onPauseSong()
