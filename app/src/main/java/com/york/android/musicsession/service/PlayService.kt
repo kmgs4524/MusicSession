@@ -48,12 +48,12 @@ class PlayService : MediaBrowserServiceCompat() {
 
     val dynamicConcatenatingMediaSource = DynamicConcatenatingMediaSource() // playlist that store media sources
 
-    lateinit var timeHandler: Handler  // responsible for updating progressbar
-    lateinit var infoHandler: Handler   // responsible for updating song information
-    lateinit var statusHandler: Handler
-    val bundle = Bundle()   // package including media's duration and current position
-    val infoBundle = Bundle()
-    var currentPositionSeconds: Int = 0
+//    lateinit var timeHandler: Handler  // responsible for updating progressbar
+//    lateinit var infoHandler: Handler   // responsible for updating song information
+//    lateinit var statusHandler: Handler
+//    val bundle = Bundle()   // package including media's duration and current position
+//    val infoBundle = Bundle()
+
 
     var songs: List<Song> = ArrayList() // store received songs
     var currentWindowIndex = 0
@@ -66,7 +66,7 @@ class PlayService : MediaBrowserServiceCompat() {
     val callback = object : MediaSessionCompat.Callback() {
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             super.onPlayFromUri(uri, extras)
-            Log.d("playSong", "onPlayFromUri uri: ${uri} hashcode: ${bundle.hashCode()} extras: ${extras}")
+            Log.d("playSong", "onPlayFromUri uri: ${uri} hashcode: ${extras?.hashCode()} extras: ${extras}")
             extras?.classLoader = Song::class.java.classLoader
             currentWindowIndex = extras?.getInt("CURRENT_WINDOW_INDEX")!!
             Log.d("playSong", "currentWindowIndex: ${currentWindowIndex}")
@@ -186,16 +186,16 @@ class PlayService : MediaBrowserServiceCompat() {
 
             // called every time the video changes or "seeks" to the next in the playlist.
             override fun onPositionDiscontinuity(reason: Int) {
-                Thread(Runnable {
-                    Log.d("PlayService", "onPositionDiscontinuity currentWindowIndex: ${currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
-                    val message = Message()
-
-                    infoBundle.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
-                    infoBundle.putString("SONG_NAME", songs[currentWindowIndex].name)
-                    infoBundle.putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
-                    message.data = infoBundle
-                    infoHandler.sendMessage(message)
-                }).run()
+//                Thread(Runnable {
+//                    Log.d("PlayService", "onPositionDiscontinuity currentWindowIndex: ${currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
+//                    val message = Message()
+//
+//                    infoBundle.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
+//                    infoBundle.putString("SONG_NAME", songs[currentWindowIndex].name)
+//                    infoBundle.putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
+//                    message.data = infoBundle
+//                    infoHandler.sendMessage(message)
+//                }).run()
             }
 
             override fun onRepeatModeChanged(repeatMode: Int) {
@@ -212,48 +212,56 @@ class PlayService : MediaBrowserServiceCompat() {
 
             @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
-                if (playbackState == Player.STATE_READY) {
-                    val statusMessage = Message()
-                    val statusBundle = Bundle()
-
-                    statusBundle.putBoolean("IS_PLAYING", playWhenReady)
-                    statusMessage.data = statusBundle
-                    statusHandler.sendMessage(statusMessage)
-                }
+//                if (playbackState == Player.STATE_READY) {
+//                    val statusMessage = Message()
+//                    val statusBundle = Bundle()
+//
+//                    statusBundle.putBoolean("IS_PLAYING", playWhenReady)
+//                    statusMessage.data = statusBundle
+//                    statusHandler.sendMessage(statusMessage)
+//                }
 
                 Log.d("onPlayerStateChanged", "playbackState: ${playbackState} playWhenReady: ${playWhenReady} windowIndex: ${player?.currentWindowIndex}")
 
                 if (playbackState == Player.STATE_READY) {
                     // put duration
-                    try {
-                        bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
-                    } catch (e: IndexOutOfBoundsException) {
-                        e.printStackTrace()
-                    }
-
-                    if (handlerThread.state == Thread.State.NEW) {
-                        handlerThread.start()
-                    } else if (handlerThread.state == Thread.State.RUNNABLE) {
-//                        Log.d("onPlayerStateChanged", "thread state: ${handlerThread.state}")
-                        currentPositionSeconds = 0
-                    }
+//                    try {
+//                        bundle.putInt("DURATION", player?.duration!!.toInt() / 1000)
+//                    } catch (e: IndexOutOfBoundsException) {
+//                        e.printStackTrace()
+//                    }
+//
+//                    if (handlerThread.state == Thread.State.NEW) {
+//                        handlerThread.start()
+//                    } else if (handlerThread.state == Thread.State.RUNNABLE) {
+////                        Log.d("onPlayerStateChanged", "thread state: ${handlerThread.state}")
+//                        currentPositionSeconds = 0
+//                    }
                     // currentPositionSeconds that put in Runnable would not work, I still don't know why.
+                    handlerThread.start()
                     val runnable = Runnable {
                         while (playbackState == Player.STATE_READY) {
+                            var currentPositionSeconds = 0L
                             if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
-                                currentPositionSeconds = player?.currentPosition!!.toInt() / 1000
 
-                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
+                                currentPositionSeconds = player?.currentPosition!! / 1000
 
-                                val message = timeHandler.obtainMessage()
-                                message.data = bundle
+//                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
+//
+//                                val message = timeHandler.obtainMessage()
+//                                message.data = bundle
+//
+//                                val placedSuccess = timeHandler.sendMessageAtTime(message, 100)
 
-                                val placedSuccess = timeHandler.sendMessageAtTime(message, 100)
+                                // update playback's current state
+                                val state = PlaybackStateCompat.Builder()
+                                        .setState(PlaybackStateCompat.STATE_PLAYING, currentPositionSeconds, 1F)
+                                        .build()
+                                mediaSession.setPlaybackState(state)
                             }
                         }
                     }
                     val handler = Handler(handlerThread.looper)
-
                     handler.post(runnable)
                 }
 

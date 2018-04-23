@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentTransaction
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.util.Log
 import android.view.*
@@ -204,7 +205,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
         transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
-        transition.add(R.id.frameLayout_main_controlContainer, bottomFragment)
+        transition.add(R.id.frameLayout_main_controlContainer, bottomFragment, "PLAYER_CONTROL_FRAGMENT")
         transition.addToBackStack(null)
         transition.commit()
 
@@ -255,26 +256,25 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             Log.d("onServiceConnected", "service: ${service}")
-            service?.timeHandler = timeHandler
-            service?.infoHandler = infoHandler
-            service?.statusHandler = statusHandler
+//            service?.timeHandler = timeHandler
+//            service?.infoHandler = infoHandler
+//            service?.statusHandler = statusHandler
+
 //            service?.createMediaSource(songs)
         }
 
     }
 
-
-
-    inner class ControllerCallback : MediaController.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackState?) {
-            // When playback state changed, onPlaybackStateChanged shold be called.
+    inner class ControllerCallback : MediaControllerCompat.Callback() {
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             super.onPlaybackStateChanged(state)
+            // When playback state changed, onPlaybackStateChanged shold be called.
+            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT")
+            (playerControlFragment as PlayerControlFragment).setPlayIcon(state?.state!!)
+            playerControlFragment.setTextViewCurrentPostition(state?.position.toInt())
         }
     }
 
     // show the content from service
-    inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {
-
-    }
-
+    inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {}
 }

@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Message
 import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
+import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -125,6 +126,16 @@ class PlayerControlFragment : Fragment() {
         }
     }
 
+    fun setPlayIcon(state: Int) {
+        if (state == PlaybackStateCompat.STATE_PLAYING) {
+            imageView_playerControl_pause.visibility = View.VISIBLE
+            imageView_playerControl_play.visibility = View.GONE
+        } else {
+            imageView_playerControl_play.visibility = View.VISIBLE
+            imageView_playerControl_pause.visibility = View.GONE
+        }
+    }
+
     fun setAlbumArtwork(imageUrl: String) {
         val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
         imageView_playerControl_artwork.setImageBitmap(bitmap)
@@ -186,7 +197,6 @@ class PlayerControlFragment : Fragment() {
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onPlayPrevSong()
-
         fun onPlayNextSong()
         fun onDisplaySong()
         fun onPauseSong()
