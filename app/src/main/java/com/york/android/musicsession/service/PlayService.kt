@@ -1,15 +1,21 @@
 package com.york.android.musicsession.service
 
+import android.content.ComponentName
 import android.content.Intent
+import android.media.session.MediaSession
+import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.*
 import android.support.annotation.RequiresApi
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaBrowserServiceCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.session.MediaButtonReceiver
+import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
+import android.view.KeyEvent
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory
 import com.google.android.exoplayer2.source.*
@@ -20,14 +26,11 @@ import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.model.data.Song
+import com.york.android.musicsession.view.notification.PlayerNotificationCreator
 import java.util.*
 
 
 class PlayService : MediaBrowserServiceCompat() {
-    companion object {
-        val TRANSPORT_CONTROLS = 3134
-    }
-
     // Measures bandwidth during playback. Can be null if not required.
     val bandwidthMeter = DefaultBandwidthMeter()
     val videoTrackSelectionFactory = AdaptiveTrackSelection.Factory(bandwidthMeter)
@@ -35,12 +38,6 @@ class PlayService : MediaBrowserServiceCompat() {
     var player: ExoPlayer? = null
 
     val dynamicConcatenatingMediaSource = DynamicConcatenatingMediaSource() // playlist that store media sources
-
-    //    lateinit var timeHandler: Handler  // responsible for updating progressbar
-//    lateinit var infoHandler: Handler   // responsible for updating song information
-//    lateinit var statusHandler: Handler
-//    val bundle = Bundle()   // package including media's duration and current position
-//    val infoBundle = Bundle()
 
     val songMetadataBuilder = MediaMetadataCompat.Builder()
     val stateBuilder = PlaybackStateCompat.Builder()
@@ -53,7 +50,7 @@ class PlayService : MediaBrowserServiceCompat() {
     // components for MediaSession service side
     lateinit var mediaSession: MediaSessionCompat
     // transport controls will invoke play, puase, etc actions on the connectionCallback
-    val callback = object : MediaSessionCompat.Callback() {
+    val mediaSessionCallback = object : MediaSessionCompat.Callback() {
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             super.onPlayFromUri(uri, extras)
             Log.d("playSong", "onPlayFromUri uri: ${uri} hashcode: ${extras?.hashCode()} extras: ${extras}")
@@ -62,17 +59,65 @@ class PlayService : MediaBrowserServiceCompat() {
             Log.d("playSong", "currentWindowIndex: ${currentWindowIndex}")
             createMediaSource(extras?.getParcelableArrayList<Song>("SONGS")!!)
             playMediaSource(currentWindowIndex)
+
+            val controller = mediaSession.controller
+//            val metaData = controller.metadata
+
+            controller.registerCallback(object : MediaControllerCompat.Callback() {
+                override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                    super.onMetadataChanged(metadata)
+                    Log.d("Controller.Callback", "metadata: ${metadata} description: ${metadata?.description}")
+                    setNotification(controller, metadata!!)
+                }
+
+                override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+                    super.onPlaybackStateChanged(state)
+                    setNotification(controller, metadata!!)
+                }
+            })
+
         }
 
         override fun onPlay() {
+            super.onPlay()
             display()
+            Log.d("MediaSession Callback", "play event")
         }
 
         override fun onPause() {
+            super.onPause()
             pause()
+            Log.d("MediaSession Callback", "pause event")
+        }
+
+        override fun onSkipToNext() {
+            super.onSkipToNext()
+            Log.d("MediaSession Callback", "onSkipToNext ")
+            playNext()
+        }
+
+        override fun onSkipToPrevious() {
+            super.onSkipToPrevious()
+            Log.d("MediaSession Callback", "onSkipToPrevious")
+            playPrevious()
+        }
+
+        override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
+            val isTranslated = super.onMediaButtonEvent(mediaButtonEvent)
+            Log.d("onMediaButtonEvent", "isTranslated ${isTranslated}")
+            Log.d("onMediaButtonEvent", "keyEvent ${mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)}" +
+                    "keyCode: ${mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)?.keyCode}")
+            val keyCode = mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)?.keyCode
+            when(keyCode) {
+                KeyEvent.KEYCODE_MEDIA_NEXT -> onSkipToNext()
+                KeyEvent.KEYCODE_MEDIA_PREVIOUS -> onSkipToPrevious()
+            }
+            return isTranslated
         }
 
     }
+
+
 
     lateinit var runnable: Runnable
 
@@ -85,11 +130,22 @@ class PlayService : MediaBrowserServiceCompat() {
     override fun onCreate() {
         super.onCreate()
         // connect MediaBrowserService to MediaSession
-        mediaSession = MediaSessionCompat(this, PlayService::class.java.simpleName)
+        //
+        mediaSession = MediaSessionCompat(this, PlayService::class.java.simpleName,
+                ComponentName(this, MediaButtonReceiver::class.java), null)
         // MediaSession's token is used create a MediaControllerCompat for interacting with this session
         // In order to let connecting component get token from service, service should set token as soon as possible
         this.sessionToken = mediaSession.sessionToken
-        mediaSession.setCallback(callback)
+        //
+        mediaSession.isActive = true
+        mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
+        val defaultPlaybackState = PlaybackStateCompat.Builder()
+                .setActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_PLAY
+                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT)    // PlaybackStateCompat.ACTION_PAUSE and PlaybackStateCompat.ACTION_SKIP_TO_NEXT and
+                .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1f)
+        mediaSession.setPlaybackState(defaultPlaybackState.build() )
+        mediaSession.setCallback(mediaSessionCallback)
+        Log.d("PlayService", "onCreate isActive: ${mediaSession.isActive} ")
     }
 
     override fun onLoadChildren(parentId: String, result: Result<MutableList<MediaBrowserCompat.MediaItem>>) {
@@ -97,19 +153,24 @@ class PlayService : MediaBrowserServiceCompat() {
     }
 
     override fun onGetRoot(clientPackageName: String, clientUid: Int, rootHints: Bundle?): BrowserRoot? {
-//        songs = rootHints?.getParcelableArrayList<Song>("SONGS")!!
-//        Log.d("onGetRoot", "Bundle: ${songs?.size}")
         return BrowserRoot("MusicSession", null)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("PlayService", "onStartCommand intent: ${intent}")
+        // Receiver intent
         return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onUnbind(intent: Intent?): Boolean {
         Log.d("PlayService", "onUnBind: intent: ${intent}")
         return true
+    }
+
+    fun setNotification(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
+        val FOREGROUND_SERVICE_ID = 943
+        val creator = PlayerNotificationCreator(this, mediaSession.sessionToken, controller, mediaMetadata)
+        val notification = creator.create()
+        startForeground(FOREGROUND_SERVICE_ID, notification)
     }
 
     fun createMediaSource(songs: List<Song>) {
@@ -201,24 +262,6 @@ class PlayService : MediaBrowserServiceCompat() {
             override fun onPlayerStateChanged(playWhenReady: Boolean, playbackState: Int) {
                 Log.d("onPlayerStateChanged", "playbackState: ${playbackState} playWhenReady: ${playWhenReady} windowIndex: ${player?.currentWindowIndex}")
 
-//                runnable = Runnable{
-//                    while (playbackState == Player.STATE_READY && playWhenReady == true) {
-//                        var currentPositionSeconds = 0L
-//                        if (player?.currentPosition!! / 1000 > currentPositionSeconds) {
-//                            currentPositionSeconds = player?.currentPosition!! / 1000
-////                                bundle.putInt("CURRENT_POSITION", currentPositionSeconds)
-////
-////                                val message = timeHandler.obtainMessage()
-////                                message.data = bundle
-////
-////                                val placedSuccess = timeHandler.sendMessageAtTime(message, 100)
-//
-//                            stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, player?.currentPosition!! / 1000, 1F)
-//                            mediaSession.setPlaybackState(stateBuilder.build())
-//                        }
-//                    }
-//                }
-
                 // start handlerThread if it is new
                 if (handlerThread.state == Thread.State.NEW) {
                     handlerThread.start()
@@ -259,21 +302,17 @@ class PlayService : MediaBrowserServiceCompat() {
 
         }, 500)
 
-        // create notification
-//        val ONGOING_NOTIFICATION_ID = 1904
-//        val notification = PlayerNotificationBuilder(applicationContext, songs[0])
-//        startForeground(ONGOING_NOTIFICATION_ID, notification.show())
     }
 
     fun display() {
         player?.playWhenReady = true
-//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 0f).build())
+//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 0f).create())
     }
 
     fun pause() {
         Log.d("PlayService", "pause")
         player?.playWhenReady = false
-//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0f).build())
+//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0f).create())
     }
 
     fun playPrevious() {
@@ -302,6 +341,7 @@ class PlayService : MediaBrowserServiceCompat() {
     override fun onDestroy() {
         super.onDestroy()
         (player as SimpleExoPlayer).release()
+        mediaSession.release()
     }
 
     inner class LocalBinder : Binder() {

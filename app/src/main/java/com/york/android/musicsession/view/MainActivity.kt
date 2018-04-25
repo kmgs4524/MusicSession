@@ -14,6 +14,7 @@ import android.support.transition.ChangeBounds
 import android.support.transition.TransitionManager
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
+import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
@@ -32,10 +33,11 @@ import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
 import com.york.android.musicsession.view.artist.ArtistFragment
 import com.york.android.musicsession.view.artistpage.ArtistPageFragment
-import com.york.android.musicsession.view.notification.PlayerNotificationBuilder
+import com.york.android.musicsession.view.notification.PlayerNotificationCreator
 import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import org.jetbrains.anko.notificationManager
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -67,22 +69,18 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     lateinit var songUri: Uri
 
     lateinit var playbackState: PlaybackStateCompat
+    lateinit var playbackMetadata: MediaMetadataCompat
 
-    fun bindPlayService(songs: List<Song>) {
-        if (service == null) {
-            Log.d("MainActivity", "service is null")
-            val intent = Intent()
-            intent.setClass(this, PlayService::class.java)
-            startService(intent)
-            var connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
-            bindService(intent, connection, 0)
-        }
-    }
-
-    fun setNotification(song: Song) {
-        val notification = PlayerNotificationBuilder(applicationContext, song)
-        notification.show()
-    }
+//    fun bindPlayService(songs: List<Song>) {
+//        if (service == null) {
+//            Log.d("MainActivity", "service is null")
+//            val intent = Intent()
+//            intent.setClass(this, PlayService::class.java)
+//            startService(intent)
+//            var connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
+//            bindService(intent, connection, 0)
+//        }
+//    }
 
     // used to get the MediaController
     inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
@@ -91,7 +89,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             sessionToken = mediaBrowser.sessionToken
             // MediaController give access to everything.
             controller = MediaControllerCompat(this@MainActivity, sessionToken)
-            // MediaController registers callback to change UI when playback's stateBuilder changes.
+            // MediaController registers mediaSessionCallback to change UI when playback's stateBuilder changes.
             controller.registerCallback(controllerCallback)
             // set created MediaController in order to use it everywhere
             MediaControllerCompat.setMediaController(this@MainActivity, controller)
@@ -100,7 +98,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         }
 
         override fun onConnectionSuspended() {
-
             super.onConnectionSuspended()
         }
 
@@ -139,14 +136,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     override fun onPlayPrevSong() {
-        service?.playPrevious()
+        transportControls.skipToPrevious()
     }
 
     override fun onPlayNextSong() {
-        Thread(Runnable {
-            service?.playNext()
-        }).run()
-
+        transportControls.skipToNext()
     }
 
     override fun onSeekToPosition(position: Int) {
@@ -203,8 +197,8 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         // add content and bottom fragments
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
-        transition.add(R.id.constraintLayout_main_mainContainer, discoverFragment)
-        transition.add(R.id.frameLayout_main_controlContainer, bottomFragment, "PLAYER_CONTROL_FRAGMENT")
+        transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
+        transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, "PLAYER_CONTROL_FRAGMENT")
         transition.addToBackStack(null)
         transition.commit()
 
@@ -252,6 +246,14 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         playerControlFragment.updateCurrentPosition(playbackState)
     }
 
+//    fun setNotification(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
+//        val FOREGROUND_SERVICE_ID = 943
+//        val creator = PlayerNotificationCreator(this, sessionToken, controller, mediaMetadata.description)
+//        val notification = creator.create()
+//
+//        notificationManager.notify(3420, notification)
+//    }
+
     fun schedulePositionUpdate() {
         if(!currentPositionExecutorService.isShutdown) {
             currentPositionExecutorService.scheduleAtFixedRate(Runnable {
@@ -286,11 +288,12 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
             Log.d("MainActivity", "onPlaybackStateChanged stateBuilder: ${state?.state!!}")
             playerControlFragment.setPlayIcon(state?.state!!)
-
-            playerControlFragment.updateCurrentPosition(state)
-
+            // update current position by Executors.SingleThreadScheduleService
+//            playerControlFragment.updateCurrentPosition(state)
             this@MainActivity.playbackState = state
             schedulePositionUpdate()
+            // set notification
+//            setNotification(playbackState, playbackMetadata)
 //            playerControlFragment.setCurrentPostition(state?.position.toInt())
         }
 
@@ -303,9 +306,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             playerControlFragment.setArtistName(metadata?.getString("ARTIST_NAME")!!)
             playerControlFragment.setSongName(metadata?.getString("SONG_NAME")!!)
             playerControlFragment.setDuration(metadata?.getLong("DURATION").toInt())
+            this@MainActivity.playbackMetadata = metadata
+//            setNotification(controller, playbackMetadata)
         }
     }
 
-    // show the content from service
+    // create the content from service
     inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {}
 }

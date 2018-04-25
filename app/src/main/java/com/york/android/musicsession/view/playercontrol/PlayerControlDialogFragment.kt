@@ -13,9 +13,9 @@ import com.york.android.musicsession.R;
 /**
  * A fragment that shows a list of items as a modal bottom sheet.
  *
- * You can show this modal bottom sheet from your activity like this:
+ * You can create this modal bottom sheet from your activity like this:
  * <pre>
- *    PlayerControlDialogFragment.newInstance(30).show(supportFragmentManager, "dialog")
+ *    PlayerControlDialogFragment.newInstance(30).create(supportFragmentManager, "dialog")
  * </pre>
  *
  * You activity (or fragment) needs to implement [PlayerControlDialogFragment.Listener].

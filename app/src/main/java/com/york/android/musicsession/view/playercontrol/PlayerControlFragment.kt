@@ -135,9 +135,12 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun setAlbumArtwork(imageUrl: String) {
-        val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
-        imageView_playerControl_artwork.setImageBitmap(bitmap)
-        imageView_playerControl_artworkSmall.setImageBitmap(bitmap)
+        Log.d("setAlbumArtwork", "imageUrl: ${imageUrl}")
+        if(imageUrl != "") {
+            val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
+            imageView_playerControl_artwork.setImageBitmap(bitmap)
+            imageView_playerControl_artworkSmall.setImageBitmap(bitmap)
+        }
     }
 
     fun setArtistName(artistName: String) {

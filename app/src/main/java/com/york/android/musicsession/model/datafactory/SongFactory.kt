@@ -99,7 +99,7 @@ class SongFactory(val activity: FragmentActivity) {
         var albumArtPath = albumCursor.getString(albumCursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
 
         if(albumArtPath == null) {
-            albumArtPath = "none"
+            albumArtPath = ""
         }
         Log.d("SongFactory", "albumArtPath: ${albumArtPath}")
 

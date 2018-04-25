@@ -74,7 +74,7 @@ class TestActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 //            val request = Request.Builder().url("https://api.kkbox.com/v1.1/search?q=${queryString}&type=track&territory=TW")
 //                    .addHeader("accept", "application/json")
 //                    .addHeader("authorization", "Bearer ${accessToken}")
-//                    .build()
+//                    .create()
 //            val response = client.newCall(request).execute()
 //            val str = response.body()?.string()
 
