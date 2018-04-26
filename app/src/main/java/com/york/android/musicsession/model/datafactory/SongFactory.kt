@@ -102,6 +102,7 @@ class SongFactory(val activity: FragmentActivity) {
             albumArtPath = ""
         }
         Log.d("SongFactory", "albumArtPath: ${albumArtPath}")
+        albumCursor.close()
 
         return albumArtPath
     }

@@ -11,12 +11,14 @@ import android.util.Log
 object BitmapCompression {
     fun compressBySize(pathName: String, requestWidth: Int, requestHeight: Int): Bitmap {
         val options = BitmapFactory.Options()
+        // inJustDecodeBounds sets to true will let decoder return null in order to just query the bitmap
+        // and avoid allocating memory for its pixels
         options.inJustDecodeBounds = true
         BitmapFactory.decodeFile(pathName, options)
 
         // 計算取樣率
         options.inSampleSize = calculateFitSize(requestWidth, requestHeight, options)
-//        options.inSampleSize = 6
+//        options.inSampleSize = 12
         options.inJustDecodeBounds = false
         return BitmapFactory.decodeFile(pathName, options)
     }

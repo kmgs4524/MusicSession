@@ -14,6 +14,7 @@ import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BitmapCompression
 import com.york.android.musicsession.model.data.Album
 import com.york.android.musicsession.view.album.AlbumFragment
+import org.jetbrains.anko.runOnUiThread
 
 /**
  * Created by York on 2018/3/27.
@@ -51,12 +52,17 @@ class AlbumAdapter(val albums: List<Album>, val context: Context): RecyclerView.
 
             textViewAlbumName.setText(album.name)
             textViewArtistName.setText(album.artist)
-            if(album.coverImageUrl != "") {
-                Log.d("RandItemHolder", "album: ${album.name} imageUrl: ${album.coverImageUrl}")
-                val coverBitmap = BitmapCompression.compressBySize(album.coverImageUrl, 178, 210)
-                Log.d("RandItemHolder", "album: ${album.name} coverBitmap: ${coverBitmap}")
-                imageViewAlbumArt.setImageBitmap(coverBitmap)
-            }
+            // load album image on background thread
+            Thread(Runnable {
+                if(album.coverImageUrl != "") {
+                    Log.d("RandItemHolder", "album: ${album.name} imageUrl: ${album.coverImageUrl}")
+                    val coverBitmap = BitmapCompression.compressBySize(album.coverImageUrl, 178, 210)
+                    Log.d("RandItemHolder", "album: ${album.name} coverBitmap: ${coverBitmap}")
+                    context.runOnUiThread {
+                        imageViewAlbumArt.setImageBitmap(coverBitmap)
+                    }
+                }
+            }).start()
         }
     }
 }

@@ -43,11 +43,14 @@ class AlbumPageFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun initRecyclerView() {
-        val albums = AlbumFactory(activity).getAlbums("", "")
-
-        val layoutManager = GridLayoutManager(activity, 2)
-        recyclerView_albumPage.layoutManager = layoutManager
-        recyclerView_albumPage.adapter = AlbumAdapter(albums, activity)
+        Thread(Runnable {
+            val albums = AlbumFactory(activity).getAlbums("", "")
+            activity.runOnUiThread {
+                val layoutManager = GridLayoutManager(activity, 2)
+                recyclerView_albumPage.layoutManager = layoutManager
+                recyclerView_albumPage.adapter = AlbumAdapter(albums, activity)
+            }
+        }).start()
     }
 
     // TODO: Rename method, update argument and hook method into UI event
