@@ -87,9 +87,9 @@ class PlayerControlFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-        (activity as MainActivity).timeHandler = timeHandler
-        (activity as MainActivity).infoHandler = infoHandler
-        (activity as MainActivity).statusHandler = statusHandler
+//        (activity as MainActivity).timeHandler = timeHandler
+//        (activity as MainActivity).infoHandler = infoHandler
+//        (activity as MainActivity).statusHandler = statusHandler
 
         imageView_playerControl_pause.setOnClickListener {
             (activity as MainActivity).onPauseSong()

@@ -58,6 +58,7 @@ class PlayerNotificationCreator(val context: Context, val sessionToken: MediaSes
         // PendingIntent that starts Activity which holds PlayerControlFragment
         val resultPendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT)
 
+        // intent that start specified activity normally
         val intent = Intent()
         intent.setClass(context, MainActivity::class.java)
         val activityPendingIntent = PendingIntent.getActivity(context, 513, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -74,7 +75,7 @@ class PlayerNotificationCreator(val context: Context, val sessionToken: MediaSes
                 .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(sessionToken)
                         .setShowActionsInCompactView(0, 1, 2))
-                .setContentIntent(resultPendingIntent) // supply a pending intent when notification is clicked
+                .setContentIntent(activityPendingIntent) // supply a pending intent when notification is clicked
         val notification = builder.build()
     }
 

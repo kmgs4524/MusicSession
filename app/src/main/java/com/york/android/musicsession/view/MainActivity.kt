@@ -53,6 +53,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     lateinit var timeHandler: Handler
     lateinit var infoHandler: Handler
     lateinit var statusHandler: Handler
+
     // MusicSession framework component
     val connectionCallback = ConnectionCallback()
     val subscriptionCallback = SubscriptionCallback()
@@ -71,16 +72,13 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     lateinit var playbackState: PlaybackStateCompat
     lateinit var playbackMetadata: MediaMetadataCompat
 
-//    fun bindPlayService(songs: List<Song>) {
-//        if (service == null) {
-//            Log.d("MainActivity", "service is null")
-//            val intent = Intent()
-//            intent.setClass(this, PlayService::class.java)
-//            startService(intent)
-//            var connection = MusicServiceConnection(songs, timeHandler, infoHandler, statusHandler)
-//            bindService(intent, connection, 0)
-//        }
-//    }
+    // updating current position in specified interval needs ExecutorService, Handler
+    val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
+    val currentPositionUpdateHandler = Handler()
+    val updateTask = Runnable {
+        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+        playerControlFragment.updateCurrentPosition(playbackState)
+    }
 
     // used to get the MediaController
     inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
@@ -159,8 +157,11 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        Log.d("MainActivity", "onCreate")
+
         setContentView(R.layout.activity_main)
         setDrawerListener()
+        addFragmentInActivity()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -194,17 +195,25 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
+
+        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, null)
+        mediaBrowser.connect()
+    }
+
+    fun addFragmentInActivity() {
         // add content and bottom fragments
         Log.d("MainActivity", "onStart ")
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
         transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
         transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, "PLAYER_CONTROL_FRAGMENT")
-        transition.addToBackStack(null)
+        transition.addToBackStack("INITIAL_DISCOVER_FRAGMENT_AND_PLAYER_CONTROL_FRAGMENT")
         transition.commit()
+    }
 
-        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, null)
-        mediaBrowser.connect()
+    override fun onStop() {
+        super.onStop()
+        Log.d("MainActivity", "onStop ")
     }
 
     override fun onBackPressed() {
@@ -240,21 +249,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onFragmentInteraction(uri: Uri) {
 
     }
-
-    val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
-    val currentPositionUpdateHandler = Handler()
-    val updateTask = Runnable {
-        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
-        playerControlFragment.updateCurrentPosition(playbackState)
-    }
-
-//    fun changeNotificationMetadata(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
-//        val FOREGROUND_SERVICE_ID = 943
-//        val creator = PlayerNotificationCreator(this, sessionToken, controller, mediaMetadata.description)
-//        val notification = creator.init()
-//
-//        notificationManager.notify(3420, notification)
-//    }
 
     fun schedulePositionUpdate() {
         if(!currentPositionExecutorService.isShutdown) {
