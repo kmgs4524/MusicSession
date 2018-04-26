@@ -111,7 +111,7 @@ class PlayerControlFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun setBlurBackground(imageUrl: String) {
         val songs = SongFactory(activity).getSongs("吳汶芳", "Artist")
-        if (imageUrl != "none") {
+        if (imageUrl != "") {
             Log.d("PlayerControlFragment", "coverImageUrl: ${imageUrl}")
             val coverBitmap = BitmapFactory.decodeFile(imageUrl)
             Log.d("PlayerControlFragment", "coverBitmap: ${coverBitmap}")

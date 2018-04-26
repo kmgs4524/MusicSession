@@ -195,6 +195,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onStart() {
         super.onStart()
         // add content and bottom fragments
+        Log.d("MainActivity", "onStart ")
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
 
         transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)

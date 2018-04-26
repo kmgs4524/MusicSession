@@ -74,7 +74,7 @@ class PlayerNotificationCreator(val context: Context, val sessionToken: MediaSes
                 .setStyle(android.support.v4.media.app.NotificationCompat.MediaStyle()
                         .setMediaSession(sessionToken)
                         .setShowActionsInCompactView(0, 1, 2))
-                .setContentIntent(activityPendingIntent) // supply a pending intent when notification is clicked
+                .setContentIntent(resultPendingIntent) // supply a pending intent when notification is clicked
         val notification = builder.build()
     }
 
