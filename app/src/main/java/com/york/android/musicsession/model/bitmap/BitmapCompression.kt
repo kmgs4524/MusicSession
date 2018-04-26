@@ -11,6 +11,7 @@ import android.util.Log
 object BitmapCompression {
     fun compressBySize(pathName: String, requestWidth: Int, requestHeight: Int): Bitmap {
         val options = BitmapFactory.Options()
+        // 首先改變圖片採樣率
         // inJustDecodeBounds sets to true will let decoder return null in order to just query the bitmap
         // and avoid allocating memory for its pixels
         options.inJustDecodeBounds = true
@@ -19,6 +20,10 @@ object BitmapCompression {
         // 計算取樣率
         options.inSampleSize = calculateFitSize(requestWidth, requestHeight, options)
 //        options.inSampleSize = 12
+        // 改變圖片質量，預設使用ARGB_8888(每像素採用 4 bytes)
+        // RGB_565，每像素採用 2 bytes
+        options.inPreferredConfig = Bitmap.Config.RGB_565
+        // 設回false，產生新的Bitmap
         options.inJustDecodeBounds = false
         return BitmapFactory.decodeFile(pathName, options)
     }
@@ -33,8 +38,10 @@ object BitmapCompression {
             val halfHeight = height / 2
             val halfWidth = width / 2
             // 在保證解析出的bitmap寬高分別大於目標尺寸寬高的前提下，取可能的inSampleSize的最大值
+            // inSampleSize 只能是2的次方
             while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
+//                Bitmap.createScaledBitmap()
             }
         }
 

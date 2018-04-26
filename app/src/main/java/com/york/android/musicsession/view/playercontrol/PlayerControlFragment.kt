@@ -160,7 +160,6 @@ class PlayerControlFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onPlayPrevSong()
         fun onPlayNextSong()
         fun onDisplaySong()
@@ -169,8 +168,6 @@ class PlayerControlFragment : Fragment() {
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 

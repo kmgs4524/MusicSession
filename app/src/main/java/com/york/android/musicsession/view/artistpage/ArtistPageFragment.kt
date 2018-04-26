@@ -19,6 +19,7 @@ import kotlinx.android.synthetic.main.fragment_artistpage.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.coroutines.experimental.bg
+import org.jetbrains.anko.runOnUiThread
 
 class ArtistPageFragment : Fragment() {
     private var mParam1: String? = null
@@ -54,12 +55,14 @@ class ArtistPageFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun initRecyclerView() {
-        val artists = ArtistFactory(activity).getArtists("", "")
-
-        recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
-        recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
-        recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
-
+        Thread(Runnable {
+            val artists = ArtistFactory(activity).getArtists("", "")
+            context.runOnUiThread {
+                recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
+                recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
+                recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+            }
+        }).start()
     }
 
     override fun onAttach(context: Context?) {
