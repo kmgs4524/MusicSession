@@ -23,7 +23,7 @@ import kotlinx.android.synthetic.main.fragment_discover.*
  * [LibraryFragment.OnFragmentInteractionListener] interface
  * to handle interaction events.
  * Use the [LibraryFragment.newInstance] factory method to
- * create an instance of this fragment.
+ * init an instance of this fragment.
  */
 class LibraryFragment : Fragment() {
 
@@ -145,7 +145,7 @@ class LibraryFragment : Fragment() {
         private val ARG_PARAM2 = "param2"
 
         /**
-         * Use this factory method to create a new instance of
+         * Use this factory method to init a new instance of
          * this fragment using the provided parameters.
          *
          * @param param1 Parameter 1.

@@ -233,6 +233,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onDestroy() {
         super.onDestroy()
 //        unbindService(connection)
+        mediaBrowser.disconnect()
     }
 
     override fun onFragmentInteraction(uri: Uri) {
@@ -246,10 +247,10 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         playerControlFragment.updateCurrentPosition(playbackState)
     }
 
-//    fun setNotification(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
+//    fun changeNotificationMetadata(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
 //        val FOREGROUND_SERVICE_ID = 943
 //        val creator = PlayerNotificationCreator(this, sessionToken, controller, mediaMetadata.description)
-//        val notification = creator.create()
+//        val notification = creator.init()
 //
 //        notificationManager.notify(3420, notification)
 //    }
@@ -293,7 +294,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             this@MainActivity.playbackState = state
             schedulePositionUpdate()
             // set notification
-//            setNotification(playbackState, playbackMetadata)
+//            changeNotificationMetadata(playbackState, playbackMetadata)
 //            playerControlFragment.setCurrentPostition(state?.position.toInt())
         }
 
@@ -307,10 +308,10 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             playerControlFragment.setSongName(metadata?.getString("SONG_NAME")!!)
             playerControlFragment.setDuration(metadata?.getLong("DURATION").toInt())
             this@MainActivity.playbackMetadata = metadata
-//            setNotification(controller, playbackMetadata)
+//            changeNotificationMetadata(controller, playbackMetadata)
         }
     }
 
-    // create the content from service
+    // init the content from service
     inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {}
 }

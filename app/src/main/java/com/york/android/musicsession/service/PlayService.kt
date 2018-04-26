@@ -2,8 +2,6 @@ package com.york.android.musicsession.service
 
 import android.content.ComponentName
 import android.content.Intent
-import android.media.session.MediaSession
-import android.media.session.PlaybackState
 import android.net.Uri
 import android.os.*
 import android.support.annotation.RequiresApi
@@ -44,6 +42,7 @@ class PlayService : MediaBrowserServiceCompat() {
 
     var songs: List<Song> = ArrayList() // store received songs
     var currentWindowIndex = 0
+    var isClicked = false
 
     var handlerThread = HandlerThread("HandlerThread")  // handle player's current position
 
@@ -60,19 +59,22 @@ class PlayService : MediaBrowserServiceCompat() {
             createMediaSource(extras?.getParcelableArrayList<Song>("SONGS")!!)
             playMediaSource(currentWindowIndex)
 
+            // controller for the session
             val controller = mediaSession.controller
-//            val metaData = controller.metadata
+            // notification creator
+            val creator = PlayerNotificationCreator(this@PlayService, mediaSession.sessionToken, controller)
 
             controller.registerCallback(object : MediaControllerCompat.Callback() {
                 override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
                     super.onMetadataChanged(metadata)
                     Log.d("Controller.Callback", "metadata: ${metadata} description: ${metadata?.description}")
-                    setNotification(controller, metadata!!)
+                    changeNotificationMetadata(creator, metadata!!)
                 }
 
-                override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-                    super.onPlaybackStateChanged(state)
-                    setNotification(controller, metadata!!)
+                override fun onPlaybackStateChanged(playbackStateCompat: PlaybackStateCompat?) {
+                    super.onPlaybackStateChanged(playbackStateCompat)
+                    Log.d("Controller.Callback", "playbackState.playbackStateCompat: ${playbackStateCompat?.state}")
+                    changeNotificationState(creator, playbackStateCompat!!)
                 }
             })
 
@@ -108,7 +110,9 @@ class PlayService : MediaBrowserServiceCompat() {
             Log.d("onMediaButtonEvent", "keyEvent ${mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)}" +
                     "keyCode: ${mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)?.keyCode}")
             val keyCode = mediaButtonEvent?.getParcelableExtra<KeyEvent>(Intent.EXTRA_KEY_EVENT)?.keyCode
-            when(keyCode) {
+            when (keyCode) {
+                KeyEvent.KEYCODE_MEDIA_PLAY -> onPlay()
+                KeyEvent.KEYCODE_MEDIA_PAUSE -> onPause()
                 KeyEvent.KEYCODE_MEDIA_NEXT -> onSkipToNext()
                 KeyEvent.KEYCODE_MEDIA_PREVIOUS -> onSkipToPrevious()
             }
@@ -116,8 +120,6 @@ class PlayService : MediaBrowserServiceCompat() {
         }
 
     }
-
-
 
     lateinit var runnable: Runnable
 
@@ -133,7 +135,7 @@ class PlayService : MediaBrowserServiceCompat() {
         //
         mediaSession = MediaSessionCompat(this, PlayService::class.java.simpleName,
                 ComponentName(this, MediaButtonReceiver::class.java), null)
-        // MediaSession's token is used create a MediaControllerCompat for interacting with this session
+        // MediaSession's token is used init a MediaControllerCompat for interacting with this session
         // In order to let connecting component get token from service, service should set token as soon as possible
         this.sessionToken = mediaSession.sessionToken
         //
@@ -141,9 +143,9 @@ class PlayService : MediaBrowserServiceCompat() {
         mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS or MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS)
         val defaultPlaybackState = PlaybackStateCompat.Builder()
                 .setActions(PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS or PlaybackStateCompat.ACTION_PLAY
-                or PlaybackStateCompat.ACTION_SKIP_TO_NEXT)    // PlaybackStateCompat.ACTION_PAUSE and PlaybackStateCompat.ACTION_SKIP_TO_NEXT and
+                        or PlaybackStateCompat.ACTION_SKIP_TO_NEXT)    // PlaybackStateCompat.ACTION_PAUSE and PlaybackStateCompat.ACTION_SKIP_TO_NEXT and
                 .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1f)
-        mediaSession.setPlaybackState(defaultPlaybackState.build() )
+        mediaSession.setPlaybackState(defaultPlaybackState.build())
         mediaSession.setCallback(mediaSessionCallback)
         Log.d("PlayService", "onCreate isActive: ${mediaSession.isActive} ")
     }
@@ -166,10 +168,19 @@ class PlayService : MediaBrowserServiceCompat() {
         return true
     }
 
-    fun setNotification(controller: MediaControllerCompat, mediaMetadata: MediaMetadataCompat) {
-        val FOREGROUND_SERVICE_ID = 943
-        val creator = PlayerNotificationCreator(this, mediaSession.sessionToken, controller, mediaMetadata)
+    fun changeNotificationMetadata(creator: PlayerNotificationCreator, mediaMetadata: MediaMetadataCompat) {
+        creator.setMetadata(mediaMetadata)
         val notification = creator.create()
+        val FOREGROUND_SERVICE_ID = 943
+
+        startForeground(FOREGROUND_SERVICE_ID, notification)
+    }
+
+    fun changeNotificationState(creator: PlayerNotificationCreator, state: PlaybackStateCompat) {
+        creator.setState(state)
+
+        val notification = creator.create()
+        val FOREGROUND_SERVICE_ID = 943
         startForeground(FOREGROUND_SERVICE_ID, notification)
     }
 
@@ -227,7 +238,24 @@ class PlayService : MediaBrowserServiceCompat() {
             }
 
             override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-                Log.d("PlayService", "onTracksChanged currentWindowIndex: ${player?.currentWindowIndex}, periodIndex: ${player?.currentPeriodIndex}")
+//                Log.d("PlayService", "onTracksChanged isClicked: ${isClicked} currentWindowIndex: ${currentWindowIndex}")
+//                if(!isClicked) {
+//                    currentWindowIndex = currentWindowIndex + 1
+//
+//                    Log.d("PlayService", "onTracksChanged duration: ${player?.duration!! / 1000} currentWindowIndex: ${currentWindowIndex}")
+//                    songMetadataBuilder.putLong("DURATION", player?.duration!! / 1000)
+//                    songMetadataBuilder.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
+//                            .putString("SONG_NAME", songs[currentWindowIndex].name)
+//                            .putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
+//                    mediaSession.setMetadata(songMetadataBuilder.build())
+//
+//                    stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, player?.currentPosition!!, 1f)
+//                    mediaSession.setPlaybackState(stateBuilder.build())
+//                    Log.d("PlayService", "onTracksChanged currentWindowIndex: ${player?.currentWindowIndex}, periodIndex: ${player?.currentPeriodIndex}")
+//
+//                }
+//
+//                isClicked = false
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
@@ -240,10 +268,21 @@ class PlayService : MediaBrowserServiceCompat() {
 
             // called every time the video changes or "seeks" to the next in the playlist.
             override fun onPositionDiscontinuity(reason: Int) {
-                Log.d("PlayService", "onPositionDiscontinuity duration: ${player?.duration!! / 1000}")
+                if (!isClicked) {
+                    currentWindowIndex++
+                }
+                Log.d("PlayService", "onPositionDiscontinuity isClicked: ${isClicked} currentWindowIndex: ${currentWindowIndex} " +
+                        "duration: ${player?.duration}")
                 songMetadataBuilder.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
                         .putString("SONG_NAME", songs[currentWindowIndex].name)
                         .putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
+                        .putLong("DURATION", player?.duration!! / 1000)
+                mediaSession.setMetadata(songMetadataBuilder.build())
+
+                stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, player?.currentPosition!!, 1f)
+                mediaSession.setPlaybackState(stateBuilder.build())
+
+                isClicked = false
             }
 
             override fun onRepeatModeChanged(repeatMode: Int) {
@@ -255,7 +294,7 @@ class PlayService : MediaBrowserServiceCompat() {
             }
 
             override fun onTimelineChanged(timeline: Timeline?, manifest: Any?, reason: Int) {
-                Log.d("PlayService", "onTimelineChanged player.currentWindowIndex: ${player?.currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
+//                Log.d("PlayService", "onTimelineChanged player.currentWindowIndex: ${player?.currentWindowIndex} currentPeriodIndex: ${player?.currentPeriodIndex}")
             }
 
             @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -289,6 +328,7 @@ class PlayService : MediaBrowserServiceCompat() {
 
     fun playMediaSource(index: Int) {
         currentWindowIndex = index
+        isClicked = true
         // Produces DataSource instances through which media data is loaded.
         Log.d("PlayService", "playMediaSource index : ${index}")
         val handler = Handler()
@@ -306,16 +346,17 @@ class PlayService : MediaBrowserServiceCompat() {
 
     fun display() {
         player?.playWhenReady = true
-//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 0f).create())
+//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, 0, 0f).init())
     }
 
     fun pause() {
         Log.d("PlayService", "pause")
         player?.playWhenReady = false
-//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0f).create())
+//        mediaSession.setPlaybackState(stateBuilder.setState(PlaybackStateCompat.STATE_PAUSED, 0, 0f).init())
     }
 
     fun playPrevious() {
+        isClicked = true
         if (currentWindowIndex != 0) {
             currentWindowIndex = currentWindowIndex - 1
         } else {
@@ -324,18 +365,19 @@ class PlayService : MediaBrowserServiceCompat() {
 
 //        Log.d("playPrevious", "currentWindowIndex; ${currentWindowIndex} ")
         Log.d("playNext", "nextWindowIndex; ${player?.previousWindowIndex}")
-        player?.seekToDefaultPosition(currentWindowIndex)
+        player?.seekTo(currentWindowIndex, 0)
     }
 
     fun playNext() {
         val handler = Handler()
-
+        isClicked = true
         if (currentWindowIndex < songs.size - 1) {
             currentWindowIndex = currentWindowIndex + 1
         } else {
             currentWindowIndex = 0
         }
-        player?.seekToDefaultPosition(currentWindowIndex)
+//        player?.seekToDefaultPosition(currentWindowIndex)
+        player?.seekTo(currentWindowIndex, 0)
     }
 
     override fun onDestroy() {
