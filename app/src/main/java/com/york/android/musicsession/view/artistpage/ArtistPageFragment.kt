@@ -40,13 +40,6 @@ class ArtistPageFragment : Fragment() {
         return inflater!!.inflate(R.layout.fragment_artistpage, container, false)
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
@@ -58,6 +51,7 @@ class ArtistPageFragment : Fragment() {
         Thread(Runnable {
             val artists = ArtistFactory(activity).getArtists("", "")
             context.runOnUiThread {
+                progressBar_artistPage_loading.visibility = View.GONE
                 recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
                 recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
                 recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
@@ -80,17 +74,14 @@ class ArtistPageFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): ArtistPageFragment {
             val fragment = ArtistPageFragment()
             val args = Bundle()
@@ -100,4 +91,4 @@ class ArtistPageFragment : Fragment() {
             return fragment
         }
     }
-}// Required empty public constructor
+}

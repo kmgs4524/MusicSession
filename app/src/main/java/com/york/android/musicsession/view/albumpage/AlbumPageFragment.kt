@@ -46,6 +46,7 @@ class AlbumPageFragment : Fragment() {
         Thread(Runnable {
             val albums = AlbumFactory(activity).getAlbums("", "")
             activity.runOnUiThread {
+                progressBar_albumPage_loading.visibility = View.GONE
                 val layoutManager = GridLayoutManager(activity, 2)
                 recyclerView_albumPage.layoutManager = layoutManager
                 recyclerView_albumPage.adapter = AlbumAdapter(albums, activity)

@@ -30,7 +30,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:contentScrim="@color/colorPrimary">
+                app:contentScrim="@color/md_grey_100">
 
                 <android.support.constraint.ConstraintLayout
                     android:id="@+id/constraintLayout_artist_collapse"

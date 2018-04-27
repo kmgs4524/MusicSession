@@ -24,39 +24,15 @@ import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.fragment_songs.*
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [SongPageFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [SongPageFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class SongPageFragment : Fragment() {
     // verify permission
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    // TODO: Rename and change types of parameters
     private var mParam1: String? = null
     private var mParam2: String? = null
 
     private var mListener: OnFragmentInteractionListener? = null
-    val handler = object: Handler() {
-        override fun handleMessage(msg: Message?) {
-            val data = msg?.data
-//                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-            Log.d("currentPositionUpdateHandler", "data: ${data}")
-            if(data != null) {
-                Log.d("currentPositionUpdateHandler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
-//                progressbar_album.progress = data?.getInt("CURRENT_POSITION")
-//                progressbar_album.max = data?.getInt("DURATION")
-
-//                textView_controlview_artist.setText(data?.getString("ARTIST"))
-//                textView_controlview_songname.setText(data?.getString("SONG_NAME"))
-            }
-        }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +56,7 @@ class SongPageFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         Log.d("SongPageFragment", "grantResults: ${grantResults}")
-        if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             initRecyclerView()
         }
     }
@@ -97,18 +73,17 @@ class SongPageFragment : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun initRecyclerView() {
-        val factory = SongFactory(activity)
-        val songs = factory.getSongs("", "")
+        Thread({
+            val factory = SongFactory(activity)
+            val songs = factory.getSongs("", "")
 
-        recyclerView_songs.layoutManager = LinearLayoutManager(activity)
-        recyclerView_songs.adapter = SongAdapter(songs, activity)
-        recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
-    }
-
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
+            activity.runOnUiThread {
+                progressBar_songPage_loading.visibility = View.GONE
+                recyclerView_songs.layoutManager = LinearLayoutManager(activity)
+                recyclerView_songs.adapter = SongAdapter(songs, activity)
+                recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+            }
+        }).start()
     }
 
     override fun onAttach(context: Context?) {
@@ -126,17 +101,14 @@ class SongPageFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private val ARG_PARAM1 = "param1"
         private val ARG_PARAM2 = "param2"
 
-        // TODO: Rename and change types and number of parameters
         fun newInstance(param1: String, param2: String): SongPageFragment {
             val fragment = SongPageFragment()
             val args = Bundle()
@@ -146,4 +118,4 @@ class SongPageFragment : Fragment() {
             return fragment
         }
     }
-}// Required empty public constructor
+}

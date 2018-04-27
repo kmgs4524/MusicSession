@@ -9,6 +9,7 @@ import android.os.Handler
 import android.os.Message
 import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -35,14 +36,13 @@ import org.jetbrains.anko.coroutines.experimental.bg
 
 class ArtistFragment : Fragment() {
 
-    private var param: Artist? = null
-
+    private var paramArtist: Artist? = null
     private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            param = arguments.getParcelable(ARG_PARAM_ARTIST) as Artist
+            paramArtist = arguments.getParcelable(ARG_PARAM_ARTIST) as Artist
         }
     }
 
@@ -57,24 +57,28 @@ class ArtistFragment : Fragment() {
 
         // Inflate the layout for this fragment
         async(UI) {
-            Log.d("ArtistFragment", "param.name: ${param!!.name}")
-            val imageUrl = bg { GetArtistImage(activity).getImage(param!!.name) }
+            Log.d("ArtistFragment", "paramArtist.name: ${paramArtist!!.name}")
+            val imageUrl = bg { GetArtistImage(activity).getImage(paramArtist!!.name) }
             Log.d("ArtistFragment", "imageUrl:${imageUrl.await()}")
             setArtistImage(imageUrl.await())
             setCollspseBackground(imageUrl.await())
             progressbar_artist.visibility = View.GONE
             coordinatorLayout_artist.visibility = View.VISIBLE
         }
-//        val imageUrl = "https://i.kfs.io/artist/global/1210236,0v8/fit/160x160.jpg"
-//        setArtistImage(imageUrl)
 
+        setToolbar()
         setArtistName()
         initArtistAlbumRecyclerView()
         initArtistSongRecyclerView()
     }
 
+    fun setToolbar() {
+        (activity as AppCompatActivity).setSupportActionBar(toolbar_artist)
+    }
+
     fun setArtistName() {
-        textView_artist_artistName.setText(param?.name)
+        textView_artist_artistName.setText(paramArtist?.name)
+        activity.actionBar.title = paramArtist?.name
     }
 
     fun setArtistImage(imageUrl: String) {
@@ -85,7 +89,7 @@ class ArtistFragment : Fragment() {
 
     fun setCollspseBackground(imageUrl: String) {
         async(UI) {
-            Log.d("setCollspseBackground", "param.imageUrl: ${imageUrl}")
+            Log.d("setCollspseBackground", "paramArtist.imageUrl: ${imageUrl}")
             val bitmap = bg { GetBitmapFromUrl().getBitmap(imageUrl) }
             val blurredBitmap = BlurBuilder().blur(bitmap.await()!!, activity)
             constraintLayout_artist_collapse.background = BitmapDrawable(resources, blurredBitmap)
@@ -96,7 +100,7 @@ class ArtistFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun initArtistAlbumRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
-        val albums = AlbumFactory(activity).getAlbums(param!!.name, "Artist")
+        val albums = AlbumFactory(activity).getAlbums(paramArtist!!.name, "Artist")
 
         layoutManager.orientation = LinearLayout.HORIZONTAL
         recyclerView_artist_albums.layoutManager = layoutManager
@@ -106,14 +110,14 @@ class ArtistFragment : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     fun initArtistSongRecyclerView() {
         val layoutManager = LinearLayoutManager(activity)
-        val songs = SongFactory(activity).getSongs(param!!.name, "Artist")
+        val songs = SongFactory(activity).getSongs(paramArtist!!.name, "Artist")
         val handler = object : Handler() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
 //                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
-                Log.d("currentPositionUpdateHandler", "data: ${data}")
+                Log.d("ArtistFragment", "data: ${data}")
                 if (data != null) {
-                    Log.d("currentPositionUpdateHandler", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
+                    Log.d("ArtistFragment", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
                     progressbar_album.progress = data?.getInt("CURRENT_POSITION")
                     progressbar_album.max = data?.getInt("DURATION")
 
@@ -126,13 +130,6 @@ class ArtistFragment : Fragment() {
         recyclerView_artist_songs.layoutManager = layoutManager
         recyclerView_artist_songs.adapter = SongAdapter(songs, activity)
         recyclerView_artist_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        if (mListener != null) {
-            mListener!!.onFragmentInteraction(uri)
-        }
     }
 
     override fun onAttach(context: Context?) {
@@ -155,11 +152,9 @@ class ArtistFragment : Fragment() {
     }
 
     companion object {
-        // TODO: Rename parameter arguments, choose names that match
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
         private val ARG_PARAM_ARTIST = "paramArtist"
 
-        // TODO: Rename and change types and number of parameters
         fun newInstance(param: Artist): ArtistFragment {
             val fragment = ArtistFragment()
             val args = Bundle()
@@ -168,4 +163,4 @@ class ArtistFragment : Fragment() {
             return fragment
         }
     }
-}// Required empty public constructor
+}
