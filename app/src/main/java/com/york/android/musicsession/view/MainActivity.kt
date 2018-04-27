@@ -142,7 +142,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     override fun onSeekToPosition(position: Int) {
-
+        transportControls.seekTo(position.toLong())
     }
 
     override fun onPlayerControlClicked(position: Int) {

@@ -104,6 +104,19 @@ class PlayService : MediaBrowserServiceCompat() {
             playPrevious()
         }
 
+        override fun onSeekTo(pos: Long) {
+            super.onSeekTo(pos)
+            isClicked = true
+            
+            Log.d("MediaSession Callback", "onSeekTo position: ${pos}")
+            val handler = Handler()
+
+            handler.postDelayed({
+                player?.seekTo(pos * 1000)
+            }, 500)
+
+        }
+
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
             val isTranslated = super.onMediaButtonEvent(mediaButtonEvent)
             Log.d("onMediaButtonEvent", "isTranslated ${isTranslated}")

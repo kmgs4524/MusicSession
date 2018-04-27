@@ -11,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BitmapCompression
 import com.york.android.musicsession.model.bitmap.BlurBuilder
@@ -58,6 +59,22 @@ class PlayerControlFragment : Fragment() {
         imageView_playerControl_next.setOnClickListener {
             (activity as MainActivity).onPlayNextSong()
         }
+
+        seekBar_playerControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                Log.d("PlayerControlFragment", "onStopTrackingTouch")
+                (activity as MainActivity).onSeekToPosition(seekBar_playerControl.progress)
+            }
+
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -71,7 +88,6 @@ class PlayerControlFragment : Fragment() {
                 Log.d("PlayerControlFragment", "blurredBitmap: ${blurredBitmap}")
                 activity.runOnUiThread {
                     constrainLayout_playerControl_container.background = BitmapDrawable(resources, blurredBitmap)
-                    imageView_playerControl_artwork.setImageBitmap(coverBitmap)
                 }
             }
         }).start()
@@ -89,15 +105,18 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun setAlbumArtwork(imageUrl: String) {
-        Log.d("setAlbumArtwork", "imageUrl: ${imageUrl}")
         if(imageUrl != "") {
             Thread(Runnable {
+                Log.d("setAlbumArtwork", "imageUrl: ${imageUrl}")
                 val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
+                val smallBitmap = BitmapFactory.decodeFile(imageUrl)
+                Log.d("setAlbumArtwork", "smallBitmap: ${smallBitmap}")
                 activity.runOnUiThread {
+                    Log.d("setAlbumArtwork", "smallBitmap: ${smallBitmap}")
                     imageView_playerControl_artwork.setImageBitmap(bitmap)
-                    imageView_playerControl_artworkSmall.setImageBitmap(bitmap)
+                    imageView_playerControl_artworkSmall.setImageBitmap(smallBitmap)
                 }
-            })
+            }).start()
         }
     }
 
