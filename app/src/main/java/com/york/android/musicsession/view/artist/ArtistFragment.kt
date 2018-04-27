@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Message
 import android.support.annotation.RequiresApi
+import android.support.design.widget.AppBarLayout
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DividerItemDecoration
@@ -66,19 +67,39 @@ class ArtistFragment : Fragment() {
             coordinatorLayout_artist.visibility = View.VISIBLE
         }
 
-        setToolbar()
         setArtistName()
         initArtistAlbumRecyclerView()
         initArtistSongRecyclerView()
     }
 
-    fun setToolbar() {
-        (activity as AppCompatActivity).setSupportActionBar(toolbar_artist)
-    }
-
     fun setArtistName() {
         textView_artist_artistName.setText(paramArtist?.name)
-        activity.actionBar.title = paramArtist?.name
+        Log.d("ArtistFragment", "supportActionBar: ${(activity as AppCompatActivity).supportActionBar} title: ${paramArtist?.name}")
+//        (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(true)
+        appBarLayout_artist.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
+            var scrollRange = -1
+            var isShow = false
+
+            override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+                Log.d("onOffsetChanged", "verticalOffset: ${verticalOffset}")
+                if (scrollRange == -1) {
+                    Log.d("onOffsetChanged", "getTotalScrollRange: ${appBarLayout?.getTotalScrollRange()}")
+                    scrollRange = appBarLayout?.getTotalScrollRange()!!
+                }
+                if (scrollRange + verticalOffset == 0) {
+                    Log.d("onOffsetChanged", "is 0 ")
+                    collapsingToolbarLayout_artist.isTitleEnabled = false
+                    toolbar_artist.setTitle(paramArtist?.name)
+                    isShow = true
+                }
+                else if(isShow) {
+                    collapsingToolbarLayout_artist.setTitle(" ")    //carefull there should a space between double quote otherwise it wont work
+                    isShow = false
+                }
+            }
+        })
+//        collapsingToolbarLayout_artist.isTitleEnabled = false
+//        toolbar_artist.title = paramArtist?.name
     }
 
     fun setArtistImage(imageUrl: String) {
@@ -147,7 +168,6 @@ class ArtistFragment : Fragment() {
     }
 
     interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
     }
 

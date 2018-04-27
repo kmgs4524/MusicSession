@@ -149,6 +149,13 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     }
 
+    override fun onShuffleModeEnable() {
+        transportControls.setShuffleMode(controller.shuffleMode)
+        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+        Log.d("MainActivity", "shuffleMode: ${controller.shuffleMode}")
+        playerControlFragment.changeShuffleIconBackground(controller.shuffleMode)
+    }
+
     val bottomFragment = PlayerControlFragment.newInstance("", "")
     val myMusicFragment = MyMusicFragment.newInstance("", "")
     val playlisPageFragment = PlaylistPageFragment.newInstance("", "")
@@ -284,13 +291,8 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
             Log.d("MainActivity", "onPlaybackStateChanged stateBuilder: ${state?.state!!}")
             playerControlFragment.setPlayIcon(state?.state!!)
-            // update current position by Executors.SingleThreadScheduleService
-//            playerControlFragment.updateCurrentPosition(state)
             this@MainActivity.playbackState = state
             schedulePositionUpdate()
-            // set notification
-//            changeNotificationMetadata(playbackState, playbackMetadata)
-//            playerControlFragment.setCurrentPostition(state?.position.toInt())
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
@@ -303,7 +305,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             playerControlFragment.setSongName(metadata?.getString("SONG_NAME")!!)
             playerControlFragment.setDuration(metadata?.getLong("DURATION").toInt())
             this@MainActivity.playbackMetadata = metadata
-//            changeNotificationMetadata(controller, playbackMetadata)
         }
     }
 

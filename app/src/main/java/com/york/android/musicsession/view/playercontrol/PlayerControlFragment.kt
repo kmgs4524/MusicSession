@@ -6,6 +6,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.os.*
 import android.support.annotation.RequiresApi
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,6 +19,7 @@ import com.york.android.musicsession.model.bitmap.BlurBuilder
 import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.MainActivity
 import kotlinx.android.synthetic.main.fragment_player_control.*
+import org.jetbrains.anko.backgroundColor
 
 
 class PlayerControlFragment : Fragment() {
@@ -58,6 +60,10 @@ class PlayerControlFragment : Fragment() {
 
         imageView_playerControl_next.setOnClickListener {
             (activity as MainActivity).onPlayNextSong()
+        }
+
+        imageView_playerControl_shuffleMode.setOnClickListener {
+            (activity as MainActivity).onShuffleModeEnable()
         }
 
         seekBar_playerControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
@@ -164,6 +170,14 @@ class PlayerControlFragment : Fragment() {
         }
     }
 
+    fun changeShuffleIconBackground(shuffleMode: Int) {
+        if(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
+            imageView_playerControl_shuffleMode.backgroundColor = ContextCompat.getColor(activity, R.color.material_grey_600)
+        } else {
+            imageView_playerControl_shuffleMode.backgroundColor = ContextCompat.getColor(activity, R.color.transparent)
+        }
+    }
+
     override fun onAttach(context: Context?) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
@@ -184,6 +198,7 @@ class PlayerControlFragment : Fragment() {
         fun onDisplaySong()
         fun onPauseSong()
         fun onSeekToPosition(position: Int)
+        fun onShuffleModeEnable()
     }
 
     companion object {

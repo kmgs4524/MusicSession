@@ -43,6 +43,7 @@ class PlayService : MediaBrowserServiceCompat() {
     var songs: List<Song> = ArrayList() // store received songs
     var currentWindowIndex = 0
     var isClicked = false
+    var isRandom = false
 
     var handlerThread = HandlerThread("HandlerThread")  // handle player's current position
 
@@ -107,7 +108,7 @@ class PlayService : MediaBrowserServiceCompat() {
         override fun onSeekTo(pos: Long) {
             super.onSeekTo(pos)
             isClicked = true
-            
+
             Log.d("MediaSession Callback", "onSeekTo position: ${pos}")
             val handler = Handler()
 
@@ -115,6 +116,17 @@ class PlayService : MediaBrowserServiceCompat() {
                 player?.seekTo(pos * 1000)
             }, 500)
 
+        }
+
+        override fun onSetShuffleMode(shuffleMode: Int) {
+            super.onSetShuffleMode(shuffleMode)
+            if (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
+                isRandom = true
+                mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE)
+            } else if (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_NONE) {
+                isRandom = false
+                mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
+            }
         }
 
         override fun onMediaButtonEvent(mediaButtonEvent: Intent?): Boolean {
@@ -134,18 +146,10 @@ class PlayService : MediaBrowserServiceCompat() {
 
     }
 
-    lateinit var runnable: Runnable
-
-//    override fun onBind(intent: Intent): IBinder? {
-//        Log.d("PlayService", "onBind: ")
-//        return LocalBinder()
-//    }
-
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onCreate() {
         super.onCreate()
         // connect MediaBrowserService to MediaSession
-        //
         mediaSession = MediaSessionCompat(this, PlayService::class.java.simpleName,
                 ComponentName(this, MediaButtonReceiver::class.java), null)
         // MediaSession's token is used init a MediaControllerCompat for interacting with this session
@@ -160,6 +164,7 @@ class PlayService : MediaBrowserServiceCompat() {
                 .setState(PlaybackStateCompat.STATE_PLAYING, 0, 1f)
         mediaSession.setPlaybackState(defaultPlaybackState.build())
         mediaSession.setCallback(mediaSessionCallback)
+        mediaSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
         Log.d("PlayService", "onCreate isActive: ${mediaSession.isActive} ")
     }
 
@@ -370,27 +375,38 @@ class PlayService : MediaBrowserServiceCompat() {
 
     fun playPrevious() {
         isClicked = true
-        if (currentWindowIndex != 0) {
-            currentWindowIndex = currentWindowIndex - 1
+        if (isRandom) {
+            currentWindowIndex = randomize(0, songs.size - 1)
         } else {
-            currentWindowIndex = songs.size - 1
+            if (currentWindowIndex != 0) {
+                currentWindowIndex = currentWindowIndex - 1
+            } else {
+                currentWindowIndex = songs.size - 1
+            }
         }
-
 //        Log.d("playPrevious", "currentWindowIndex; ${currentWindowIndex} ")
-        Log.d("playNext", "nextWindowIndex; ${player?.previousWindowIndex}")
+        Log.d("PlayService", "isRandom: ${isRandom} playPrevious currentWindowIndex: ${currentWindowIndex}")
         player?.seekTo(currentWindowIndex, 0)
     }
 
     fun playNext() {
-        val handler = Handler()
         isClicked = true
-        if (currentWindowIndex < songs.size - 1) {
-            currentWindowIndex = currentWindowIndex + 1
+        if (isRandom) {
+            currentWindowIndex = randomize(0, songs.size - 1)
         } else {
-            currentWindowIndex = 0
+            if (currentWindowIndex < songs.size - 1) {
+                currentWindowIndex = currentWindowIndex + 1
+            } else {
+                currentWindowIndex = 0
+            }
         }
-//        player?.seekToDefaultPosition(currentWindowIndex)
+        Log.d("PlayService", "isRandom: ${isRandom} playNext currentWindowIndex: ${currentWindowIndex}")
         player?.seekTo(currentWindowIndex, 0)
+    }
+
+    fun randomize(from: Int, to: Int): Int {
+        val random = Random()
+        return random.nextInt(to - from) + from
     }
 
     override fun onDestroy() {
