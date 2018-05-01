@@ -29,6 +29,7 @@ class GetArtistImage(val context: Context) {
         val result = response.body()?.string()
         lateinit var imageUrl: String
         if (result != null) {
+            Log.d("GetArtistImage", "result: ${result}")
             val converter = ArtistConverter()
             imageUrl = converter.convertToImageUrl(result)
             Log.d("GetArtistImage", "imageUrl: ${imageUrl}")
