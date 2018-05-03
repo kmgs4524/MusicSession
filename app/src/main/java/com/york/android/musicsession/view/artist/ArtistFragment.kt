@@ -21,7 +21,7 @@ import android.widget.LinearLayout
 import com.squareup.picasso.Picasso
 
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.GetArtistImage
+import com.york.android.musicsession.model.datafactory.GetArtistImage
 import com.york.android.musicsession.model.bitmap.BlurBuilder
 import com.york.android.musicsession.model.bitmap.GetBitmapFromUrl
 import com.york.android.musicsession.model.datafactory.AlbumFactory

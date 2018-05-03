@@ -5,7 +5,7 @@ import android.provider.MediaStore
 import android.support.annotation.RequiresApi
 import android.support.v4.app.FragmentActivity
 import android.util.Log
-import com.kkbox.openapideveloper.auth.Auth
+//import com.kkbox.openapideveloper.auth.Auth
 import com.york.android.musicsession.model.data.Artist
 import com.york.android.musicsession.model.jsonconverter.ArtistConverter
 import okhttp3.OkHttpClient

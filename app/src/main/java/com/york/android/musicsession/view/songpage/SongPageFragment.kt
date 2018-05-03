@@ -20,11 +20,13 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 
 import com.york.android.musicsession.R
+import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.model.datafactory.SongFactory
+import com.york.android.musicsession.presenter.songpage.SongPagePresenter
 import com.york.android.musicsession.view.exoplayer.SongAdapter
 import kotlinx.android.synthetic.main.fragment_songs.*
 
-class SongPageFragment : Fragment() {
+class SongPageFragment : Fragment(), SongPageView {
     // verify permission
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -34,31 +36,12 @@ class SongPageFragment : Fragment() {
 
     private var mListener: OnFragmentInteractionListener? = null
 
+    private lateinit var presenter: SongPagePresenter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments.let {
-            mParam1 = arguments?.getString(ARG_PARAM1)
-            mParam2 = arguments?.getString(ARG_PARAM2)
-        }
-
-    }
-
-    fun verifyStoragePermission() {
-        // Check if we have write permission
-        val permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-
-        if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
-            requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        Log.d("SongPageFragment", "grantResults: ${grantResults}")
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            initRecyclerView()
-        }
+        setParameters()
+        presenter = SongPagePresenter(this, SongFactory(activity))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -66,24 +49,50 @@ class SongPageFragment : Fragment() {
         return inflater!!.inflate(R.layout.fragment_songs, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-        verifyStoragePermission()
+        presenter.onVerifyPermission()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun initRecyclerView() {
-        Thread({
-            val factory = SongFactory(activity)
-            val songs = factory.getSongs("", "")
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        Log.d("SongPageFragment", "grantResults: ${grantResults}")
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            presenter.onGetSongData()
+        }
+    }
 
-            activity.runOnUiThread {
-                progressBar_songPage_loading.visibility = View.GONE
-                recyclerView_songs.layoutManager = LinearLayoutManager(activity)
-                recyclerView_songs.adapter = SongAdapter(songs, activity)
-                recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
-            }
-        }).start()
+    override fun setParameters() {
+        arguments.let {
+            mParam1 = arguments?.getString(ARG_PARAM1)
+            mParam2 = arguments?.getString(ARG_PARAM2)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun verifyStoragePermission() {
+        // Check if we have write permission
+        val permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            requestPermissions(PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE)
+        } else {
+            Log.d("SongPageFragment", "state permission")
+            presenter.onGetSongData()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun initRecyclerView(songs: List<Song>) {
+        Log.d("SongPageFragment", "songs: ${songs}")
+        activity.runOnUiThread {
+            progressBar_songPage_loading.visibility = View.GONE
+            recyclerView_songs.layoutManager = LinearLayoutManager(activity)
+            recyclerView_songs.adapter = SongAdapter(songs, activity)
+            recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+        }
     }
 
     override fun onAttach(context: Context?) {

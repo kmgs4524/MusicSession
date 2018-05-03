@@ -1,4 +1,4 @@
-package com.york.android.musicsession.model
+package com.york.android.musicsession.model.datafactory
 
 import android.content.Context
 import android.util.Log
@@ -21,6 +21,7 @@ class GetArtistImage(val context: Context) {
         val client = OkHttpClient()
         val auth = Auth(CLIENT_ID, CLIENT_SECRET, context)
         val accessToken = auth.clientCredentialsFlow.fetchAccessToken().get().get("access_token").asString
+//        val accessToken = "GCyz8oJt1zhb0XSvEcNzMw=="
         val request = Request.Builder().url("https://api.kkbox.com/v1.1/search?q=${name}&type=artist&territory=TW")
                 .addHeader("accept", "application/json")
                 .addHeader("authorization", "Bearer ${accessToken}")

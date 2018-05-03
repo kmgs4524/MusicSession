@@ -1,7 +1,6 @@
 package com.york.android.musicsession.view.artistpage
 
 import android.content.Context
-import android.support.v4.app.FragmentActivity
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,13 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import com.york.android.musicsession.R
-import com.york.android.musicsession.model.GetArtistImage
 import com.york.android.musicsession.model.data.Artist
 import com.york.android.musicsession.view.MainActivity
 import com.york.android.musicsession.view.artist.ArtistFragment
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import org.jetbrains.anko.coroutines.experimental.bg
 
 /**
  * Created by York on 2018/4/6.

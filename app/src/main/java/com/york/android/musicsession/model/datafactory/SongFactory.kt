@@ -15,13 +15,15 @@ class SongFactory(val activity: FragmentActivity) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun getSongs(keyword: String, type: String): List<Song> {
+        val songs = ArrayList<Song>()
+
         var mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
                         MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.IS_MUSIC),
                 MediaStore.Audio.Media.IS_MUSIC + "=?",
                 arrayOf("1"),
                 "")
-        when(type) {
+        when (type) {
             "Title" -> {
                 mediaCursor = activity.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
                         arrayOf(MediaStore.Audio.Media.DISPLAY_NAME, MediaStore.Audio.Media.DATA, MediaStore.Audio.Media.ARTIST,
@@ -65,7 +67,7 @@ class SongFactory(val activity: FragmentActivity) {
         val duration = arrayOfNulls<Long>(count)
 
         // get result from cursor
-        if(mediaCursor.moveToFirst()) {
+        if (mediaCursor.moveToFirst()) {
             var i = 0
             do {
                 names[i] = mediaCursor.getString(mediaCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME))
@@ -78,12 +80,14 @@ class SongFactory(val activity: FragmentActivity) {
         }
         mediaCursor.close()  // release cursor's resource after query
 
-        val songs = ArrayList<Song>()
-        for(i in 0 until names.size) {
+
+        for (i in 0 until names.size) {
             Log.d("SongsFactory", "names[${i}]: ${names[i]}")
             songs.add(Song(names[i]!!, artist[i]!!, album[i]!!, getAlbumArtPath(album[i]!!), duration[i]!!, path[i]!!))
         }
 //        Log.d("SongPageFragment", "songs: ${songs[0]} audioPath: ${audioPath[0]}")
+
+
         return songs
     }
 
@@ -98,7 +102,7 @@ class SongFactory(val activity: FragmentActivity) {
         albumCursor.moveToFirst()
         var albumArtPath = albumCursor.getString(albumCursor.getColumnIndexOrThrow(MediaStore.Audio.Albums.ALBUM_ART))
 
-        if(albumArtPath == null) {
+        if (albumArtPath == null) {
             albumArtPath = ""
         }
         Log.d("SongFactory", "albumArtPath: ${albumArtPath}")
