@@ -38,6 +38,7 @@ import com.york.android.musicsession.view.playlist.PlaylistPageFragment
 import com.york.android.musicsession.view.songpage.SongPageFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.notificationManager
+import timber.log.Timber
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -83,7 +84,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     // used to get the MediaController
     inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
-            Log.d("playSong", "onConnected")
             sessionToken = mediaBrowser.sessionToken
             // MediaController give access to everything.
             controller = MediaControllerCompat(this@MainActivity, sessionToken)
@@ -164,11 +164,12 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("MainActivity", "onCreate")
+//        Log.d("MainActivity", "onCreate")
 
         setContentView(R.layout.activity_main)
         setDrawerListener()
         addFragmentInActivity()
+        Timber.d("onCreate test drive")
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

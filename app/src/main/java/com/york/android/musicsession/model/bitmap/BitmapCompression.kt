@@ -19,7 +19,6 @@ object BitmapCompression {
 
         // 計算取樣率
         options.inSampleSize = calculateFitSize(requestWidth, requestHeight, options)
-//        options.inSampleSize = 12
         // 改變圖片質量，預設使用ARGB_8888(每像素採用 4 bytes)
         // RGB_565，每像素採用 2 bytes
         options.inPreferredConfig = Bitmap.Config.RGB_565

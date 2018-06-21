@@ -51,7 +51,7 @@ class ArtistPageFragment : Fragment() {
         Thread(Runnable {
             val artists = ArtistFactory(activity).getArtists("", "")
             context.runOnUiThread {
-                progressBar_artistPage_loading.visibility = View.GONE
+//                progressBar_artistPage_loading.visibility = View.GONE
                 recyclerView_artistPage.layoutManager = LinearLayoutManager(activity)
                 recyclerView_artistPage.adapter = ArtistAdapter(artists, activity)
                 recyclerView_artistPage.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))

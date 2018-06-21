@@ -33,7 +33,6 @@ class ExampleInstrumentedTest {
     @Test
     fun getBitmapFromUrl() {
         val getBitmapFromUrl = GetBitmapFromUrl()
-
         assertThat(getBitmapFromUrl.getBitmap("https://i.kfs.io/artist/global/1210236,0v8/fit/160x160.jpg")!!, `is`(instanceOf(Bitmap::class.java)))
     }
 

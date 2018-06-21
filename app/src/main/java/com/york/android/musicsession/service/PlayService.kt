@@ -25,6 +25,7 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.view.notification.PlayerNotificationCreator
+import org.jetbrains.anko.notificationManager
 import java.util.*
 
 
@@ -190,7 +191,6 @@ class PlayService : MediaBrowserServiceCompat() {
         creator.setMetadata(mediaMetadata)
         val notification = creator.create()
         val FOREGROUND_SERVICE_ID = 943
-
         startForeground(FOREGROUND_SERVICE_ID, notification)
     }
 

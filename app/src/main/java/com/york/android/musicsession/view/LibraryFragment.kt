@@ -7,9 +7,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentPagerAdapter
 import android.support.v7.app.AppCompatActivity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 
 import com.york.android.musicsession.R
 import com.york.android.musicsession.view.albumpage.AlbumPageFragment
@@ -31,13 +29,18 @@ class LibraryFragment : Fragment() {
             mParam1 = arguments?.getString(ARG_PARAM1)
             mParam2 = arguments?.getString(ARG_PARAM2)
         }
-
         (activity as AppCompatActivity).setSupportActionBar(toolbar_discover)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        setHasOptionsMenu(true)
         // Inflate the layout for this fragment
         return inflater!!.inflate(R.layout.fragment_discover, container, false)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater!!.inflate(R.menu.actions, menu)
     }
 
     override fun onStart() {
@@ -66,7 +69,7 @@ class LibraryFragment : Fragment() {
     fun setupViewPager() {
         val fragments = ArrayList<Fragment>()
 
-        fragments.add(SongPageFragment.newInstance("", ""))
+        fragments.add(SongPageFragment.newInstance())
         fragments.add(AlbumPageFragment.newInstance("", ""))
         fragments.add(ArtistPageFragment.newInstance("", ""))
 

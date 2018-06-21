@@ -31,16 +31,12 @@ class SongPageFragment : Fragment(), SongPageView {
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    private var mParam1: String? = null
-    private var mParam2: String? = null
-
     private var mListener: OnFragmentInteractionListener? = null
 
     private lateinit var presenter: SongPagePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setParameters()
         presenter = SongPagePresenter(this, SongFactory(activity))
     }
 
@@ -60,13 +56,6 @@ class SongPageFragment : Fragment(), SongPageView {
         Log.d("SongPageFragment", "grantResults: ${grantResults}")
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             presenter.onGetSongData()
-        }
-    }
-
-    override fun setParameters() {
-        arguments.let {
-            mParam1 = arguments?.getString(ARG_PARAM1)
-            mParam2 = arguments?.getString(ARG_PARAM2)
         }
     }
 
@@ -114,16 +103,8 @@ class SongPageFragment : Fragment(), SongPageView {
     }
 
     companion object {
-        // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
-
-        fun newInstance(param1: String, param2: String): SongPageFragment {
+        fun newInstance(): SongPageFragment {
             val fragment = SongPageFragment()
-            val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
-            fragment.arguments = args
             return fragment
         }
     }

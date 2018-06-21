@@ -5,12 +5,16 @@ import android.graphics.Bitmap
 import android.test.suitebuilder.annotation.SmallTest
 import android.util.Log
 import com.york.android.musicsession.model.bitmap.GetBitmapFromUrl
+import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.model.jsonconverter.ArtistConverter
+import com.york.android.musicsession.presenter.songpage.SongPagePresenter
+import com.york.android.musicsession.view.songpage.SongPageView
 import org.junit.Test
 
 import org.junit.Assert.*
 import org.junit.runner.RunWith
 import org.mockito.Mock
+import org.mockito.Mockito
 import org.mockito.runners.MockitoJUnitRunner
 
 /**
@@ -22,11 +26,6 @@ import org.mockito.runners.MockitoJUnitRunner
 class ExampleUnitTest {
     @Mock
     var mockContext: Context? = null
-
-    @Test
-    fun before() {
-
-    }
 
     @Test
     fun addition_isCorrect() {
@@ -51,10 +50,15 @@ class ExampleUnitTest {
     }
 
     @Test
-    fun getBitmapFromUrl() {
-        val getBitmapFromUrl = GetBitmapFromUrl()
+    fun testGetSongs() {
+        val mockSongFactory = Mockito.mock(SongFactory::class.java)
+        val mockSongPageView = Mockito.mock(SongPageView::class.java)
+        val songPagePresenter = SongPagePresenter(mockSongPageView, mockSongFactory)
 
-        assertEquals("f988baf", getBitmapFromUrl.getBitmap("https://i.kfs.io/artist/global/1210236,0v8/fit/160x160.jpg")?.hashCode())
+        songPagePresenter.onVerifyPermission()
+        // verify calling songFactory.getSongs() once
+        Mockito.verify(mockSongFactory).getSongs("", "")
+        Mockito.verify(mockSongPageView).initRecyclerView(mockSongFactory.getSongs("", ""))
     }
 
 }
