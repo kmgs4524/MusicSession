@@ -109,8 +109,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         this.currentWindowIndex = index
         songUri = Uri.parse(songs[index].filePath)
         Log.d("MainActivity", "setPlaylist songs ${songs} service: ${service}")
-        // old version
-//        service?.createMediaSource(songs)
 
         // new version
         // MediaBrowserCompat wraps the API for bound services
@@ -164,7 +162,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        Log.d("MainActivity", "onCreate")
 
         setContentView(R.layout.activity_main)
         setDrawerListener()
@@ -241,7 +238,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     fun showBottomPlayerControl() {
         val behavior = BottomSheetBehavior.from(frameLayout_main_controlContainer)
-//        val fade = TransitionInflater.from(this).inflateTransition(R.transition.fade)
         val changeBounds = ChangeBounds()
         changeBounds.duration = 300
         TransitionManager.beginDelayedTransition(coordinatorLayout_main, changeBounds)
@@ -250,7 +246,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     override fun onDestroy() {
         super.onDestroy()
-//        unbindService(connection)
         mediaBrowser.disconnect()
     }
 
@@ -259,7 +254,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     }
 
     fun schedulePositionUpdate() {
-        if(!currentPositionExecutorService.isShutdown) {
+        if (!currentPositionExecutorService.isShutdown) {
             currentPositionExecutorService.scheduleAtFixedRate(Runnable {
                 currentPositionUpdateHandler.post(updateTask)
             }, 100, 1000, TimeUnit.MILLISECONDS)
@@ -276,11 +271,6 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
             service = (binder as PlayService.LocalBinder).getService()
             Log.d("onServiceConnected", "service: ${service}")
-//            service?.timeHandler = timeHandler
-//            service?.infoHandler = infoHandler
-//            service?.statusHandler = statusHandler
-
-//            service?.createMediaSource(songs)
         }
 
     }
