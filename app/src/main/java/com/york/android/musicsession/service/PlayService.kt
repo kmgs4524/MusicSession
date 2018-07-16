@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.view.notification.PlayerNotificationCreator
-import org.jetbrains.anko.notificationManager
 import java.util.*
 
 
@@ -206,7 +205,7 @@ class PlayService : MediaBrowserServiceCompat() {
         this.songs = songs
         Log.d("PlayService", "createMediaSource songs size: ${songs.size}")
         val dataSourceFactory = DefaultDataSourceFactory(this,
-                Util.getUserAgent(this, "yourApplicationName"), bandwidthMeter)
+                Util.getUserAgent(this, "MusicSession"), bandwidthMeter)
 
         // Prepare the player with the source.
         if (player == null) {
@@ -214,10 +213,11 @@ class PlayService : MediaBrowserServiceCompat() {
             player = ExoPlayerFactory.newSimpleInstance(applicationContext, trackSelector)
             setPlayerListener()
             songs.forEach {
-                var videoSource = ExtractorMediaSource.Factory(dataSourceFactory)
+                var musicSource = ExtractorMediaSource.Factory(dataSourceFactory)
 //                        .setExtractorsFactory(DefaultExtractorsFactory())
                         .createMediaSource(Uri.parse(it.filePath))
-                dynamicConcatenatingMediaSource.addMediaSource(videoSource)
+                Log.d("PlayService", "filePath: ${it.filePath}")
+                dynamicConcatenatingMediaSource.addMediaSource(musicSource)
 //                Log.d("PlayService", "createMediaSource song: ${it.name}")
             }
             Log.d("PlayService", "dynamicConcatenatingMediaSource size: ${dynamicConcatenatingMediaSource.size}")
@@ -252,28 +252,11 @@ class PlayService : MediaBrowserServiceCompat() {
             }
 
             override fun onSeekProcessed() {
-                Log.d("PlayService", "onSeekProcessed currentWindowIndex: ${player?.currentWindowIndex}, periodIndex: ${player?.currentPeriodIndex}")
+
             }
 
             override fun onTracksChanged(trackGroups: TrackGroupArray?, trackSelections: TrackSelectionArray?) {
-//                Log.d("PlayService", "onTracksChanged isClicked: ${isClicked} currentWindowIndex: ${currentWindowIndex}")
-//                if(!isClicked) {
-//                    currentWindowIndex = currentWindowIndex + 1
-//
-//                    Log.d("PlayService", "onTracksChanged duration: ${player?.duration!! / 1000} currentWindowIndex: ${currentWindowIndex}")
-//                    songMetadataBuilder.putLong("DURATION", player?.duration!! / 1000)
-//                    songMetadataBuilder.putString("ARTIST_NAME", songs[currentWindowIndex].artist)
-//                            .putString("SONG_NAME", songs[currentWindowIndex].name)
-//                            .putString("ALBUM_ARTWORK", songs[currentWindowIndex].coverImageUrl)
-//                    mediaSession.setMetadata(songMetadataBuilder.build())
-//
-//                    stateBuilder.setState(PlaybackStateCompat.STATE_PLAYING, player?.currentPosition!!, 1f)
-//                    mediaSession.setPlaybackState(stateBuilder.build())
-//                    Log.d("PlayService", "onTracksChanged currentWindowIndex: ${player?.currentWindowIndex}, periodIndex: ${player?.currentPeriodIndex}")
-//
-//                }
-//
-//                isClicked = false
+
             }
 
             override fun onPlayerError(error: ExoPlaybackException?) {
@@ -281,7 +264,7 @@ class PlayService : MediaBrowserServiceCompat() {
             }
 
             override fun onLoadingChanged(isLoading: Boolean) {
-//                Log.d("PlayService", "onLoadingChanged isLoading: ${isLoading}")
+
             }
 
             // called every time the video changes or "seeks" to the next in the playlist.
@@ -411,8 +394,8 @@ class PlayService : MediaBrowserServiceCompat() {
 
     override fun onDestroy() {
         super.onDestroy()
-        (player as SimpleExoPlayer).release()
         mediaSession.release()
+        player?.release()
     }
 
     inner class LocalBinder : Binder() {
