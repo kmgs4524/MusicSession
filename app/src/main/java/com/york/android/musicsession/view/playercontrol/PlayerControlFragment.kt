@@ -111,7 +111,7 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun setAlbumArtwork(imageUrl: String) {
-        if(imageUrl != "") {
+        if (imageUrl != "") {
             Thread(Runnable {
                 Log.d("setAlbumArtwork", "imageUrl: ${imageUrl}")
                 val bitmap = BitmapCompression.compressBySize(imageUrl, 200, 200)
@@ -171,7 +171,7 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun changeShuffleIconBackground(shuffleMode: Int) {
-        if(shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
+        if (shuffleMode == PlaybackStateCompat.SHUFFLE_MODE_ALL) {
             imageView_playerControl_shuffleMode.backgroundColor = ContextCompat.getColor(activity, R.color.material_grey_600)
         } else {
             imageView_playerControl_shuffleMode.backgroundColor = ContextCompat.getColor(activity, R.color.transparent)
