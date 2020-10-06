@@ -1,6 +1,5 @@
 package com.york.android.musicsession.view.playercontrol
 
-import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.*
@@ -16,30 +15,15 @@ import android.widget.SeekBar
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.bitmap.BitmapCompression
 import com.york.android.musicsession.model.bitmap.BlurBuilder
-import com.york.android.musicsession.model.datafactory.SongFactory
 import com.york.android.musicsession.view.MainActivity
 import kotlinx.android.synthetic.main.fragment_player_control.*
 import org.jetbrains.anko.backgroundColor
 
 
 class PlayerControlFragment : Fragment() {
-    private var mParam1: String? = null
-    private var mParam2: String? = null
-
-    private var mListener: OnFragmentInteractionListener? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (arguments != null) {
-            mParam1 = arguments?.getString(ARG_PARAM1)
-            mParam2 = arguments?.getString(ARG_PARAM2)
-        }
-    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val view = inflater!!.inflate(R.layout.fragment_player_control, container, false)
-
-        return view
+        return inflater.inflate(R.layout.fragment_player_control, container, false)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -67,19 +51,14 @@ class PlayerControlFragment : Fragment() {
         }
 
         seekBar_playerControl.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {}
 
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 Log.d("PlayerControlFragment", "onStopTrackingTouch")
                 (activity as MainActivity).onSeekToPosition(seekBar_playerControl.progress)
             }
-
         })
     }
 
@@ -127,31 +106,31 @@ class PlayerControlFragment : Fragment() {
     }
 
     fun setArtistName(artistName: String) {
-        textView_playerControl_artistName.setText(artistName)
-        textView_playerControl_artistNameTitle.setText(artistName)
+        textView_playerControl_artistName.text = artistName
+        textView_playerControl_artistNameTitle.text = artistName
     }
 
     fun setSongName(songName: String) {
-        textView_playerControl_songName.setText(songName)
-        textView_playerControl_songNameTitle.setText(songName)
+        textView_playerControl_songName.text = songName
+        textView_playerControl_songNameTitle.text = songName
     }
 
     fun setDuration(duration: Int) {
         Log.d("PlayerControlFragment", "duration: ${duration}")
         if (duration % 60 < 10) {
-            textView_playerControl_duration.setText("${duration / 60}:0${duration % 60}")
+            textView_playerControl_duration.text = "${duration / 60}:0${duration % 60}"
         } else {
-            textView_playerControl_duration.setText("${duration / 60}:${duration % 60}")
+            textView_playerControl_duration.text = "${duration / 60}:${duration % 60}"
         }
         seekBar_playerControl.max = duration
     }
 
-    fun setCurrentPostition(currentPosition: Int) {
+    private fun setCurrentPosition(currentPosition: Int) {
         activity.runOnUiThread {
             if (currentPosition % 60 < 10) {
-                textView_playerControl_currentPosition.setText("${currentPosition / 60}:0${currentPosition % 60}")
+                textView_playerControl_currentPosition.text = "${currentPosition / 60}:0${currentPosition % 60}"
             } else {
-                textView_playerControl_currentPosition.setText("${currentPosition / 60}:${currentPosition % 60}")
+                textView_playerControl_currentPosition.text = "${currentPosition / 60}:${currentPosition % 60}"
             }
             seekBar_playerControl.progress = currentPosition
         }
@@ -164,9 +143,9 @@ class PlayerControlFragment : Fragment() {
         Log.d("PlayerControlFragment", "currentPosition: ${currentPosition} timeDelta: ${timeDelta}")
 
         if (playbackState.state == PlaybackStateCompat.STATE_PLAYING) {
-            currentPosition = currentPosition + timeDelta * playbackState.playbackSpeed.toLong()
+            currentPosition += timeDelta * playbackState.playbackSpeed.toLong()
             Log.d("PlayerControlFragment", "currentPosition : ${currentPosition} timeDelta: ${timeDelta} playbackSpeed: ${playbackState.playbackSpeed.toLong()}")
-            setCurrentPostition((currentPosition!! / 1000).toInt())
+            setCurrentPosition((currentPosition!! / 1000).toInt())
         }
     }
 
@@ -176,20 +155,6 @@ class PlayerControlFragment : Fragment() {
         } else {
             imageView_playerControl_shuffleMode.backgroundColor = ContextCompat.getColor(activity, R.color.transparent)
         }
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
     }
 
     interface OnFragmentInteractionListener {
@@ -202,17 +167,9 @@ class PlayerControlFragment : Fragment() {
     }
 
     companion object {
-        private val ARG_PARAM1 = "param1"
-        private val ARG_PARAM2 = "param2"
+        const val PLAY_CONTROL_FRAGMENT = "PLAY_CONTROL_FRAGMENT"
 
-        // TODO: Rename and change types and number of parameters
-        fun newInstance(param1: String, param2: String): PlayerControlFragment {
-            val fragment = PlayerControlFragment()
-            val args = Bundle()
-            args.putString(ARG_PARAM1, param1)
-            args.putString(ARG_PARAM2, param2)
-            fragment.arguments = args
-            return fragment
-        }
+        fun newInstance(): PlayerControlFragment =
+            PlayerControlFragment()
     }
 }

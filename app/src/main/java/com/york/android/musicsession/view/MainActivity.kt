@@ -1,24 +1,20 @@
 package com.york.android.musicsession.view
 
 import android.content.*
-import android.media.browse.MediaBrowser
 import android.net.Uri
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.os.IBinder
 import android.support.annotation.RequiresApi
 import android.support.design.widget.BottomSheetBehavior
 import android.support.transition.ChangeBounds
 import android.support.transition.TransitionManager
 import android.support.v4.app.FragmentManager.POP_BACK_STACK_INCLUSIVE
 import android.support.v4.app.FragmentTransaction
-import android.support.v4.app.NotificationManagerCompat
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
 import android.util.Log
@@ -26,47 +22,26 @@ import android.view.*
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
 import com.york.android.musicsession.service.PlayService
-import com.york.android.musicsession.view.album.AlbumFragment
-import com.york.android.musicsession.view.mymusic.MyMusicFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
-import com.york.android.musicsession.view.albumpage.AlbumPageFragment
-import com.york.android.musicsession.view.artist.ArtistFragment
-import com.york.android.musicsession.view.artistpage.ArtistPageFragment
-import com.york.android.musicsession.view.notification.PlayerNotificationCreator
-import com.york.android.musicsession.view.playlist.PlaylistPageFragment
-import com.york.android.musicsession.view.songpage.SongPageFragment
+import com.york.android.musicsession.view.playercontrol.PlayerControlFragment.Companion.PLAY_CONTROL_FRAGMENT
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.notificationManager
-import timber.log.Timber
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener, LibraryFragment.OnFragmentInteractionListener,
-        SongPageFragment.OnFragmentInteractionListener, AlbumPageFragment.OnFragmentInteractionListener,
-        ArtistPageFragment.OnFragmentInteractionListener, MyMusicFragment.OnFragmentInteractionListener,
-        PlayerControlDialogFragment.Listener, AlbumFragment.OnFragmentInteractionListener,
-        ArtistFragment.OnFragmentInteractionListener, PlaylistPageFragment.OnFragmentInteractionListener {
+class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener,
+        PlayerControlDialogFragment.Listener {
 
-    // service used to play music
-    var service: PlayService? = null
-    // update playback's stateBuilder
-    lateinit var timeHandler: Handler
-    lateinit var infoHandler: Handler
-    lateinit var statusHandler: Handler
+    private var service: PlayService? = null
 
-    // MusicSession framework component
-    val connectionCallback = ConnectionCallback()
-    val subscriptionCallback = SubscriptionCallback()
+    // MediaSession framework component
+    private val connectionCallback = ConnectionCallback()
     val controllerCallback = ControllerCallback()
     lateinit var mediaBrowser: MediaBrowserCompat   // Browses media content offered by a MediaBrowserServiceCompat.
-    lateinit var sessionToken: MediaSessionCompat.Token
     lateinit var controller: MediaControllerCompat
     lateinit var transportControls: MediaControllerCompat.TransportControls
-    // used to bind PlayService
-    lateinit var connection: MusicServiceConnection
 
-    var songs: List<Song> = ArrayList<Song>()
+    var songs: List<Song> = ArrayList()
     var currentWindowIndex = 0
     lateinit var songUri: Uri
 
@@ -74,33 +49,23 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     lateinit var playbackMetadata: MediaMetadataCompat
 
     // updating current position in specified interval needs ExecutorService, Handler
-    val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
-    val currentPositionUpdateHandler = Handler()
-    val updateTask = Runnable {
-        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
-        playerControlFragment.updateCurrentPosition(playbackState)
+    private val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
+    private val currentPositionUpdateHandler = Handler()
+    private val updateTask = Runnable {
+        val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as? PlayerControlFragment
+        playerControlFragment?.updateCurrentPosition(playbackState)
     }
 
     // used to get the MediaController
     inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
-            sessionToken = mediaBrowser.sessionToken
             // MediaController give access to everything.
-            controller = MediaControllerCompat(this@MainActivity, sessionToken)
+            controller = MediaControllerCompat(this@MainActivity, mediaBrowser.sessionToken)
             // MediaController registers mediaSessionCallback to change UI when playback's stateBuilder changes.
             controller.registerCallback(controllerCallback)
             // set created MediaController in order to use it everywhere
             MediaControllerCompat.setMediaController(this@MainActivity, controller)
             transportControls = controller.transportControls
-
-        }
-
-        override fun onConnectionSuspended() {
-            super.onConnectionSuspended()
-        }
-
-        override fun onConnectionFailed() {
-            super.onConnectionFailed()
         }
     }
 
@@ -108,7 +73,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         this.songs = songs
         this.currentWindowIndex = index
         songUri = Uri.parse(songs[index].filePath)
-        Log.d("MainActivity", "setPlaylist songs ${songs} service: ${service}")
+        Log.d("MainActivity", "setPlaylist songs $songs service: $service")
 
         // new version
         // MediaBrowserCompat wraps the API for bound services
@@ -116,7 +81,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         bundle.putParcelableArrayList("SONGS", songs as ArrayList)
         bundle.putInt("CURRENT_WINDOW_INDEX", index)
         transportControls.playFromUri(songUri, bundle)
-        Log.d("playSong", "uri: ${songUri} hashcode: ${bundle.hashCode()} bundle: ${bundle} ")
+        Log.d("playSong", "uri: ${songUri} hashcode: ${bundle.hashCode()} bundle: $bundle ")
     }
 
     fun playMedia(index: Int) {
@@ -149,24 +114,20 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
     override fun onShuffleModeEnable() {
         transportControls.setShuffleMode(controller.shuffleMode)
-        val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+        val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
         Log.d("MainActivity", "shuffleMode: ${controller.shuffleMode}")
         playerControlFragment.changeShuffleIconBackground(controller.shuffleMode)
     }
 
-    val bottomFragment = PlayerControlFragment.newInstance("", "")
-    val myMusicFragment = MyMusicFragment.newInstance("", "")
-    val playlisPageFragment = PlaylistPageFragment.newInstance("", "")
-    val discoverFragment = LibraryFragment.newInstance("", "")
+    private val bottomFragment = PlayerControlFragment.newInstance()
+    private val discoverFragment = LibraryFragment.newInstance()
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_main)
-        setDrawerListener()
         addFragmentInActivity()
-        Timber.d("onCreate test drive")
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -179,54 +140,28 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         return super.onOptionsItemSelected(item)
     }
 
-    fun setDrawerListener() {
-        navigationDrawer_main.setNavigationItemSelectedListener({ item: MenuItem ->
-            val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
-
-            when (item.itemId) {
-                R.id.nav_mymusic -> transition.replace(R.id.constraintLayout_main_mainContainer, myMusicFragment)
-                R.id.nav_playlist -> transition.replace(R.id.constraintLayout_main_mainContainer, playlisPageFragment)
-                R.id.nav_dicover -> transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
-                else -> true
-            }
-            transition.addToBackStack(null)
-            transition.commit()
-
-            drawerLayout_main.closeDrawers()
-            true
-        })
-    }
-
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onStart() {
         super.onStart()
-
         mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, null)
         mediaBrowser.connect()
     }
 
-    fun addFragmentInActivity() {
-        // add content and bottom fragments
-        Log.d("MainActivity", "onStart ")
+    private fun addFragmentInActivity() {
         val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
-
         transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
-        transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, "PLAYER_CONTROL_FRAGMENT")
+        transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, PLAY_CONTROL_FRAGMENT)
         transition.addToBackStack("INITIAL_DISCOVER_FRAGMENT_AND_PLAYER_CONTROL_FRAGMENT")
         transition.commit()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d("MainActivity", "onStop ")
     }
 
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
 
+
         Log.d("MainActivity", "onBackPressed count: ${count}")
-        val success = if (count == 0) {
-            super.onBackPressed()
+        val success = if (count == 1) {
+            finish()
         } else {
             // get top of entry in the back stack
             val topBackStackEntry = supportFragmentManager.getBackStackEntryAt(count - 1)
@@ -249,37 +184,18 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         mediaBrowser.disconnect()
     }
 
-    override fun onFragmentInteraction(uri: Uri) {
-
-    }
-
     fun schedulePositionUpdate() {
         if (!currentPositionExecutorService.isShutdown) {
-            currentPositionExecutorService.scheduleAtFixedRate(Runnable {
+            currentPositionExecutorService.scheduleAtFixedRate({
                 currentPositionUpdateHandler.post(updateTask)
             }, 100, 1000, TimeUnit.MILLISECONDS)
         }
     }
 
-    inner class MusicServiceConnection(var songs: List<Song>, val timeHandler: Handler, val infoHandler: Handler,
-                                       val statusHandler: Handler) : ServiceConnection {
-        override fun onServiceDisconnected(p0: ComponentName?) {
-
-        }
-
-        override fun onServiceConnected(p0: ComponentName?, binder: IBinder?) {
-            Log.d("onServiceConnected", "p0: ${p0}, binder: ${binder}")
-            service = (binder as PlayService.LocalBinder).getService()
-            Log.d("onServiceConnected", "service: ${service}")
-        }
-
-    }
-
     inner class ControllerCallback : MediaControllerCompat.Callback() {
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            super.onPlaybackStateChanged(state)
             // When playback stateBuilder changed, onPlaybackStateChanged shold be called.
-            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+            val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
             Log.d("MainActivity", "onPlaybackStateChanged stateBuilder: ${state?.state!!}")
             playerControlFragment.setPlayIcon(state?.state!!)
             this@MainActivity.playbackState = state
@@ -289,16 +205,13 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         @RequiresApi(Build.VERSION_CODES.O)
         override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
             super.onMetadataChanged(metadata)
-            val playerControlFragment = supportFragmentManager.findFragmentByTag("PLAYER_CONTROL_FRAGMENT") as PlayerControlFragment
+            val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
             playerControlFragment.setAlbumArtwork(metadata?.getString("ALBUM_ARTWORK")!!)
-            playerControlFragment.setBlurBackground(metadata?.getString("ALBUM_ARTWORK")!!)
-            playerControlFragment.setArtistName(metadata?.getString("ARTIST_NAME")!!)
-            playerControlFragment.setSongName(metadata?.getString("SONG_NAME")!!)
-            playerControlFragment.setDuration(metadata?.getLong("DURATION").toInt())
+            playerControlFragment.setBlurBackground(metadata.getString("ALBUM_ARTWORK")!!)
+            playerControlFragment.setArtistName(metadata.getString("ARTIST_NAME")!!)
+            playerControlFragment.setSongName(metadata.getString("SONG_NAME")!!)
+            playerControlFragment.setDuration(metadata.getLong("DURATION").toInt())
             this@MainActivity.playbackMetadata = metadata
         }
     }
-
-    // init the content from service
-    inner class SubscriptionCallback : MediaBrowser.SubscriptionCallback() {}
 }

@@ -31,8 +31,6 @@ class SongPageFragment : Fragment(), SongPageView {
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
-    private var mListener: OnFragmentInteractionListener? = null
-
     private lateinit var presenter: SongPagePresenter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +50,11 @@ class SongPageFragment : Fragment(), SongPageView {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         Log.d("SongPageFragment", "grantResults: ${grantResults}")
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             presenter.onGetSongData()
@@ -82,24 +84,6 @@ class SongPageFragment : Fragment(), SongPageView {
             recyclerView_songs.adapter = SongAdapter(songs, activity)
             recyclerView_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
         }
-    }
-
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
     }
 
     companion object {

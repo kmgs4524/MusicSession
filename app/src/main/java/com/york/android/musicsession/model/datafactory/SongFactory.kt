@@ -92,7 +92,7 @@ class SongFactory(val activity: FragmentActivity) {
     }
 
     // get album artwork of song
-    fun getAlbumArtPath(albumName: String): String {
+    private fun getAlbumArtPath(albumName: String): String {
         var albumCursor = activity.contentResolver.query(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
                 arrayOf(MediaStore.Audio.Albums.ALBUM_ART),
                 MediaStore.Audio.Media.ALBUM + "=?",
