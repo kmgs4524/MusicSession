@@ -1,8 +1,6 @@
 package com.york.android.musicsession.view.artist
 
-import android.content.Context
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -19,7 +17,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import com.squareup.picasso.Picasso
-
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.datafactory.GetArtistImage
 import com.york.android.musicsession.model.bitmap.BlurBuilder
@@ -38,12 +35,11 @@ import org.jetbrains.anko.coroutines.experimental.bg
 class ArtistFragment : Fragment() {
 
     private var paramArtist: Artist? = null
-    private var mListener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (arguments != null) {
-            paramArtist = arguments.getParcelable(ARG_PARAM_ARTIST) as Artist
+            paramArtist = arguments.getParcelable(ARTIST) as Artist
         }
     }
 
@@ -75,7 +71,6 @@ class ArtistFragment : Fragment() {
     fun setArtistName() {
         textView_artist_artistName.setText(paramArtist?.name)
         Log.d("ArtistFragment", "supportActionBar: ${(activity as AppCompatActivity).supportActionBar} title: ${paramArtist?.name}")
-//        (activity as AppCompatActivity).supportActionBar?.setDisplayShowTitleEnabled(true)
         appBarLayout_artist.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
             var scrollRange = -1
             var isShow = false
@@ -102,13 +97,13 @@ class ArtistFragment : Fragment() {
 //        toolbar_artist.title = paramArtist?.name
     }
 
-    fun setArtistImage(imageUrl: String) {
+    private fun setArtistImage(imageUrl: String) {
         Picasso.get()
                 .load(imageUrl)
                 .into(circleImageView_artist_artistImage)
     }
 
-    fun setCollspseBackground(imageUrl: String) {
+    private fun setCollspseBackground(imageUrl: String) {
         async(UI) {
             Log.d("setCollspseBackground", "paramArtist.imageUrl: ${imageUrl}")
             val bitmap = bg { GetBitmapFromUrl().getBitmap(imageUrl) }
@@ -135,7 +130,6 @@ class ArtistFragment : Fragment() {
         val handler = object : Handler() {
             override fun handleMessage(msg: Message?) {
                 val data = msg?.data
-//                Log.d("thread check", "current thread id: ${Thread.currentThread().id}")
                 Log.d("ArtistFragment", "data: ${data}")
                 if (data != null) {
                     Log.d("ArtistFragment", "current position: ${data?.getInt("CURRENT_POSITION")} duration: ${data?.getInt("DURATION")}")
@@ -153,32 +147,14 @@ class ArtistFragment : Fragment() {
         recyclerView_artist_songs.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
     }
 
-    override fun onAttach(context: Context?) {
-        super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            mListener = context
-        } else {
-            throw RuntimeException(context!!.toString() + " must implement OnFragmentInteractionListener")
-        }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
-
-    interface OnFragmentInteractionListener {
-        fun onFragmentInteraction(uri: Uri)
-    }
-
     companion object {
         // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-        private val ARG_PARAM_ARTIST = "paramArtist"
+        private const val ARTIST = "paramArtist"
 
         fun newInstance(param: Artist): ArtistFragment {
             val fragment = ArtistFragment()
             val args = Bundle()
-            args.putParcelable(ARG_PARAM_ARTIST, param)
+            args.putParcelable(ARTIST, param)
             fragment.arguments = args
             return fragment
         }
