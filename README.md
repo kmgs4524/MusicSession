@@ -1,6 +1,8 @@
 # MusicSession
 簡易音樂播放器 APP
 
+![demo_image](https://github.com/kmgs4524/MusicSession/blob/master/musicsession_demo.gif)
+
 ## 使用元件
 *音樂播放*
 * MediaSession
