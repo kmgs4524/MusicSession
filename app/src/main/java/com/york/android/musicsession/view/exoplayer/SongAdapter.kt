@@ -15,10 +15,6 @@ import com.york.android.musicsession.view.MainActivity
  * Created by York on 2018/3/20.
  */
 class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Adapter<SongAdapter.SongItemHolder>() {
-    init {
-        setService(songs)
-        Log.d("onBindViewHolder", "init: setService")
-    }
 
     override fun onBindViewHolder(holder: SongItemHolder?, position: Int) {
         holder?.bind(songs[position])
@@ -26,27 +22,17 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
             Log.d("bind", "position: ${position} song path: ${songs[position].filePath}")
 //            (context as MainActivity).verifyStoragePermission()
             (context as MainActivity).setPlaylist(songs, position)
-            context.playMedia(position)
             context.showBottomPlayerControl()
-//            context.onDisplaySong()
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): SongItemHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.songitem_recyclerview, parent, false)
-        val holder = SongItemHolder(view)
-
-        return holder
+        return SongItemHolder(view)
     }
 
     override fun getItemCount(): Int {
         return songs.size
-    }
-
-    fun setService(songs: List<Song>) {
-//        (context as MainActivity).bindPlayService(songs)
-        Log.d("SongAdapter", "songs ${songs}")
-//        context.setPlaylist(songs)
     }
 
     inner class SongItemHolder(itemView: View?) : RecyclerView.ViewHolder(itemView) {
@@ -56,9 +42,8 @@ class SongAdapter(val songs: List<Song>, val context: Context): RecyclerView.Ada
             // split filename extension
             val tokens = song.name.split(".")
 
-            textViewName.setText(tokens[0])
-            textViewArtist.setText(song.artist)
+            textViewName.text = tokens[0]
+            textViewArtist.text = song.artist
         }
     }
-
 }
