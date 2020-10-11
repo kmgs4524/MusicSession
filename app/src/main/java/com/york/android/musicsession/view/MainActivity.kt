@@ -17,7 +17,6 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.view.GravityCompat
-import android.util.Log
 import android.view.*
 import com.york.android.musicsession.R
 import com.york.android.musicsession.model.data.Song
@@ -26,46 +25,42 @@ import com.york.android.musicsession.view.playercontrol.PlayerControlDialogFragm
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment
 import com.york.android.musicsession.view.playercontrol.PlayerControlFragment.Companion.PLAY_CONTROL_FRAGMENT
 import kotlinx.android.synthetic.main.activity_main.*
+import timber.log.Timber
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentInteractionListener,
         PlayerControlDialogFragment.Listener {
 
+    private val bottomFragment = PlayerControlFragment.newInstance()
+    private val discoverFragment = LibraryFragment.newInstance()
+
     private var service: PlayService? = null
 
     // MediaSession framework component
     private val connectionCallback = ConnectionCallback()
-    val controllerCallback = ControllerCallback()
-    lateinit var mediaBrowser: MediaBrowserCompat   // Browses media content offered by a MediaBrowserServiceCompat.
-    lateinit var controller: MediaControllerCompat
-    lateinit var transportControls: MediaControllerCompat.TransportControls
+    private val controllerCallback = ControllerCallback()
+    private lateinit var playbackState: PlaybackStateCompat
+    private lateinit var playbackMetadata: MediaMetadataCompat
+    private lateinit var mediaBrowser: MediaBrowserCompat
 
-    var songs: List<Song> = ArrayList()
-    var currentWindowIndex = 0
-    lateinit var songUri: Uri
+    private lateinit var songUri: Uri
+    private var songs: List<Song> = ArrayList()
+    private var currentWindowIndex = 0
 
-    lateinit var playbackState: PlaybackStateCompat
-    lateinit var playbackMetadata: MediaMetadataCompat
-
-    // updating current position in specified interval needs ExecutorService, Handler
+    // 使用單一 background thread 定期更新播放的時間軸
     private val currentPositionExecutorService = Executors.newSingleThreadScheduledExecutor()
     private val currentPositionUpdateHandler = Handler()
-    private val updateTask = Runnable {
-        val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as? PlayerControlFragment
-        playerControlFragment?.updateCurrentPosition(playbackState)
-    }
 
     // used to get the MediaController
     inner class ConnectionCallback : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             // MediaController give access to everything.
-            controller = MediaControllerCompat(this@MainActivity, mediaBrowser.sessionToken)
+            val mediaController = MediaControllerCompat(this@MainActivity, mediaBrowser.sessionToken)
             // MediaController registers mediaSessionCallback to change UI when playback's stateBuilder changes.
-            controller.registerCallback(controllerCallback)
+            mediaController.registerCallback(controllerCallback)
             // set created MediaController in order to use it everywhere
-            MediaControllerCompat.setMediaController(this@MainActivity, controller)
-            transportControls = controller.transportControls
+            MediaControllerCompat.setMediaController(this@MainActivity, mediaController)
         }
     }
 
@@ -73,54 +68,65 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         this.songs = songs
         this.currentWindowIndex = index
         songUri = Uri.parse(songs[index].filePath)
-        Log.d("MainActivity", "setPlaylist songs $songs service: $service")
+        Timber.d( "setPlaylist songs $songs service: $service")
 
-        // new version
-        // MediaBrowserCompat wraps the API for bound services
-        val bundle = Bundle()
-        bundle.putParcelableArrayList("SONGS", songs as ArrayList)
-        bundle.putInt("CURRENT_WINDOW_INDEX", index)
-        transportControls.playFromUri(songUri, bundle)
-        Log.d("playSong", "uri: ${songUri} hashcode: ${bundle.hashCode()} bundle: $bundle ")
-    }
+        // 如果正在播放則先暫停，否則播放下一首時會有中斷的雜音
+        val playbackState = MediaControllerCompat.getMediaController(this).playbackState.state
+        if (playbackState == PlaybackStateCompat.STATE_PLAYING) {
+            mediaController.transportControls.pause()
+        }
 
-    fun playMedia(index: Int) {
-        service?.playMediaSource(index)
+        val bundle = Bundle().apply {
+            putParcelableArrayList("SONGS", songs as ArrayList)
+            putInt("CURRENT_WINDOW_INDEX", index)
+        }
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            playFromUri(songUri, bundle)
+        }
+        Timber.d( "uri: $songUri hashcode: ${bundle.hashCode()} bundle: $bundle ")
     }
 
     override fun onDisplaySong() {
-        transportControls.play()
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            play()
+        }
     }
 
     override fun onPauseSong() {
-        transportControls.pause()
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            pause()
+        }
     }
 
     override fun onPlayPrevSong() {
-        transportControls.skipToPrevious()
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            skipToPrevious()
+        }
     }
 
     override fun onPlayNextSong() {
-        transportControls.skipToNext()
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            skipToNext()
+        }
     }
 
     override fun onSeekToPosition(position: Int) {
-        transportControls.seekTo(position.toLong())
+        MediaControllerCompat.getMediaController(this).transportControls.apply {
+            seekTo(position.toLong())
+        }
     }
 
-    override fun onPlayerControlClicked(position: Int) {
-
-    }
+    override fun onPlayerControlClicked(position: Int) {}
 
     override fun onShuffleModeEnable() {
-        transportControls.setShuffleMode(controller.shuffleMode)
-        val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
-        Log.d("MainActivity", "shuffleMode: ${controller.shuffleMode}")
+        MediaControllerCompat.getMediaController(this).apply {
+            transportControls.setShuffleMode(this.shuffleMode)
+        }
+        val controller = MediaControllerCompat.getMediaController(this)
+        val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT)
+            as PlayerControlFragment
         playerControlFragment.changeShuffleIconBackground(controller.shuffleMode)
     }
-
-    private val bottomFragment = PlayerControlFragment.newInstance()
-    private val discoverFragment = LibraryFragment.newInstance()
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -128,6 +134,26 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
 
         setContentView(R.layout.activity_main)
         addFragmentInActivity()
+    }
+
+    private fun addFragmentInActivity() {
+        val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
+        transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
+        transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, PLAY_CONTROL_FRAGMENT)
+        transition.addToBackStack("INITIAL_DISCOVER_FRAGMENT_AND_PLAYER_CONTROL_FRAGMENT")
+        transition.commit()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onStart() {
+        super.onStart()
+        mediaBrowser = MediaBrowserCompat(
+            this,
+            ComponentName(this, PlayService::class.java),
+            connectionCallback,
+            null
+        )
+        mediaBrowser.connect()
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
@@ -140,26 +166,9 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
         return super.onOptionsItemSelected(item)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onStart() {
-        super.onStart()
-        mediaBrowser = MediaBrowserCompat(this, ComponentName(this, PlayService::class.java), connectionCallback, null)
-        mediaBrowser.connect()
-    }
-
-    private fun addFragmentInActivity() {
-        val transition: FragmentTransaction = supportFragmentManager.beginTransaction()
-        transition.replace(R.id.constraintLayout_main_mainContainer, discoverFragment)
-        transition.replace(R.id.frameLayout_main_controlContainer, bottomFragment, PLAY_CONTROL_FRAGMENT)
-        transition.addToBackStack("INITIAL_DISCOVER_FRAGMENT_AND_PLAYER_CONTROL_FRAGMENT")
-        transition.commit()
-    }
-
     override fun onBackPressed() {
         val count = supportFragmentManager.backStackEntryCount
-
-
-        Log.d("MainActivity", "onBackPressed count: ${count}")
+        Timber.d("onBackPressed count: $count")
         val success = if (count == 1) {
             finish()
         } else {
@@ -168,7 +177,7 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
             // pop the last fragment transaction
             supportFragmentManager.popBackStack(topBackStackEntry.name, POP_BACK_STACK_INCLUSIVE)
         }
-        Log.d("MainActivity", "onBackPressed success: ${success}")
+        Timber.d( "onBackPressed success: $success")
     }
 
     fun showBottomPlayerControl() {
@@ -182,35 +191,36 @@ class MainActivity : AppCompatActivity(), PlayerControlFragment.OnFragmentIntera
     override fun onDestroy() {
         super.onDestroy()
         mediaBrowser.disconnect()
+        currentPositionExecutorService.shutdown()
     }
 
-    fun schedulePositionUpdate() {
+    private fun schedulePositionUpdate() {
         if (!currentPositionExecutorService.isShutdown) {
             currentPositionExecutorService.scheduleAtFixedRate({
-                currentPositionUpdateHandler.post(updateTask)
+                currentPositionUpdateHandler.post {
+                    bottomFragment.updateCurrentPosition(playbackState)
+                }
             }, 100, 1000, TimeUnit.MILLISECONDS)
         }
     }
 
     inner class ControllerCallback : MediaControllerCompat.Callback() {
-        override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
-            // When playback stateBuilder changed, onPlaybackStateChanged shold be called.
-            val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
-            Log.d("MainActivity", "onPlaybackStateChanged stateBuilder: ${state?.state!!}")
-            playerControlFragment.setPlayIcon(state?.state!!)
+        override fun onPlaybackStateChanged(state: PlaybackStateCompat) {
+            Timber.d( "onPlaybackStateChanged stateBuilder: ${state.state}")
+            bottomFragment.setPlayIcon(state.state)
             this@MainActivity.playbackState = state
             schedulePositionUpdate()
         }
 
         @RequiresApi(Build.VERSION_CODES.O)
-        override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
-            super.onMetadataChanged(metadata)
-            val playerControlFragment = supportFragmentManager.findFragmentByTag(PLAY_CONTROL_FRAGMENT) as PlayerControlFragment
-            playerControlFragment.setAlbumArtwork(metadata?.getString("ALBUM_ARTWORK")!!)
-            playerControlFragment.setBlurBackground(metadata.getString("ALBUM_ARTWORK")!!)
-            playerControlFragment.setArtistName(metadata.getString("ARTIST_NAME")!!)
-            playerControlFragment.setSongName(metadata.getString("SONG_NAME")!!)
-            playerControlFragment.setDuration(metadata.getLong("DURATION").toInt())
+        override fun onMetadataChanged(metadata: MediaMetadataCompat) {
+            bottomFragment.apply {
+                metadata.getString("ALBUM_ARTWORK")?.let { setAlbumArtwork(it) }
+                metadata.getString("ALBUM_ARTWORK")?.let { setBlurBackground(it) }
+                metadata.getString("ARTIST_NAME")?.let { setArtistName(it) }
+                metadata.getString("SONG_NAME")?.let { setSongName(it) }
+                setDuration(metadata.getLong("DURATION").toInt())
+            }
             this@MainActivity.playbackMetadata = metadata
         }
     }
